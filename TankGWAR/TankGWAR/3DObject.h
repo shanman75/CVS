@@ -9,11 +9,16 @@ class c3DObject
 {
 friend class CObjMgr;
 public:
-	c3DObject(void);
+	c3DObject();
 	virtual ~c3DObject(void);
 	virtual void paint();
 	virtual void move();
-	virtual void accel(D3DXVECTOR3);
+
+	void accel(D3DXVECTOR3);
+  void pos(D3DXVECTOR3);
+  void orient(D3DXVECTOR3);
+  void velocity(D3DXVECTOR3);
+
 protected:
   void c3DObject::MakeWorldMatrix( int x );
 

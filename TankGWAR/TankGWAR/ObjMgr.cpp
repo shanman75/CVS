@@ -5,6 +5,7 @@
 CObjMgr *g_ObjMgr;
 const int CObjMgr::m_numz=3;
 
+
 CObjMgr::CObjMgr(void)
 {
 	OutputDebugString("Object Manager Created\n");
@@ -66,12 +67,16 @@ void CObjMgr::move()
 void CObjMgr::paint()
 {
 	//static char livestr[500];
-	for (int z=m_numz; z >= 0; z--) 
-	  for (int x=0; x < m_numobj; x++)
-		if (m_obj[x] != NULL && m_obj[x]->m_z == z) m_obj[x]->paint();	
-
   for (int y=0; y < m_num3Dobj; y++)
     if (m_3Dobj[y] != NULL) m_3Dobj[y]->paint();
+
+  if (m_numz > 0) {
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+	  for (int z=m_numz; z >= 0; z--) 
+	    for (int x=0; x < m_numobj; x++)
+		    if (m_obj[x] != NULL && m_obj[x]->m_z == z) m_obj[x]->paint();	
+    g_D3DObject->m_pd3dxSprite->End();
+  }
 
 }
 

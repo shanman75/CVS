@@ -1,9 +1,12 @@
 #pragma once
 
+#include "stdafx.h"
 #include "Timer.h"
 #include "World.h"
 #include "Obj.h"
 #include "3DObject.h"
+#include "3DObjectTank.h"
+#include "Camera.h"
 
 class CObjMgr
 {
@@ -25,9 +28,11 @@ public:
 	static const int m_numz;
 
 	int GetNumObj(void) { return m_numobj; }
+  cCamera *GetCurrentCamera(void) { return m_curcamera; }
+  void SetCurrentCamera(cCamera *cam) { if (cam !=NULL) m_curcamera =cam; }
 
 	const static int MAX_OBJECTS = 700;
-	const static int MAX_3DOBJECTS = 50;
+	const static int MAX_3DOBJECTS = 255;
 	const static int MAX_ANIMATE = 20;
 private:
 	CObj       *m_obj[MAX_OBJECTS];
@@ -36,6 +41,7 @@ private:
 	CTimer m_time;
 	CWorld m_world;
 	CTimer m_spawn_tim;
+  cCamera *m_curcamera;  
 };
 
 extern CObjMgr *g_ObjMgr;

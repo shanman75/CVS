@@ -76,13 +76,13 @@ D3DCOLOR randcolor()
 {
 	switch (rand()%3) {
 		case 3:
-			return D3DCOLOR_RGBA(0,0,0,255); break;
+			return D3DCOLOR_RGBA(180,141,3,255); break;
 		case 2:
-			return D3DCOLOR_RGBA(0,0,40,255); break;
+			return D3DCOLOR_RGBA(119,150,108,255); break;
 		case 1:
-			return D3DCOLOR_RGBA(0,0,0,255); break;
+			return D3DCOLOR_RGBA(89,83,60,255); break;
 		default:
-			return D3DCOLOR_RGBA(0,12,99,255); break;
+			return D3DCOLOR_RGBA(90,75,10,255); break;
 	}
 }
 
@@ -109,7 +109,7 @@ void cTerrain::RandomizeMesh(void)
 	  for (int j = 0; j < (TER_Y + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
 		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%50/4)-18;
+		  VertexPtr->y = (float) (rand()%50/10)-5;
 		  VertexPtr->nx = 0;
 		  VertexPtr->ny = 1;
 		  VertexPtr->nz = 0;
@@ -123,23 +123,26 @@ void cTerrain::RandomizeMesh(void)
 	}
 
     for (int i = 0; i < (TER_X); i++)
-	  for (int j = 0; j < (TER_Y); j++) {
-		  
-		  DWORD te = i*(TER_Y+1) + j;
+	    for (int j = 0; j < (TER_Y); j++) {
+  		  
+		    DWORD te = i*(TER_Y+1) + j;
 
-		  *IndexPtr++ = te;
-		  *IndexPtr++ = te+1;
+		    *IndexPtr++ = te;
+		    *IndexPtr++ = te+1;
 
-		  *IndexPtr++ = te + TER_Y + 1;
-		  *IndexPtr++ = te + TER_Y + 2; 
+		    *IndexPtr++ = te + TER_Y + 1;
+		    *IndexPtr++ = te + TER_Y + 2; 
 
-		  *IndexPtr++ = te + TER_Y + 1;
-		  *IndexPtr++ = te + 1;
-    }
+		    *IndexPtr++ = te + TER_Y + 1;
+		    *IndexPtr++ = te + 1;
+      }
 	g_TerrainMesh->UnlockIndexBuffer();
-    g_TerrainMesh->UnlockVertexBuffer();	
+  g_TerrainMesh->UnlockVertexBuffer();	
 
 	D3DXComputeNormals(g_TerrainMesh,NULL);
+  g_TerrainMesh->OptimizeInplace(
+                            D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                            NULL, NULL, NULL, NULL);
 }
 
 cTerrain::~cTerrain(void)

@@ -12,6 +12,11 @@ c3DObject::c3DObject(void)
    m_time.Reset();
 }
 
+void c3DObject::pos     (D3DXVECTOR3 in) {   m_position = in; }
+void c3DObject::accel   (D3DXVECTOR3 in) {   m_accel = in; }
+void c3DObject::velocity(D3DXVECTOR3 in) {   m_velocity = in; }
+void c3DObject::orient  (D3DXVECTOR3 in) {   m_orient   = in; }
+
 c3DObject::~c3DObject(void)
 {
 }
@@ -61,8 +66,9 @@ void c3DObject::paint()
 {
    for (int x = 0; x < (int)m_nMat; x++)  {
      MakeWorldMatrix(x);
-//	   g_D3DObject->m_d3ddevice9->SetTexture(0,m_curtex[x]);
-     g_D3DObject->m_d3ddevice9->SetMaterial( &m_curmat[x] );
+     if (m_curtex)
+	     g_D3DObject->m_d3ddevice9->SetTexture(0,m_curtex[x]);
+     g_D3DObject->m_d3ddevice9->SetMaterial(&m_curmat[x]);
 	   m_curmesh->DrawSubset(x);
    }
 }
@@ -86,8 +92,3 @@ void c3DObject::move()
   OutputDebugString(debg);
   */
 }
-
-void c3DObject::accel(D3DXVECTOR3 accel)
-{
-}
-

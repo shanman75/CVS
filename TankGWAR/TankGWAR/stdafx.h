@@ -18,7 +18,8 @@
 
 #define WIDTH 800
 #define HEIGHT 600
-#define WINDOWED 0
+#define MAX_PLAYERS 45
+#define WINDOWED 1
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }
 #define SAFE_DELETE_ARRAY(p) { if(p) { delete[] (p);   (p)=NULL; } }

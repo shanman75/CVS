@@ -1,5 +1,5 @@
 #pragma once
-//#define DIRECTINPUT_VERSION 0x800
+#define DIRECTINPUT_VERSION 0x800
 #include "Timer.h"
 #include <dinput.h>
 #include "Camera.h"
@@ -20,9 +20,15 @@ public:
 */
 	void GetInput(cCamera *cam);
 	void GetInput(cTerrain *);
+  BOOL KeyDown(BYTE);
+  BOOL MouseDown(DWORD);
 private:
 	IDirectInput8 *m_DInput;
 	IDirectInputDevice8 *m_DIKB;
+  IDirectInputDevice8 *m_DIMO;
+  CTimer m_keytime;
+  CTimer m_mousetime;
+
 };
 
 extern D3DInput *g_D3DInput;

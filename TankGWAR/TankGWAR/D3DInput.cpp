@@ -6,10 +6,14 @@ D3DInput *g_D3DInput;
 #define KEYDOWN(name, key) (name[key] & 0x80) 
 
 D3DInput::D3DInput(void)
-{	
+{
+  HRESULT hr;
+
+  m_keytime.Reset();
 	if (FAILED( DirectInput8Create(g_hInst, DIRECTINPUT_VERSION, 
-        IID_IDirectInput8, (void**)&m_DInput, NULL))) 
+              IID_IDirectInput8, (VOID**)&m_DInput, NULL))) 
 		return;
+
 	if (FAILED( m_DInput->CreateDevice(GUID_SysKeyboard, &m_DIKB, NULL)))
 		return; 
 	if (FAILED( m_DIKB->SetDataFormat(&c_dfDIKeyboard)))
@@ -18,79 +22,114 @@ D3DInput::D3DInput(void)
                             DISCL_FOREGROUND | DISCL_NONEXCLUSIVE)))
 		return;
 
-	  DIPROPDWORD dipdw;
+/*
+  DIPROPDWORD dipdw;
   dipdw.diph.dwSize=sizeof(DIPROPDWORD);
   dipdw.diph.dwHeaderSize=sizeof(DIPROPHEADER);
   dipdw.diph.dwObj=0;
   dipdw.diph.dwHow=DIPH_DEVICE;
   dipdw.dwData=1; //buffer size
-    if(FAILED(m_DIKB->SetProperty(DIPROP_BUFFERSIZE,&dipdw.diph)))
+
+  if(FAILED(m_DIKB->SetProperty(DIPROP_BUFFERSIZE,&dipdw.diph)))
 		return;
-	if (FAILED( m_DIKB->Acquire()))
-		return;
+*/
+
+  if(FAILED(m_DInput->CreateDevice(GUID_SysMouse, &m_DIMO, NULL)))
+    return;
+  if(FAILED(m_DIMO->SetDataFormat(&c_dfDIMouse)))
+    return;
+  if(FAILED(m_DIMO->SetCooperativeLevel(g_hWnd,DISCL_EXCLUSIVE|DISCL_FOREGROUND)))
+    return;
 
 }
 
-void D3DInput::GetInput(cCamera *cam) 
-{ 
+BOOL D3DInput::MouseDown(DWORD button)
+{
+  if (button > 3) return false;
+
+    DIMOUSESTATE dims;
+    HRESULT hr;
  
-    char     buffer[256]; 
-    HRESULT  hr; 
- 
-    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
+    if (m_mousetime.GetTime() > 0) {
+    hr = m_DIMO->GetDeviceState(sizeof(dims),(LPVOID)&dims); 
     if FAILED(hr) 
     { 
-		hr=m_DIKB->Acquire();
-		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
-		return;
+		  hr=m_DIMO->Acquire();
+		  while(hr==DIERR_INPUTLOST)hr=m_DIMO->Acquire(); //try real hard
+      OutputDebugString("Tried to re-acquire mouse\n");
+		  return false;
     } 
+    }
+    /*
+    if (dims.lX) {
+      OutputDebugString("Button down left\n");
+      cam->event(cCamera::LEFT);
+    }
+    if (dims.rgbButtons[0] & 0x80)
+    {
+      OutputDebugString("Button down left\n");
+      cam->event(cCamera::LEFT);
+    }
+    if (dims.rgbButtons[1] & 0x80)
+    {
+      OutputDebugString("Button down right\n");
+      cam->event(cCamera::RIGHT);
+    }
+    */
+    if (dims.rgbButtons[button] & 0x80)
+      return true;
+    return false;
+}
+
+BOOL D3DInput::KeyDown(BYTE check)
+{
+    static char buffer[256]; 
+    HRESULT  hr; 
  
-    if (KEYDOWN(buffer, DIK_LEFT))
-		cam->event(cCamera::LEFT);
-	else if(KEYDOWN(buffer, DIK_RIGHT))
-		cam->event(cCamera::RIGHT);
+    if (m_keytime.GetTime() > 0) {
 
-    if (KEYDOWN(buffer, DIK_UP))
-		cam->event(cCamera::UP);
-	else if(KEYDOWN(buffer, DIK_DOWN))
-		cam->event(cCamera::DOWN);
+      if (FAILED(hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer))) {
+ 		    hr=m_DIKB->Acquire();
+        while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard 
+        OutputDebugString("Tried to re-acquire keyboard\n");
+		    if (FAILED(hr)) return FALSE;
+        m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer);
+      } 
+    }
 
-    if (KEYDOWN(buffer, DIK_A))
-		cam->event(cCamera::ZOOMIN);
-	else if(KEYDOWN(buffer, DIK_Z))
-		cam->event(cCamera::ZOOMOUT);
+    return KEYDOWN(buffer,check);
+}
+void D3DInput::GetInput(cCamera *cam) 
+{  
+    if (KeyDown(DIK_LEFT))
+  		cam->event(cCamera::LEFT);
+  	else if(KeyDown(DIK_RIGHT))
+	  	cam->event(cCamera::RIGHT);
 
+    if (KeyDown(DIK_UP))
+		  cam->event(cCamera::UP);
+	  else if(KeyDown(DIK_DOWN))
+		  cam->event(cCamera::DOWN);
 
-//	if(KEYDOWN(buffer, DIK_X)){
-//		hero->SetSpeed(0,0);
-//		hero->SetAccel(0,0);
-//	}
+    if (KeyDown(DIK_A))
+		  cam->event(cCamera::ZOOMIN);
+	  else if(KeyDown(DIK_Z))
+		  cam->event(cCamera::ZOOMOUT);
 
 }
 void D3DInput::GetInput(cTerrain *ter)
 {
-    char     buffer[256]; 
-    HRESULT  hr; 
- 
-    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
-    if FAILED(hr) 
-    { 
-		hr=m_DIKB->Acquire();
-		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
-		return;
-    } 
 
-	static int keydwn = 0;
+	static int keyup = 0;
 
-	if (KEYDOWN(buffer,DIK_R))
-		keydwn = DIK_R;
+  if (!KeyDown(DIK_R)) {
+		keyup = DIK_R;
+  }
 
-	if (!KEYDOWN(buffer, DIK_R) && keydwn == DIK_R) {
+	if (KeyDown(DIK_R) && keyup == DIK_R) {
 		ter->event(cTerrain::RAND);
-		keydwn  = 0;
+		keyup  = 0;
 	}
-
-
 }
 
 
@@ -252,8 +291,7 @@ void D3DInput::GetInput(CHero2 *hero)
 	}
 }
 */
-
-
+//}
 
 D3DInput::~D3DInput(void)
 {

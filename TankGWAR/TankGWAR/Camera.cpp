@@ -9,7 +9,7 @@ extern cTerrain *terrain;
 cCamera::cCamera(void)
 {
 	m_x = 0;
-	m_y = 18.0f;
+	m_y = 10.0f;
 	m_z = -19.0f;
 
 	m_rotx = 0;
@@ -88,7 +88,7 @@ void cCamera::SetCamera(void)
 	*/
 
     D3DXVECTOR3 vFromPt   = D3DXVECTOR3( m_x, m_y, m_z );
-    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 8.0f, 0.0f );
+    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 3.0f, 0.0f );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );

@@ -123,6 +123,9 @@
 				RelativePath=".\3DObjectMissile.cpp">
 			</File>
 			<File
+				RelativePath=".\3DObjectTank.cpp">
+			</File>
+			<File
 				RelativePath=".\Camera.cpp">
 			</File>
 			<File
@@ -133,6 +136,9 @@
 			</File>
 			<File
 				RelativePath=".\D3DObject.cpp">
+			</File>
+			<File
+				RelativePath=".\GameState.cpp">
 			</File>
 			<File
 				RelativePath=".\MainWnd.cpp">
@@ -198,6 +204,9 @@
 			</File>
 			<File
 				RelativePath=".\D3DObject.h">
+			</File>
+			<File
+				RelativePath=".\GameState.h">
 			</File>
 			<File
 				RelativePath=".\MainWnd.h">

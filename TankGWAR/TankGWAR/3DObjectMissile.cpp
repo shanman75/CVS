@@ -13,7 +13,7 @@ void c3DObjectMissile::move()
 {
   //m_orient.x = sin(m_velocity.y/m_initYvelocity);
   //m_orient.z = cos(m_velocity.y/m_initYvelocity);
-  m_orient.x = -sin(m_velocity.y/m_initYvelocity) * D3DX_PI/2;
+  //m_orient.x = -sin(m_velocity.y/m_initYvelocity) * D3DX_PI/2;
   c3DObject::move();
 }
 
@@ -27,12 +27,9 @@ c3DObjectMissile::c3DObjectMissile(void)
   m_curmat = m_missilemat;
   m_time.Reset();
 
-  m_position = D3DXVECTOR3(0,0,0.0f);
-  m_velocity = D3DXVECTOR3((rand()%80/10)-4,9,5);
-  m_accel    = D3DXVECTOR3(0,-3,0);
-  m_orient   = D3DXVECTOR3(0,0,0);
+//  m_velocity = D3DXVECTOR3((rand()%80/10)-4,9,5);
+//  m_accel    = D3DXVECTOR3(0,-3,0);
 
-  m_initYvelocity = m_velocity.y;
 }
 
 c3DObjectMissile::~c3DObjectMissile(void)
@@ -57,7 +54,7 @@ void c3DObjectMissile::_LoadGraphics()
 	HRESULT hr;
 
   if (FAILED(D3DXLoadMeshFromX(
-     "resource\\scud.X",
+     "resource\\abomb.X",
      D3DXMESH_SYSTEMMEM,
 	 g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,		// LPD3DXBUFFER *ppAdjacency,
@@ -94,16 +91,13 @@ void c3DObjectMissile::_LoadGraphics()
      m_missilemat[x].Ambient.g = 
      m_missilemat[x].Ambient.b = 70;
 */
-     m_missilemat[x].Ambient.r = 
-     m_missilemat[x].Ambient.g = 
-     m_missilemat[x].Ambient.b = 0.3;
-     //m_missilemat[x].Diffuse = m_missilemat[x].Ambient;
-     m_missilemat[x].Specular.r = 
-     m_missilemat[x].Specular.g = 
-     m_missilemat[x].Specular.b = 0.5;
-     //m_missilemat[x].Emissive = m_missilemat[x].Ambient;
+     //m_missilemat[x].Ambient.r = 
+     //m_missilemat[x].Ambient.g = 
+     //m_missilemat[x].Ambient.b = 0.1;
+     //m_missilemat[x].Specular.r = 
+     //m_missilemat[x].Specular.g = 
+     //m_missilemat[x].Specular.b = 0.85;
 
-//     m_missilemat[x].Power = 100.0f;
 	   m_missiletex[x] = NULL;
 	   if (mat[x].pTextureFilename != NULL) {               
 		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
