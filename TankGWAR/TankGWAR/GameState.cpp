@@ -55,6 +55,7 @@ void cGameState::paint(void)
   static char szHeight[255];
 
 
+  if (0) {
   sprintf(szPower,"Pos (%.1f,%.1f,%.1f) Power %.2f\n",
        ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_position.x,
        ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_position.y,
@@ -67,7 +68,7 @@ void cGameState::paint(void)
     ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_barrelHeight
     );
   g_D3DObject->DrawTextStr(50,470,D3DCOLOR_XRGB(240,240,50),szHeight);
-
+  }
 /*
   D3DXVECTOR2 mytrans= D3DXVECTOR2(90,90);
 //  g_D3DObject->m_pd3dxSprite->Begin(D3DXSPRITE_DONOTMODIFY_RENDERSTATE|D3DXSPRITE_DONOTSAVESTATE);
@@ -214,7 +215,7 @@ void cGameState::GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D
 cGameState::cGameState(void)
 {
   m_numplayers=0;
-  m_terrain = new cTerrain(1900,1900,20.0f);
+  m_terrain = new cTerrain(1850,1850,20.0f);
   //m_terrain = new cTerrain(50,50,10.0f);
   m_skybox = new cSkyBox();
   //m_terrain->RandomizeMesh();
@@ -243,8 +244,9 @@ void cGameState::AddPlayer(BOOL human)
     tmpP = new c3DObjectTank();
     t_x = rand()%600-300;
     t_z = rand()%600-300;
-    t_y = m_terrain->GetHeight(t_x,t_z)+3.6f;
-    tmpP->pos(D3DXVECTOR3((float)(rand()%200-100),(float)t_y,(float)(rand()%200-100)));
+    m_terrain->FlattenSquare(t_x,t_z,14.0f);
+    t_y = m_terrain->GetHeight(t_x,t_z)+2.0f;
+    tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
     ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)x);
     m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
     g_ObjMgr->add(m_PlayerState[m_numplayers].object);  

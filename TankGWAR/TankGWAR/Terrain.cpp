@@ -11,26 +11,29 @@ cTerrain::cTerrain(float x,float z,float w)
 
   TER_X = x;  TER_Z = z; 
   TER_WIDTH = w;   // Ignored
-  m_Heights = new float[(TER_X+1)*(TER_Z+1)];
-  for (int x = 0; x < (TER_X+1)*(TER_Z+1); x++)
-    m_Heights[x] = rand()%900/15;
+  m_Heights = new float*[(int)(TER_X+1)];
+  for (int i = 0; i < (TER_X+1); i++) {
+    m_Heights[i] = new float[(int)(TER_Z+1)];
+	for (int j = 0; j < (TER_Z+1); j++)
+       m_Heights[i][j] = (float)((rand()%900)/15);
+  }
   
   // Pass 1
-  for (int t = 1; t < 3; t++)
+  for (int t = 1; t < 2; t++)
   for (int i = 1; i < TER_X-1; i++)
   for (int j = 1; j < TER_Z-1; j++)
-    m_Heights[(i)*(int)TER_X+j] = 
-                   ( m_Heights[(i)*(int)TER_X+j-1] + m_Heights[(i)*(int)TER_X+j] + 
-                     m_Heights[(i)*(int)TER_X+j+1] +0
+    m_Heights[i][j] = 
+                   ( m_Heights[i][j-1] + m_Heights[i][j] + 
+                     m_Heights[i][j+1] +0
                     )/3;
   // Pass 2
-  for (int t = 1; t < 6; t++)
+  for (int t = 1; t < 4; t++)
   for (int i = 1; i < TER_X-1; i++)
   for (int j = 1; j < TER_Z-1; j++)
-    m_Heights[(i)*(int)TER_X+j] = 
+    m_Heights[i][j] = 
                    ( 
-                     m_Heights[(i-1)*(int)TER_X+j] + m_Heights[(i+1)*(int)TER_X+j] +
-                     m_Heights[(i)*(int)TER_X+j+1] +0
+                     m_Heights[i][j] + m_Heights[i+1][j] +
+                     m_Heights[i-1][j] + 0
                     )/3;
 	_Init();
 }
@@ -148,7 +151,7 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->x = (i - (TER_X_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
-      VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
+		  VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
 		  VertexPtr->diffuse = randcolor();
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
@@ -221,7 +224,9 @@ void cTerrain::RandomizeMesh(void)
 cTerrain::~cTerrain(void)
 {
   OnLostDevice();
-  delete [] m_Heights;
+ for (int i = 0; i < (TER_X+1); i++)
+    delete [] m_Heights[i];
+delete [] m_Heights;
 }
 
 void cTerrain::OnLostDevice(void)
@@ -239,9 +244,9 @@ void cTerrain::OnResetDevice(void)
 float cTerrain::GetHeight(float x, float z)
 {
   //return 1;
- x = x + TER_X/2;
- z = z + TER_Z/2;
- if (!(x > 0 && z > 0 && x < (TER_X - 1) && z < (TER_Z-1)))
+ x = x + (TER_X+1)/2;
+ z = z + (TER_Z+1)/2;
+ if (!(x >= 0 && z >= 0 && x < (TER_X) && z < (TER_Z)))
     return 25999.0f;   // Default Value
 
  // Find triangle face
@@ -249,7 +254,7 @@ float cTerrain::GetHeight(float x, float z)
 // float       wt1, wt2, wt3;
  float       dt1, dt2, dt3;
 
- return m_Heights[(int)(floor(x)*TER_Z + floor(z))]; 
+ return m_Heights[(int)floor(x)][(int)floor(z)]; 
 
  pt1 = D3DXVECTOR3(floor(x),0,floor(z));
  pt3 = D3DXVECTOR3(pt1.x+1,0,pt1.z+1);
@@ -259,9 +264,9 @@ float cTerrain::GetHeight(float x, float z)
  else
     pt2 = D3DXVECTOR3(pt1.x,  0,pt1.z+1);
 
- pt1.y = m_Heights[(int)(pt1.x*TER_Z + pt1.z)]; 
- pt2.y = m_Heights[(int)(pt2.x*TER_Z + pt2.z)]; 
- pt3.y = m_Heights[(int)(pt3.x*TER_Z + pt3.z)]; 
+// pt1.y = m_Heights[(int)(pt1.x*TER_Z + pt1.z)]; 
+// pt2.y = m_Heights[(int)(pt2.x*TER_Z + pt2.z)]; 
+// pt3.y = m_Heights[(int)(pt3.x*TER_Z + pt3.z)]; 
 
  dt1 = sqrt((pt1.x-x)*(pt1.x-x) + (pt1.z-z)*(pt1.z-z));
  dt2 = sqrt((pt2.x-x)*(pt2.x-x) + (pt2.z-z)*(pt2.z-z));
@@ -273,10 +278,48 @@ float cTerrain::GetHeight(float x, float z)
 
 void cTerrain::SetHeight(float x, float z, float y)
 {
-  return;
- x = x/(TER_WIDTH) + TER_X/2;
- z = z/(TER_WIDTH) + TER_Z/2;
+ x = x + (TER_X+1)/2;
+ z = z + (TER_Z+1)/2;
 
- if (x > 0 && z > 0 && x < TER_X && z < TER_Z)
-    m_Heights[(int)(x* TER_Z + z)] = y;
+ if (x >= 0 && z >= 0 && x < (TER_X) && z < (TER_Z))
+    m_Heights[(int)(floor(x))][(int)(floor(z))] = y;
+}
+
+void cTerrain::FlattenSquare(float x, float z, float sz)
+{
+//	return;
+  // Get Average
+  sz = fabs(sz);
+  int cntr = 0;
+  float yval = 0;
+  for (float i = (x-sz); i < (x+sz); i++)
+    for (float j = z-sz; j < (z+sz); j++)
+    {
+      yval += GetHeight(i,j);
+      cntr++;
+    }
+  if (cntr == 0) return;
+  yval = yval / cntr;
+  for (float i = (x-sz); i < (x+sz); i++)
+    for (float j = (z-sz); j < (z+sz); j++)
+      SetHeight(i,j,yval);
+
+  RandomizeMesh();
+}
+
+void cTerrain::FlattenSphere(float x, float z, float radius)
+{
+  int cntr = 0;
+  float yval = 0;
+  for (int i = x-radius; i < x+radius; i++)
+    for (int j = z-radius; j < z+radius; j++)
+    {
+      yval = GetHeight(i,j);
+      if (sqrt((x-i)*(x-i)-(z-j)*(z-j)) < radius) 
+      {
+        yval -= radius - sqrt((x-i)*(x-i)-(z-j)*(z-j));
+        SetHeight(i,j,yval);
+      }
+    }
+  RandomizeMesh();
 }

@@ -32,7 +32,7 @@ void cCameraBehindMissile::SetCamera()
     D3DXVECTOR3 vFromPt, vLookatPt, vTemp;
     //vFromPt   = D3DXVECTOR3( tpos.x - cos(tor.y)*8, tpos.y+sin(tor.x)*12, tpos.z - sin(tor.y)*8 );
 
-    float tsta = 4.0f;
+//    float tsta = 4.0f;
     vFromPt   = D3DXVECTOR3( tpos.x + sin(-tor.y)*cos(tor.x)*2, 
                              tpos.y +            sin(tor.x)*2, 
                              tpos.z + cos(-tor.y)*cos(tor.x)*2 

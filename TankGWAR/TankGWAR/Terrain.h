@@ -11,8 +11,8 @@
 #define TER_Z_BIG 14
 #define TER_WIDTH_BIG 800.0f
 
-#define TER_X_SMALL 220
-#define TER_Z_SMALL 220
+#define TER_X_SMALL 170
+#define TER_Z_SMALL 170
 #define TER_WIDTH_SMALL 7.0f
 
 // DEFINES
@@ -40,13 +40,16 @@ public:
 	float GetHeight(float x, float y);
   void SetHeight(float x, float z, float y);
 
+  void FlattenSquare(float x, float z, float sz);
+  void FlattenSphere(float x, float z, float radius);
+
   void OnLostDevice(void);
   void OnResetDevice(void);
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;
 	ID3DXMesh *g_TerrainMeshBig;
-	float *m_Heights;
+	float **m_Heights;
 
   float TER_X, TER_Z;
   float TER_WIDTH;

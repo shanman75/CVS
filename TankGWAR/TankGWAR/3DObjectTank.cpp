@@ -125,9 +125,9 @@ void c3DObjectTank::event(enum EVENT evnt)
     case RIGHT:
       m_turretRotate+=0.0006f*m_time.PeekTime(); break;
     case PWRUP:
-      m_firePower+=0.05f*m_time.PeekTime(); break;
+      m_firePower+=0.1f*m_time.PeekTime(); break;
     case PWRDN:
-      m_firePower-=0.05f*m_time.PeekTime(); break;
+      m_firePower-=0.1f*m_time.PeekTime(); break;
     default:
       break;
   }
@@ -139,7 +139,7 @@ void c3DObjectTank::event(enum EVENT evnt)
   if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
 
   if (m_firePower < 1.2f) m_firePower = 1.2f;
-  if (m_firePower > 250) m_firePower = 250;
+  if (m_firePower > 999) m_firePower = 999;
 }
 void c3DObjectTank::_LoadGraphics()
 {
@@ -259,8 +259,8 @@ c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
   OutputDebugString(debg);
 
   objadd = new c3DObjectMissile();
-  objadd->accel   (D3DXVECTOR3(0.0f,-12.8f,0.0f));
-  objadd->velocity(tVelocity * m_firePower);
+  objadd->accel   (D3DXVECTOR3(0.0f,-25.8f,0.0f));
+  objadd->velocity(tVelocity * m_firePower/4);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);
