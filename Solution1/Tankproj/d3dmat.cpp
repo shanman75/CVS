@@ -39,8 +39,8 @@ void SetViewMatrix(float x=0,float y=0,bool cameraontanks=true)
   D3DXVECTOR3 vEyePt; //camera position
   D3DXVECTOR3 vLookatPt; //camera view vector
   D3DXMATRIXA16 matView; //view matrix
-  vEyePt=D3DXVECTOR3(320,0,-320);
-  vLookatPt=D3DXVECTOR3(320,240,-320);
+  vEyePt=D3DXVECTOR3(0,333,1000);
+  vLookatPt=D3DXVECTOR3(640,480,-640);
   D3DXMatrixLookAtRH(&matView,&vEyePt,&vLookatPt,&vUpVec); //compute view matrix
   d3ddevice->SetTransform(D3DTS_VIEW,&matView); //set it
 } //SetViewMatrix
@@ -126,9 +126,9 @@ void LoadSB()
     posx[1].p=D3DXVECTOR3(w,h,-w);
     posx[1].tu=1.0f; posx[1].tv=0.0f;
     posx[2].p=D3DXVECTOR3(w,0,0);
-    posx[2].tu=1.0f; posx[2].tv=1.0f;
+    posx[2].tu=0.0f; posx[2].tv=1.0f;
     posx[3].p=D3DXVECTOR3(w,0,-w);
-    posx[3].tu=0.0f; posx[3].tv=1.0f;
+    posx[3].tu=1.0f; posx[3].tv=1.0f;
     sbposx->Unlock();
   }  //if
 
@@ -136,9 +136,9 @@ void LoadSB()
   { //lock buffer
     //vertex information, first triangle in clockwise order
     negz[0].p=D3DXVECTOR3(0,h,-w); 
-    negz[0].tu=0.0f; negz[0].tv=0.0f;
+    negz[0].tu=1.0f; negz[0].tv=0.0f;
     negz[1].p=D3DXVECTOR3(w,h,-w);
-    negz[1].tu=1.0f; negz[1].tv=0.0f;
+    negz[1].tu=0.0f; negz[1].tv=0.0f;
     negz[2].p=D3DXVECTOR3(0,0,-w);
     negz[2].tu=1.0f; negz[2].tv=1.0f;
     negz[3].p=D3DXVECTOR3(w,0,-w);
@@ -154,9 +154,9 @@ void LoadSB()
     posz[1].p=D3DXVECTOR3(w,h,0);
     posz[1].tu=1.0f; posz[1].tv=0.0f;
     posz[2].p=D3DXVECTOR3(0,0,0);
-    posz[2].tu=1.0f; posz[2].tv=1.0f;
+    posz[2].tu=0.0f; posz[2].tv=1.0f;
     posz[3].p=D3DXVECTOR3(w,0,0);
-    posz[3].tu=0.0f; posz[3].tv=1.0f;
+    posz[3].tu=1.0f; posz[3].tv=1.0f;
     sbposz->Unlock();
   }
 
