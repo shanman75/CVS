@@ -9,7 +9,7 @@
 class CTexture
 {
 public:
-	CTexture(char *filename, D3DCOLOR colorkey=0, RECT *srect = NULL);
+	CTexture(char *filename, D3DCOLOR colorkey=0, RECT *srect = NULL, int maxw =128, int maxh = 128);
 	~CTexture(void);
 	void Paint (RECT *,D3DXVECTOR2 *);
 	void Paint (D3DXVECTOR2 *);
@@ -23,6 +23,6 @@ private:
 	IDirect3DTexture8 **m_textures;
 	D3DXIMAGE_INFO m_texinfo;
 	char *m_filename;
-	static int m_maxw;
-	static int m_maxh;
+	int m_maxw;
+	int m_maxh;
 };

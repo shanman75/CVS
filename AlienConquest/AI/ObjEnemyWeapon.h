@@ -1,13 +1,14 @@
 #pragma once
 #include "obj.h"
 #include "Texture.h"
+#include "Sound.h"
 
 class CObjEnemyWeapon :
 	public CObj
 {
 public:
 	CObjEnemyWeapon(void);
-	~CObjEnemyWeapon(void);
+	virtual ~CObjEnemyWeapon(void);
 protected:
 	virtual void paint();
 	void _LoadGraphics();
@@ -19,4 +20,6 @@ protected:
 
 	int m_fir_seq;
 	CTimer m_ani_time;
+	static CSound *m_regsnd;
+	static int m_snd_played;
 };

@@ -18,6 +18,12 @@ CObj::CObj(void)
 	m_boundrectnum = 0;
 	m_state = REGULAR;
 	m_type = NOTHING;
+	m_stayonscr = FALSE;
+	m_playernum = 1;
+}
+
+CObj::~CObj(void)
+{
 }
 
 void CObj::paint(void)
@@ -31,11 +37,16 @@ void CObj::paint(void)
 	tex.x = m_curtexture->GetWidth();
 	tex.y = m_curtexture->GetHeight();
 
-	if (SUCCEEDED(m_world.ToScreen(&pnt,&tex))) {
+	if (m_world.ToScreen(&pnt,&tex)) {
+		//OutputDebugString("Object is on the screen\n");
 		if (m_curtexture)
 			m_curtexture->Paint(&pnt);
 	}
-	else { OutputDebugString("Object is OFF THE SCREEN\n"); }
+	else if (m_world.IsWayLeft(&pnt,&tex)) {
+		OutputDebugString("Object is off the screen, AND way left\n");
+		this->m_state = DEAD;
+	}
+	else { OutputDebugString("Object is OFF THE SCREEN BUT NOT WAY LEFT\n"); }
 }
 
 void CObj::move(void)
@@ -52,7 +63,7 @@ void CObj::move(void)
 
 	// Calculate Distance
 	float dlt_x = (float)(m_speed_x*tm + 0.5*m_accel_x*tm*tm);
-	float dlt_y = (float)(m_speed_y*tm + 0.5*m_accel_x*tm*tm);
+	float dlt_y = (float)(m_speed_y*tm + 0.5*m_accel_y*tm*tm);
 	// sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
 	// m_dpos_x, m_dpos_y
 	// OutputDebugString(buff);
@@ -81,6 +92,15 @@ void CObj::move(void)
 
 	if (fabs(m_speed_x) > m_max_x) m_accel_x=0;
 	if (fabs(m_speed_y) > m_max_y) m_accel_y=0;
+
+	if (m_stayonscr) {
+		// Keep object on the screen
+		if (m_curtexture)
+		m_dpos_x = m_world.CullX(m_dpos_x,m_curtexture->GetWidth());
+	}
+
+	if (m_curtexture)
+		m_dpos_y = m_world.CullY(m_dpos_y,m_curtexture->GetHeight());
 }
 
 void CObj::SetSpeed(float xspeed,float yspeed)
@@ -107,19 +127,21 @@ void CObj::accel(float xdelta, float ydelta)
   m_accel_y+=ydelta;
 }
 
+LPRECT CObj::m_tr_x;
+LPRECT CObj::m_tr_y;
+
 BOOL CObj::TestRect(const RECT *cmp1, const POINT ptx, const RECT *cmp2, const POINT pty)
 {
-  LPRECT x = new RECT;
-  LPRECT y = new RECT;
+  if (!m_tr_x) m_tr_x = new RECT;
+  if (!m_tr_y) m_tr_y = new RECT;
+  
+  CopyRect(m_tr_x,cmp1);
+  CopyRect(m_tr_y,cmp2);
+  OffsetRect(m_tr_x,ptx.x,ptx.y);
+  OffsetRect(m_tr_y,pty.x,pty.y);
 
-  CopyRect(x,cmp1);
-  CopyRect(y,cmp2);
-  OffsetRect(x,ptx.x,ptx.y);
-  OffsetRect(y,pty.x,pty.y);
-
-
-  if (x->left > y->right || y->left > x->right ||
-	  x->top > y->bottom || y->top > x->bottom )
+  if (m_tr_x->left > m_tr_y->right || m_tr_y->left > m_tr_x->right ||
+	  m_tr_x->top > m_tr_y->bottom || m_tr_y->top > m_tr_x->bottom )
 	  return FALSE;
   else
 	  return TRUE;
@@ -141,7 +163,7 @@ BOOL CObj::CollisionDet(CObj *colobj)
 
 void CObj::Collision(CObj *colwith)
 {
-	OutputDebugString("COLLISION!");
+	OutputDebugString("COLLISION!\n");
 	m_state = DEAD;
 }
 

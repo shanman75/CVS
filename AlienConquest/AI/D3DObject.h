@@ -48,6 +48,8 @@ protected:
 	D3DPRESENT_PARAMETERS m_d3dpp;
 	D3DCAPS8 m_d3dcps;
 	int _InitD3D8(void);
+	int _InitFonts(void);
+
 	IDirect3DSurface8* m_pBackgroundSurface;
 	IDirect3DTexture8* m_pVidmemTex1;
 	D3DDISPLAYMODE curmode; //current mode under consideration
@@ -56,6 +58,8 @@ protected:
 	LPD3DXSPRITE m_pd3dxSprite;
 	HRESULT RenderText();
 	CTimer m_timer;
+	static BOOL m_initfonts;
+	LPD3DXFONT pFont;
 
 public:
 	BOOL D3DObject::DeviceLost();

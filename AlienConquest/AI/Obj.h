@@ -9,7 +9,7 @@ class CObj
 friend class CObjMgr;
 public:
 	CObj(void);
-	//~CObj(void);
+	virtual ~CObj(void);
 	virtual void paint();
 	virtual void move();
 	virtual void accel(float xdelta, float ydelta);
@@ -20,8 +20,8 @@ public:
 	virtual void Collision(CObj *colwith);
 	static BOOL TestRect(const RECT *x, const POINT, const RECT *y, const POINT);
 
-	enum STATE { REGULAR, FIRING, DYING, DEAD, JETTING };
-	enum OTYPE { NOTHING, HERO, HEROWEAPON, ENEMY, ENEMYWEAPON };
+	enum STATE { REGULAR, FIRING, DYING, DEAD, JETTING, GHOST };
+	enum OTYPE { NOTHING, HERO, HEROWEAPON, HEROINVINCIBLE, ENEMY, ENEMYWEAPON };
 
 	BOOL CanCollide(OTYPE, OTYPE);
 
@@ -37,10 +37,14 @@ protected:
 	STATE m_state;
 	int m_z;						// Defines the plane to be drawn on
 	CTexture *m_curtexture;			// Current frame to paint
-	const RECT *m_boundrects;			// Array of bounding rectangles
+	RECT *m_boundrects;				// Array of bounding rectangles
 	int m_boundrectnum;				// Boundrect number
 	long m_age;						// Age of object (-1 = perm, any other value is ms)
 	CTimer m_age_timer;				// Age timer
     OTYPE m_type;
 	CWorld m_world;
+	BOOL m_stayonscr;				// Stay on the screen?
+	int m_playernum;
+
+	static LPRECT m_tr_x, m_tr_y;
 };

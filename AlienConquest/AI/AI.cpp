@@ -6,12 +6,14 @@
 #include "D3DObject.h"
 #include "D3DInput.h"
 #include "Texture.h"
-#include "ObjMgr.h"
+#include "objmgr.h"
 #include "dmusic.h"
+#include "text.h"
 
 #include "Timer.h"
 #include <stdio.h>
 
+enum EN_PHASE{ GAME_PHASE=1, TITLE_PHASE, CREDIT_PHASE, MENU_PHASE, LOADING_PHASE };
 
 #define MAX_LOADSTRING 100
 
@@ -23,7 +25,19 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
 CTimer g_Time;
 CTimer g_FireClock;
+CTimer g_PhaseTimer;
 CMidiMusic *g_Midi;
+CObj *g_preload[255];							// Array of preloaded objects
+CHero *g_hero;
+CObjBmp *g_ScrBmp;
+int g_preload_num;								// Number of preloads
+EN_PHASE g_phase=GAME_PHASE;
+
+void Init_Level(int levelnum);
+void Init_Midi(void);
+void Cleanup_Level(int levelnum);
+void Display_Bitmap(char *bmpname, int numsec);
+void Process_Phase(void);
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -51,86 +65,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return FALSE;
 	}
 
-	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
-
-	/*
-#define NUM_ENEMY1 1
-#define NUM_ENEMY2 1
-#define NUM_ENEMY3 1
-
-	CObjEnemy  *enemy1[NUM_ENEMY1];
-	CObjEnemy2 *enemy2[NUM_ENEMY2];
-	CObjEnemy3 *enemy3[NUM_ENEMY3];
-
-	srand(GetTickCount());
-	for (int x= 0; x<NUM_ENEMY1;x++) {
-	enemy1[x] = new CObjEnemy;
-	enemy1[x]->SetSpeed(3,4);
-	enemy1[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-//	enemy1[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
-	g_ObjMgr->add(enemy1[x]);
-	}
-	for (int x= 0; x<NUM_ENEMY2;x++) {
-		enemy2[x] = new CObjEnemy2;
-		enemy2[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
-		enemy2[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-//		enemy2[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
-		g_ObjMgr->add(enemy2[x]);
-	}
-	for (int x= 0; x<NUM_ENEMY3;x++) {
-		enemy3[x] = new CObjEnemy3;
-		enemy3[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
-		enemy3[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-//		enemy3[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
-		g_ObjMgr->add(enemy3[x]);
-	}
-*/
-	CBkGround *bkg=new CBkGround;
-	g_ObjMgr->add(bkg);
-	CHero *hero;
-	hero = new CHero;
-	hero->SetPosition(50,50);
-	g_ObjMgr->add(hero);
+//	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
 
 
-	// Main message loop:
-	int m_cnt = 0;
-	int zf = 4;
-
-	g_Midi = new CMidiMusic;
-	g_Midi->Initialize(TRUE);
-	DWORD dwcount;
-	INFOPORT Info; // INFOPORT structure to store port information 
-	BOOL bSelected;
-
-	dwcount=0;
-	bSelected=FALSE;
-	
-	 // Port enumeration  phase 
-	 // It is necessary to supply a port counter 
-	while (g_Midi->PortEnumeration(dwcount,&Info)==S_OK)
-	{
-		// Ensure it is an output hardware device
-		if (Info.dwClass==DMUS_PC_OUTPUTCLASS) 
-		{
-			if (!((Info.dwFlags & DMUS_PC_SOFTWARESYNTH) || bSelected))
-			{
-				// Select the enumerated port 
-				g_Midi->SelectPort(&Info);
-				bSelected=TRUE;
-			}
-		}
-	
-	dwcount++;  // It is necessary
-	}
-
-	 // Read the file and specify if it is a mid file or not 
-	g_Midi->LoadMidiFromFile("resource/Doctor Who 5.mid",FALSE);
-//	g_Midi->LoadMidiFromFile("c:/windows/media/town.mid",FALSE);
-	 // Play the file
-	g_Midi->Play();
-	g_Midi->Stop();
-	g_Midi->SetRepeat(TRUE);
+	Init_Midi();
+	g_phase=CREDIT_PHASE;
+	g_ScrBmp = new CObjBmp("resource/credits.bmp");
+    g_Time.UpdateClock();
+	g_PhaseTimer.Reset();
+	g_Midi->LoadMidiFromFile("resource/peanuts.mid",FALSE);
 	g_Midi->Play();
 
 	while(TRUE)
@@ -141,21 +84,18 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
        }
 	   else if (ActiveApp) 
 	   {
-			g_D3DInput->GetInput(hero);			
-		    g_Time.UpdateClock();
-			g_ObjMgr->spawn();
-			g_ObjMgr->coldet();
-			g_ObjMgr->move();
-			// Collision detection
-		    g_D3DObject->BeginPaint();
-			g_ObjMgr->paint();
-			g_D3DObject->PaintText();
-			g_D3DObject->EndPaint();
+		   Process_Phase();
 	   }
-	   else WaitMessage();
-	 //WaitMessage(); //process frame
+	   else {
+		   g_Midi->Pause();
+		   g_Time.Pause();
+		   WaitMessage();
+		   g_Time.TogglePause();
+		   g_Midi->Resume();
+	   }
 
 	 // Stop it
+ 
 	g_Midi->Stop();
 	return (int) msg.wParam;
 }
@@ -229,6 +169,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
    SetFocus(hWnd);
    g_D3DObject = new D3DObject;
+   if (g_D3DObject == NULL) return FALSE;
    g_D3DInput = new D3DInput;
    g_ObjMgr = new CObjMgr;
 
@@ -273,24 +214,6 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	}
 	return 0L;
 }
-/*
-	case WM_COMMAND:
-		wmId    = LOWORD(wParam); 
-		wmEvent = HIWORD(wParam); 
-		// Parse the menu selections:
-		switch (wmId)
-		{
-		case IDM_ABOUT:
-			DialogBox(hInst, (LPCTSTR)IDD_ABOUTBOX, hWnd, (DLGPROC)About);
-			break;
-		case IDM_EXIT:
-			DestroyWindow(hWnd);
-			break;
-		default:
-			return DefWindowProc(hWnd, message, wParam, lParam);
-		}
-		break;
-*/
 
 // Message handler for about box.
 LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
@@ -309,4 +232,151 @@ LRESULT CALLBACK About(HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	}
 	return FALSE;
+}
+
+
+void Init_Level (int levelnum)
+{
+	// Preload graphics .. there is only one level....
+
+	Cleanup_Level(1);
+	switch (levelnum) {
+		case 1:
+			g_preload[g_preload_num++] = new CObjEnemy;
+			g_preload[g_preload_num++] = new CObjEnemyWeapon;				   
+			g_preload[g_preload_num++] = new CObjEnemy2;
+			g_preload[g_preload_num++] = new CObjEnemyWeapon2;
+			g_preload[g_preload_num++] = new CObjEnemy3;
+			g_preload[g_preload_num++] = new CObjEnemyWeapon3;
+			g_preload[g_preload_num++] = new CHero;
+			g_preload[g_preload_num++] = new CObjHeroWeaponMain;
+			g_preload[g_preload_num++] = new CObjHeroWeaponMissile;
+			g_preload[g_preload_num++] = new CBkGround;
+
+			break;
+		default:
+			break;
+	}
+}
+
+void Start_Level(int levelnum)
+{
+	// Actually start the level...
+	switch (levelnum) {
+		case 1:
+			// Midi for level 1
+			delete g_ObjMgr; g_ObjMgr = new CObjMgr;
+//			g_ObjMgr->reset();
+			g_Midi->LoadMidiFromFile("resource/Doctor Who 5.mid",FALSE);
+		//	g_Midi->LoadMidiFromFile("c:/windows/media/town.mid",FALSE);
+			// Play the file
+			g_Midi->Play();
+			g_Midi->Stop();
+			g_Midi->SetRepeat(TRUE);
+			g_Midi->Play();
+
+			g_ObjMgr->add(new CBkGround);
+			g_hero = new CHero;
+			g_hero->SetPosition(150,150);
+			g_ObjMgr->add(g_hero);
+			break;
+		default:
+			break;
+	}
+}
+
+void Cleanup_Level(int levelnum)
+{
+   while (g_preload_num > 0)
+   {
+	   delete g_preload[--g_preload_num];
+	   g_preload[g_preload_num] = NULL;
+   }
+}
+
+void Display_Bitmap(char *bmpname, int numsec)
+{
+
+}
+
+void Init_Midi(void)
+{
+	g_Midi = new CMidiMusic;
+	g_Midi->Initialize(TRUE);
+	DWORD dwcount;
+	INFOPORT Info; // INFOPORT structure to store port information 
+	BOOL bSelected;
+
+	dwcount=0;
+	bSelected=FALSE;
+	 // Port enumeration  phase 
+	 // It is necessary to supply a port counter 
+	while (g_Midi->PortEnumeration(dwcount,&Info)==S_OK)
+	{
+		// Ensure it is an output hardware device
+		if (Info.dwClass==DMUS_PC_OUTPUTCLASS) 
+		{
+			if (!((Info.dwFlags & DMUS_PC_SOFTWARESYNTH) || bSelected))
+			{
+				// Select the enumerated port 
+				g_Midi->SelectPort(&Info);
+				bSelected=TRUE;
+			}
+		}
+	
+	dwcount++;  // It is necessary
+	}
+}
+
+void Process_Phase(void)
+{
+    g_Time.UpdateClock();
+	switch (g_phase)
+	{
+	case CREDIT_PHASE:
+			g_D3DInput->GetInput(g_ScrBmp);					 
+			if (g_PhaseTimer.PeekTime() > 6000 || g_ScrBmp->done())
+			{
+				delete g_ScrBmp;
+				g_ScrBmp = new CObjBmp("resource/title.bmp");
+				g_phase=TITLE_PHASE;
+				g_PhaseTimer.Reset();
+			}
+			else {
+				g_D3DObject->BeginPaint();
+				g_ScrBmp->paint();
+				g_D3DObject->EndPaint();		
+			}
+			break;
+	case TITLE_PHASE:
+			g_D3DInput->GetInput(g_ScrBmp);					 
+			if (g_PhaseTimer.PeekTime() > 6000 || g_ScrBmp->done())
+			{
+				delete g_ScrBmp;
+				g_phase=GAME_PHASE;
+				Init_Level(1);
+				Start_Level(1);
+				g_PhaseTimer.Reset();
+			} 
+			else {
+				g_D3DObject->BeginPaint();
+				g_ScrBmp->paint();
+				g_D3DObject->EndPaint();		
+			}
+			break;
+	case GAME_PHASE:
+			g_D3DInput->GetInput(g_hero);			
+			g_ObjMgr->spawn();
+			g_ObjMgr->coldet();
+			g_ObjMgr->move();
+			// Collision detection
+		    g_D3DObject->BeginPaint();
+			g_ObjMgr->paint();
+			g_D3DObject->PaintText();
+			g_D3DObject->EndPaint();
+			break;
+	default:
+		break;
+	}
+
 }

@@ -35,6 +35,7 @@ CObjEnemyWeapon3::CObjEnemyWeapon3(void)
 CObjEnemyWeapon3::~CObjEnemyWeapon3(void)
 {
 	if (!--m_graph_init) _UnloadGraphics();
+	delete []m_boundrects;
 }
 
 void CObjEnemyWeapon3::_LoadGraphics()
@@ -43,7 +44,6 @@ void CObjEnemyWeapon3::_LoadGraphics()
    SetRect(&trect,157,103,195,118);
    OutputDebugString("Loading Cenemy weapon graphics\n");
    m_regular[0] = new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
-   m_graph_init = 1;
 }
 
 void CObjEnemyWeapon3::_UnloadGraphics()

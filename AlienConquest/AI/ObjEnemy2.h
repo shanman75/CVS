@@ -8,7 +8,7 @@ class CObjEnemy2 :
 {
 public:
 	CObjEnemy2(void);
-	~CObjEnemy2(void);
+	virtual ~CObjEnemy2(void);
 	void Fire();
 	void Jet();
 	void move();
@@ -31,4 +31,5 @@ private:
 	float m_org_max_x;
 	CTimer m_ani_time;
 	CTimer m_fire_time;
+	CTimer m_jet_time;
 };

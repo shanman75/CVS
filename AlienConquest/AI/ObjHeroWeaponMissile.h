@@ -7,7 +7,7 @@ class CObjHeroWeaponMissile :
 {
 public:
 	CObjHeroWeaponMissile(void);
-	~CObjHeroWeaponMissile(void);
+	virtual ~CObjHeroWeaponMissile(void);
 protected:
 	virtual void paint();
 	void _LoadGraphics();

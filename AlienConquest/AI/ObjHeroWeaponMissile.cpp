@@ -20,7 +20,7 @@ CObjHeroWeaponMissile::CObjHeroWeaponMissile(void)
 {
 	CObj();
 	if (!m_graph_init++) _LoadGraphics();
-	m_max_x=400;
+	m_max_x=450;
 	m_age=2400;
 	m_max_y=0;
 	m_z = 2;
@@ -33,7 +33,8 @@ CObjHeroWeaponMissile::CObjHeroWeaponMissile(void)
 CObjHeroWeaponMissile::~CObjHeroWeaponMissile(void)
 {
 	if (!--m_graph_init) {_UnloadGraphics();}
-	if (m_boundrects) delete []m_boundrects;
+	delete []m_boundrects;
+	OutputDebugString("HeroWeaponMissileDelete\n");
 }
 
 void CObjHeroWeaponMissile::_LoadGraphics()
@@ -42,7 +43,6 @@ void CObjHeroWeaponMissile::_LoadGraphics()
    SetRect(&trect,132,88,149,95);
    OutputDebugString("Loading Hero weapon - missile graphics\n");
    m_regular[0] = new CTexture("resource/missledum.bmp",0xFFFF00FF,NULL);
-   m_graph_init = 1;
 }
 
 void CObjHeroWeaponMissile::_UnloadGraphics()

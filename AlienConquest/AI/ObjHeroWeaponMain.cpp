@@ -33,7 +33,7 @@ CObjHeroWeaponMain::CObjHeroWeaponMain(void)
 CObjHeroWeaponMain::~CObjHeroWeaponMain(void)
 {
 	if (!--m_graph_init) {_UnloadGraphics();}
-	//if (m_boundrects) delete []m_boundrects;
+	delete []m_boundrects;
 }
 
 void CObjHeroWeaponMain::_LoadGraphics()
@@ -42,10 +42,15 @@ void CObjHeroWeaponMain::_LoadGraphics()
    SetRect(&trect,132,88,149,95);
    OutputDebugString("Loading Hero weapon graphics\n");
    m_regular[0] = new CTexture("resource/machingundum.bmp",0xFFFF00FF,NULL);
-   m_graph_init = 1;
 }
 
 void CObjHeroWeaponMain::_UnloadGraphics()
 {
 	delete m_regular[0];
+}
+
+void CObjHeroWeaponMain::Collision(CObj *colwith)
+{
+	CObj::Collision(colwith);
+	g_ObjMgr->Score(100,m_playernum);
 }

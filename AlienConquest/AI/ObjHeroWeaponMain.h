@@ -1,5 +1,6 @@
 #pragma once
 #include "obj.h"
+#include "objmgr.h"
 #include "Texture.h"
 
 class CObjHeroWeaponMain :
@@ -7,7 +8,8 @@ class CObjHeroWeaponMain :
 {
 public:
 	CObjHeroWeaponMain(void);
-	~CObjHeroWeaponMain(void);
+	virtual ~CObjHeroWeaponMain(void);
+	virtual void Collision(CObj *colwith);
 protected:
 	virtual void paint();
 	void _LoadGraphics();

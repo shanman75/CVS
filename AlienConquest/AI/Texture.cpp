@@ -3,9 +3,6 @@
 #include <math.h>
 #include <stdio.h>
 
-int CTexture::m_maxw = 64;
-int CTexture::m_maxh = 64;
-
 void CTexture::OnLostDevice()
 {
 //  _DestroyTextures();
@@ -20,16 +17,19 @@ void CTexture::UpdateDeviceCaps()
    if (h < m_maxh) m_maxh = h;
 }
 
-CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
+CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int maxh)
 {
 	IDirect3DSurface8 *surf;
 	D3DSURFACE_DESC tdesc;
-	char buff[250];
+	//char buff[250];
+
+	m_maxw = maxw;
+	m_maxh = maxh;
 
 	m_filename = strdup(filename);
 
-	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
-	OutputDebugString(buff);
+	//sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
+	//OutputDebugString(buff);
 	UpdateDeviceCaps();
 
 	D3DXIMAGE_INFO info;

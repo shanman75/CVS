@@ -2,8 +2,11 @@
 #include "d3dobject.h"
 #include "stdio.h"
 #include "objmgr.h"
+#include "text.h"
 
 D3DObject *g_D3DObject;							// Main D3D Object
+BOOL D3DObject::m_initfonts;
+//CText m_text;
 
 D3DObject::D3DObject(void)
 : m_d3d8(NULL)
@@ -25,11 +28,14 @@ D3DObject::~D3DObject(void)
   SafeRelease(m_d3dbackbuffer8);
   SafeRelease(m_d3ddevice8);
   SafeRelease(m_d3d8);
+  SafeRelease(pFont);
 }
 
 int D3DObject::_InitD3D8(void)
 {
 //  HRESULT retval;
+
+  pFont = NULL;
 
   if ((m_d3d8=Direct3DCreate8(D3D_SDK_VERSION)) ==NULL) return FALSE;
 
@@ -48,7 +54,7 @@ int D3DObject::_InitD3D8(void)
   m_d3dpp.BackBufferWidth=curmode.Width; //width
   m_d3dpp.BackBufferHeight=curmode.Height; //height
   m_d3dpp.BackBufferFormat=curmode.Format; //color mode
-  m_d3dpp.BackBufferCount=1; //one back buffer
+  m_d3dpp.BackBufferCount=2; //one back buffer
   m_d3dpp.MultiSampleType=D3DMULTISAMPLE_NONE;
 //  m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
   m_d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
@@ -165,11 +171,11 @@ int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf, D3DCO
 int D3DObject::CopyRects(IDirect3DSurface8* pSourceSurface,CONST RECT* pSourceRectsArray,UINT cRects,
 				  IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray)
 {
-	char buff[500];
+	//char buff[500];
 
-	sprintf(buff,"D3DObject::CopyRects- (%i,%i,%i,%i)\n",pSourceRectsArray[0].left,pSourceRectsArray[0].right,
-														pSourceRectsArray[0].top,pSourceRectsArray[0].bottom);
-	OutputDebugString(buff);
+	//sprintf(buff,"D3DObject::CopyRects- (%i,%i,%i,%i)\n",pSourceRectsArray[0].left,pSourceRectsArray[0].right,
+	//													pSourceRectsArray[0].top,pSourceRectsArray[0].bottom);
+	//OutputDebugString(buff);
 	return m_d3ddevice8->CopyRects(pSourceSurface,pSourceRectsArray,cRects,
 				  pDestinationSurface, pDestPointsArray);
 }
@@ -221,33 +227,41 @@ int D3DObject::LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3D
 int D3DObject::PaintText ()
 {
 //  OutputDebugString("D3DObject::Test - begin\n"); 
+
 	static float newfps = 30;
 	static float fps = 30;
 	if (m_timer.PeekTime() > 1000) 
 	{
-		fps=newfps/m_timer.GetTime()*1000;
+		m_timer.Reset();
+		fps=newfps;
+			///m_timer.GetTime()*1000;
 		newfps=0;
 	}
 	newfps++;
 
-	char *outstr2 = new char[500];
+/*
+	static D3DXVECTOR2 pnt (150,300);
+
+	static char outstr2[500];
 	sprintf(outstr2,"FPS = %.2f NUM Objects=%i\n",fps,g_ObjMgr->GetNumObj());
-	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
-	delete outstr2;
+	m_text.DrawString(outstr2,pnt);
+	*/
+	//if (text) text->DrawScore(5000,pnt);
+//	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
+//	delete outstr2;
 
   //}
 return D3D_OK;
 }
 
+int D3DObject::_InitFonts() {
 
-int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
-{
 	HRESULT hr;
 	LOGFONT fn;
 
 	memset(&fn,0,sizeof(LOGFONT));
-	strcpy (fn.lfFaceName,"Arial Black");
-	fn.lfHeight = 50;
+	strcpy (fn.lfFaceName,"DROSS2.TTF");
+	fn.lfHeight = 48;
 	fn.lfWeight = 200;
 	fn.lfCharSet = DEFAULT_CHARSET;
 
@@ -255,13 +269,20 @@ int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
 	//HFONT hFont = (HFONT)GetStockObject(SYSTEM_FONT);
 	HFONT hFont = (HFONT) CreateFontIndirect(&fn);
 
-	LPD3DXFONT pFont = NULL;
+	pFont = NULL;
 
 	// Create the D3DX Font
 	hr = D3DXCreateFont(m_d3ddevice8, hFont, &pFont);
 	if(FAILED(hr))
 		return FALSE;
+	m_initfonts=TRUE;
+	return TRUE;
+}
 
+int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
+{
+
+	if (!m_initfonts) _InitFonts();
 	// Rectangle where the text will be located
 	RECT TextRect = { x, y, 0, 0 };
 
@@ -276,7 +297,7 @@ int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
 
 	// Finish up drawing
 	pFont->End();
-	pFont->Release();
+	return TRUE;
 }
 
 void D3DObject::BlitRect(LPDIRECT3DTEXTURE8 lpSrc,

@@ -8,7 +8,7 @@ class CBkGround :
 {
 public:
 	CBkGround(void);
-	~CBkGround(void);
+	virtual ~CBkGround(void);
 private:
 	virtual void paint();
 	void _LoadGraphics();

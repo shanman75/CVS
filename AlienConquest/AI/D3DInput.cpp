@@ -2,6 +2,7 @@
 #include "d3dinput.h"
 
 D3DInput *g_D3DInput;
+#define KEYDOWN(name, key) (name[key] & 0x80) 
 
 D3DInput::D3DInput(void)
 {	
@@ -29,9 +30,26 @@ D3DInput::D3DInput(void)
 
 }
 
+void D3DInput::GetInput(CObjBmp *bmp)
+{
+    char     buffer[256]; 
+    HRESULT  hr; 
+ 
+    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
+    if FAILED(hr) 
+    { 
+		hr=m_DIKB->Acquire();
+		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
+		return;
+    } 
+ 
+	if (KEYDOWN(buffer, DIK_SPACE) || KEYDOWN(buffer,DIK_ESCAPE)) {
+		bmp->event(CObjBmp::FIRE);
+	}
+}
+
 void D3DInput::GetInput(CHero *hero) 
 { 
-    #define KEYDOWN(name, key) (name[key] & 0x80) 
  
     char     buffer[256]; 
     HRESULT  hr; 
@@ -62,11 +80,19 @@ void D3DInput::GetInput(CHero *hero)
 		hero->event(CHero::FIRE);
 	}
 
-	if (KEYDOWN(buffer, DIK_PAUSE)) {
+	static int pausek = 0;
+
+	if (KEYDOWN(buffer, DIK_PAUSE) || KEYDOWN(buffer, DIK_P)) {
 		OutputDebugString("Pause\n");
+		CTimer t_time;
+		if (!pausek)
+			t_time.TogglePause();
 //		CTimer t_time;
 //		t_time.ToggleTimer();
+		pausek = 1;
 	}
+	else
+		pausek = 0;
 } 
 
 D3DInput::~D3DInput(void)

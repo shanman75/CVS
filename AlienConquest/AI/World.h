@@ -10,6 +10,18 @@ public:
 	~CWorld(void);
 	void move (void);
 	BOOL ToScreen (D3DXVECTOR2 *pnt, D3DXVECTOR2 *tex);
+	float CullX(float in, float width) {
+							if (in < m_cur_x) return m_cur_x;
+							else if (in+width > m_cur_x+m_scr_width) return m_cur_x+m_scr_width-width;
+							else return in;
+						   }
+	float CullY(float in, float height) {
+							if (in < m_cur_y) return m_cur_y;
+							else if (in+height > m_cur_y+m_scr_height) return m_cur_y+m_scr_height-height;
+							else return in;
+						   }
+	BOOL IsWayLeft(D3DXVECTOR2 *p, D3DXVECTOR2 *t);
+	float GetCurXEdge(void) { return m_cur_x+m_scr_width; }
 
 private:
 

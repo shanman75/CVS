@@ -8,7 +8,7 @@ class CObjEnemy3 :
 {
 public:
 	CObjEnemy3(void);
-	~CObjEnemy3(void);
+	virtual ~CObjEnemy3(void);
 	void Fire();
 private:
 	virtual void paint();

@@ -7,7 +7,7 @@ class CObjEnemyWeapon3 :
 {
 public:
 	CObjEnemyWeapon3(void);
-	~CObjEnemyWeapon3(void);
+	virtual ~CObjEnemyWeapon3(void);
 protected:
 	virtual void paint();
 	void _LoadGraphics();

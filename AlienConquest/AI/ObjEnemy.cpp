@@ -27,7 +27,7 @@ CObjEnemy::CObjEnemy(void)
 CObjEnemy::~CObjEnemy(void)
 {
 	if (!--m_graph_init) _UnloadGraphics();
-	if (m_boundrects) delete []m_boundrects;
+	delete []m_boundrects;
 }
 
 void CObjEnemy::paint()
@@ -36,7 +36,7 @@ void CObjEnemy::paint()
 	switch (m_state) {
 		case FIRING:
 			m_curtexture = m_firing[m_fir_seq];
-			if (m_fir_seq >= 4) m_state = REGULAR;
+			if (m_fir_seq >= 1) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 45) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
@@ -44,6 +44,7 @@ void CObjEnemy::paint()
 			m_curtexture = m_regular[0];
 			break;
 	};
+	m_curtexture = m_regular[0];
 	CObj::paint();
 }
 
@@ -52,6 +53,7 @@ void CObjEnemy::Fire()
 	if (m_state != FIRING) {
 		m_state = FIRING;
 		m_fir_seq = 0;
+
 		CObjEnemyWeapon *bull = new CObjEnemyWeapon;
 		bull->SetPosition(m_dpos_x+12,m_dpos_y+47);
 		bull->SetSpeed(-350,0);
@@ -78,7 +80,6 @@ void CObjEnemy::_LoadGraphics()
 	   trect.right = trect.left +130;
 	   m_firing[x]=new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
    }
-   m_graph_init = 1;
 }
 
 void CObjEnemy::_UnloadGraphics()

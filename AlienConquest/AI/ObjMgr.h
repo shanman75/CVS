@@ -2,14 +2,19 @@
 
 #include "Timer.h"
 #include "World.h"
+#include "Text.h"
 #include "Obj.h"
 #include "Hero.h"
 #include "BkGround.h"
 #include "ObjEnemy.h"
 #include "ObjEnemy2.h"
 #include "ObjEnemy3.h"
+#include "ObjEnemyWeapon.h"
+#include "ObjEnemyWeapon2.h"
+#include "ObjEnemyWeapon3.h"
 #include "ObjHeroWeaponMain.h"
 #include "ObjHeroWeaponMissile.h"
+#include "ObjBmp.h"
 
 class CObjMgr
 {
@@ -23,7 +28,9 @@ public:
 	void add(CObj *);
 	void del(CObj *);
 	void spawn(void);
+	void reset(void);
 	static const int m_numz;
+	void Score(int numtoscore, int playernum);
 
 	int GetNumObj(void) { return m_numobj; }
 
@@ -39,6 +46,11 @@ private:
 	int m_spawn_interval;
 
 	void spawnOne(void);
+	int m_player1_score;
+	D3DXVECTOR2 m_player1_scorexy;
+
+	static char CObjMgr::m_scoreline[500];
+	CText m_D3DText;
 };
 
 extern CObjMgr *g_ObjMgr;

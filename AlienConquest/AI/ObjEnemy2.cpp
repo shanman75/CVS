@@ -11,19 +11,19 @@ CTexture *CObjEnemy2::m_jetting[4];
 
 void CObjEnemy2::move(void)
 {
-	CObj::move();
+	float cur_spd_x;
+	if (m_state == JETTING) { cur_spd_x = m_speed_x; m_speed_x = -250; CObj::move(); m_speed_x=cur_spd_x;  }
+	else CObj::move();
 }
 
 CObjEnemy2::CObjEnemy2(void)
 {
 	CObj();
+
 	if (!m_graph_init++) _LoadGraphics();
-	m_pos_x = 200;
-	m_pos_y = 200;
 	m_state = REGULAR;
 	m_max_x= m_org_max_x = 120;
 	m_max_y=50;
-	m_time.GetTime();
 	m_type = ENEMY;
 
 	m_boundrectnum = 4;
@@ -38,6 +38,7 @@ CObjEnemy2::CObjEnemy2(void)
 CObjEnemy2::~CObjEnemy2(void)
 {
 	if(!--m_graph_init)_UnloadGraphics();
+	delete []m_boundrects;
 }
 
 void CObjEnemy2::paint()
@@ -47,11 +48,12 @@ void CObjEnemy2::paint()
 	pnt.y = m_dpos_y;
 
 	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1300)) { m_fire_time.Reset(); Fire(); }
+	if (m_state == REGULAR && (m_jet_time.PeekTime() > 1500)) { m_jet_time.Reset(); Jet(); }
 
 	switch (m_state) {
 		case JETTING:
 			m_curtexture = m_jetting[m_jet_seq%4];
-			if (m_jet_seq >= 4*4) m_state = REGULAR;
+			if (m_jet_seq >= 10) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 120) { m_jet_seq++; m_ani_time.Reset(); }
 			break;
 		case FIRING:
@@ -74,9 +76,9 @@ void CObjEnemy2::Jet()
 		m_state = JETTING;
 		m_jet_seq = 0;
 		// Save the previous accel and speed for jettin!
-		m_jet_spd_x = m_speed_x;
-		m_jet_accel_x = m_accel_x;
-		accel(-55,0);
+		//m_jet_spd_x = m_speed_x;
+		//m_jet_accel_x = m_accel_x;
+		//accel(-55,0);
 	}
 }
 void CObjEnemy2::Fire()
@@ -98,19 +100,20 @@ void CObjEnemy2::_LoadGraphics()
    SetRect(&trect,1,1,126,97);
    OutputDebugString("Loading Cenemy2 graphics\n");
    m_regular[0] = new CTexture("resource/enemyhead2.bmp",0xFFFF00FF,&trect);
-   SetRect(&trect,1,195,126,291);
+//   SetRect(&trect,1,195,126,291);
+   SetRect(&trect,1,1,126,97);
    for (int x=0; x < 3; x++) {
 	   trect.left=x*126+1;
 	   trect.right = trect.left +125;
-	   m_firing[x]=new CTexture("resource/enemyhead2.bmp",0xFFFF00FF,&trect);
+	   m_firing[x]=new CTexture("resource/enemyhead2firing.bmp",0xFFFF00FF,&trect);
    }
-   SetRect(&trect,1,98,126,194);
+//   SetRect(&trect,1,98,126,194);
+   SetRect(&trect,1,1,126,97);
    for (int x=0; x < 4; x++) {
 	   trect.left=x*126+1;
 	   trect.right = trect.left +125;
-	   m_jetting[x]=new CTexture("resource/enemyhead2.bmp",0xFFFF00FF,&trect);
+	   m_jetting[x]=new CTexture("resource/enemyhead2moving.bmp",0xFFFF00FF,&trect);
    }
-   m_graph_init = 1;
 }
 
 void CObjEnemy2::_UnloadGraphics()

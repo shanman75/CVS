@@ -72,10 +72,10 @@
 				StringPooling="TRUE"
 				RuntimeLibrary="4"
 				EnableFunctionLevelLinking="TRUE"
-				UsePrecompiledHeader="3"
+				UsePrecompiledHeader="2"
 				WarningLevel="3"
-				Detect64BitPortabilityProblems="TRUE"
-				DebugInformationFormat="3"/>
+				Detect64BitPortabilityProblems="FALSE"
+				DebugInformationFormat="0"/>
 			<Tool
 				Name="VCCustomBuildTool"/>
 			<Tool
@@ -130,6 +130,9 @@
 				RelativePath="Obj.cpp">
 			</File>
 			<File
+				RelativePath="ObjBmp.cpp">
+			</File>
+			<File
 				RelativePath="ObjEnemy.cpp">
 			</File>
 			<File
@@ -155,6 +158,12 @@
 			</File>
 			<File
 				RelativePath="ObjMgr.cpp">
+			</File>
+			<File
+				RelativePath="Sound.cpp">
+			</File>
+			<File
+				RelativePath="Text.cpp">
 			</File>
 			<File
 				RelativePath="Texture.cpp">
@@ -209,6 +218,9 @@
 				RelativePath="Obj.h">
 			</File>
 			<File
+				RelativePath="ObjBmp.h">
+			</File>
+			<File
 				RelativePath="ObjEnemy.h">
 			</File>
 			<File
@@ -230,10 +242,19 @@
 				RelativePath="ObjHeroWeaponMain.h">
 			</File>
 			<File
+				RelativePath="ObjHeroWeaponMissile.h">
+			</File>
+			<File
 				RelativePath="ObjMgr.h">
 			</File>
 			<File
 				RelativePath="Resource.h">
+			</File>
+			<File
+				RelativePath="Sound.h">
+			</File>
+			<File
+				RelativePath="Text.h">
 			</File>
 			<File
 				RelativePath="Texture.h">

@@ -19,8 +19,8 @@ CBkGround::~CBkGround(void)
 void CBkGround::_LoadGraphics(void)
 {
    OutputDebugString("Loading Background graphics\n");
-   m_regular[0] = new CTexture("resource/farsky.png",0xFFFF00FF);
-   m_regular[1] = new CTexture("resource/middleground.png",0xFFFF00FF);
+   m_regular[0] = new CTexture("resource/farsky.png",0xFFFF00FF,NULL,256,256);
+   m_regular[1] = new CTexture("resource/middleground.png",0xFFFF00FF,NULL,256,256);
    m_regular[2] = new CTexture("resource/water.png",0xFFFF00FF);
 }
 
