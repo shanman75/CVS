@@ -17,6 +17,7 @@ struct st_PlayerState {
 class cGameState
 {
 public:
+  enum STATES { MENU,PRELEVEL,TURN,FIRING,POSTLEVEL };
   cGameState(void);
   ~cGameState(void);
   void GetInput();
@@ -31,6 +32,7 @@ private:
      int m_numplayers;
      int m_currentplayer;
      cCamera *m_curcamera;
+     enum STATES m_gstate;
 
 };
 

@@ -70,7 +70,7 @@ void CObjMgr::paint()
     if (m_3Dobj[y] != NULL) m_3Dobj[y]->paint();
 
   if (m_numz > 0) {
-    g_D3DObject->m_pd3dxSprite->Begin(0);
+    g_D3DObject->m_pd3dxSprite->Begin(D3DXSPRITE_DONOTMODIFY_RENDERSTATE|D3DXSPRITE_DONOTSAVESTATE);
 	  for (int z=m_numz; z >= 0; z--) 
 	    for (int x=0; x < m_numobj; x++)
 		    if (m_obj[x] != NULL && m_obj[x]->m_z == z) m_obj[x]->paint();	

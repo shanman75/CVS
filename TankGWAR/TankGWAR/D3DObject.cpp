@@ -12,10 +12,11 @@ BOOL D3DObject::m_initfonts;
 
 D3DObject::D3DObject(void) : m_d3d9(NULL), 
                              m_d3ddevice9(NULL),
-							 m_d3dbackbuffer9(NULL),
+//							 m_d3dbackbuffer9(NULL),
 							 m_pBackgroundSurface(NULL),
 							 m_cnt(0)
 {
+    m_numTextures=0;
    _InitD3D9();
 }
 
@@ -26,7 +27,7 @@ D3DObject::~D3DObject(void)
   m_d3ddevice9->ShowCursor(TRUE);
   ShowCursor(TRUE);
   SafeRelease(m_pBackgroundSurface);
-  SafeRelease(m_d3dbackbuffer9);
+  //SafeRelease(m_d3dbackbuffer9);
   SafeRelease(m_d3ddevice9);
   SafeRelease(m_d3d9);
   SafeRelease(pFont);
@@ -40,26 +41,25 @@ int D3DObject::_InitD3D9(void)
 
   if ((m_d3d9=Direct3DCreate9(D3D_SDK_VERSION)) ==NULL) return FALSE;
 
-//  if (m_d3d8->CheckDeviceType(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,
   ZeroMemory (&m_d3dpp,sizeof(D3DPRESENT_PARAMETERS)); //null it out
 
   curmode.Height = 0;
-  curmode.Width = 0;
+  curmode.Width  = 0;
   int m = 0;
 
   while (!(curmode.Width == WIDTH || curmode.Height == HEIGHT))
   {
     D3DFORMAT dfmt;
-	dfmt = D3DFMT_X8R8G8B8;
+	  dfmt = D3DFMT_X8R8G8B8;
 	
-	if (FAILED(m_d3d9->EnumAdapterModes(D3DADAPTER_DEFAULT,dfmt,m++,&curmode)))
+	  if (FAILED(m_d3d9->EnumAdapterModes(D3DADAPTER_DEFAULT,dfmt,m++,&curmode)))
 		exit(1);
   }
 
   m_d3dpp.BackBufferWidth=curmode.Width; //width
   m_d3dpp.BackBufferHeight=curmode.Height; //height
   m_d3dpp.BackBufferFormat=curmode.Format; //color mode
-  m_d3dpp.BackBufferCount=2; //one back buffer
+  m_d3dpp.BackBufferCount=1; //one back buffer
   m_d3dpp.MultiSampleType=D3DMULTISAMPLE_NONE;
   m_d3dpp.MultiSampleQuality = 0;
   m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
@@ -68,54 +68,85 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=false; //full screen
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
- // m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-
+//  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
   m_d3dpp.EnableAutoDepthStencil=true; //not needed
   m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
-  m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
+  //m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
   m_d3dpp.Flags = 0;
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
 
 
   if (WINDOWED) {  
-  m_d3dpp.Windowed = true;
-  m_d3dpp.hDeviceWindow = g_hWnd;
-  m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
-  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-  m_d3dpp.BackBufferCount = 1;
-  m_d3dpp.FullScreen_RefreshRateInHz = 0;
-  SetWindowPos(
-			g_hWnd,
-			NULL,
-			0,
-			0,
-			700,
-			500,
-			SWP_NOZORDER | SWP_SHOWWINDOW
-		);
+    m_d3dpp.Windowed = true;
+    m_d3dpp.hDeviceWindow = g_hWnd;
+    m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
+    m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+    m_d3dpp.BackBufferCount = 1;
+    m_d3dpp.FullScreen_RefreshRateInHz = 0;
+    SetWindowPos(
+			  g_hWnd,
+			  NULL,
+			  0,
+			  0,
+			  700,
+			  500,
+			  SWP_NOZORDER | SWP_SHOWWINDOW
+		  );
+    m_d3dpp.BackBufferWidth=700; //width
+    m_d3dpp.BackBufferHeight=500; //height
   }
-
-/*
-if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
-	  D3DCREATE_SOFTWARE_VERTEXPROCESSING,&m_d3dpp,&m_d3ddevice8) != D3D_OK)
-	  return FALSE;
-*/
   if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
-					       D3DDEVTYPE_HAL,
-	                       g_hWnd,
+  			       D3DDEVTYPE_HAL,
+               g_hWnd,
+						   D3DCREATE_FPU_PRESERVE | D3DCREATE_HARDWARE_VERTEXPROCESSING,
+						   &m_d3dpp,
+						   &m_d3ddevice9
+						  ) != D3D_OK)
+      if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
+  			       D3DDEVTYPE_HAL,
+               g_hWnd,
 						   D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 						   &m_d3dpp,
 						   &m_d3ddevice9
 						  ) != D3D_OK)
-	  return FALSE;
+      {
+            MessageBox(NULL,"Could not create Direct3D9 Device","Unknown error creating device",MB_OK);
+	          exit(1);
+      }
 
+  DefaultRenderState();
+  m_d3ddevice9->GetDeviceCaps(&m_d3dcps);
+  int immed = 0, intrvl = 0;
+
+  if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
+    immed = 1;
+  if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_ONE)
+    intrvl = 1;
+  if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_TWO)
+    intrvl = 2;
+  if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_THREE)
+    intrvl = 3;
+  if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_FOUR)
+    intrvl = 4;
+
+  D3DXCreateSprite(m_d3ddevice9,&m_pd3dxSprite);
+
+  char outstr[5000];
+  sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",m_d3dcps.MaxTextureHeight,m_d3dcps.MaxTextureWidth);
+  OutputDebugString(outstr);
+  return TRUE;
+}
+
+void D3DObject::DefaultRenderState()
+{
   m_d3ddevice9->SetRenderState ( D3DRS_ZENABLE, D3DZB_TRUE);
   //m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
   m_d3ddevice9->SetRenderState ( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 
-  //m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
-  //m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
-  //m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+  m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
+  m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
 //m_d3ddevice9->SetRenderState(D3DRS_FOGENABLE, 1);
 //m_d3ddevice9->SetRenderState(D3DRS_FOGCOLOR, D3DCOLOR_ARGB(50,250,250,250));
@@ -123,11 +154,10 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 //m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, *(DWORD*)(&fogNear));
 
 
-  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_XRGB(200,200,200));
+  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(200,200,200,255));
 
   //m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
-  
 
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
@@ -147,20 +177,39 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
 
 
-  if (m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9) != D3D_OK) {
-    m_d3dbackbuffer9=NULL; return FALSE;
-  }
+  //if (m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9) != D3D_OK) {
+  //  m_d3dbackbuffer9=NULL; return FALSE;
+  //}
+
+     D3DLIGHT9 light,light2,light3;
+   ZeroMemory(&light,sizeof(light));
+   D3DXVECTOR3 pos (0,400,0);
+   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
+   light.Position = pos;
+   light.Direction = D3DXVECTOR3 (0,-1,0);
+   light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
+   light.Specular = light.Diffuse;
+   light.Diffuse.r = 0.9f;
+   light.Range = 5000;
+   light.Type = D3DLIGHT_DIRECTIONAL;
+   m_d3ddevice9->SetLight(0,&light);
+   m_d3ddevice9->LightEnable(0,true);
+
+   light2 = light;
+   light3 = light;
+   light2.Position = D3DXVECTOR3(30,400,30);
+   light3.Position = D3DXVECTOR3(-30,400,30);
+   light2.Direction = D3DXVECTOR3(0.2,-1,0.2);
+   light3.Direction = D3DXVECTOR3(-0.2,-1,-0.2);
+
+   m_d3ddevice9->SetLight(1,&light2);
+   m_d3ddevice9->LightEnable(1,true);
+   m_d3ddevice9->SetLight(2,&light3);
+   m_d3ddevice9->LightEnable(2,true);
+
 
   ShowCursor(FALSE);
   m_d3ddevice9->ShowCursor(FALSE);
-  m_d3ddevice9->GetDeviceCaps(&m_d3dcps);
-
-  D3DXCreateSprite(m_d3ddevice9,&m_pd3dxSprite);
-
-  char outstr[5000];
-  sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",m_d3dcps.MaxTextureHeight,m_d3dcps.MaxTextureWidth);
-  OutputDebugString(outstr);
-  return TRUE;
 }
 
 // Paint a frame
@@ -169,7 +218,7 @@ int D3DObject::PaintFrame(IDirect3DSurface9* in_Frame)
 	DeviceLost();
 
 	m_d3ddevice9->BeginScene();
-	m_d3ddevice9->UpdateSurface(in_Frame,NULL,m_d3dbackbuffer9,NULL);
+	//m_d3ddevice9->UpdateSurface(in_Frame,NULL,m_d3dbackbuffer9,NULL);
 	//m_d3ddevice9->CopyRects(in_Frame,NULL,0,m_d3dbackbuffer8,NULL);
 	m_d3ddevice9->EndScene();
 	m_d3ddevice9->Present(NULL,NULL,NULL,NULL);
@@ -184,14 +233,14 @@ int D3DObject::MakeScreenSurface(int width, int height, D3DFORMAT format, IDirec
 	if (height == 0) height = m_d3dpp.BackBufferHeight;
 	if (format == D3DFMT_UNKNOWN) format = m_d3dpp.BackBufferFormat;
 
-	bl = 
-	   m_d3ddevice9->CreateOffscreenPlainSurface(
+	bl = m_d3ddevice9->CreateOffscreenPlainSurface(
 		width,
 		height,
 		format,
 		D3DPOOL_SYSTEMMEM,
 		dest_surf,
-		NULL);
+		NULL
+  );
 
 	if (FAILED(bl))
 		exit(1);
@@ -204,16 +253,21 @@ int D3DObject::MakeScreenSurface(int width, int height, D3DFORMAT format, IDirec
 BOOL D3DObject::DeviceLost(){ //check for lost device
   if (m_d3ddevice9->TestCooperativeLevel()!=D3D_OK)
   {
-	OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
-	SafeRelease(m_d3dbackbuffer9);
-	SafeRelease(pFont);
-	if(m_d3ddevice9->Reset(&m_d3dpp)!=D3D_OK)
-		return FALSE;
-	//get new surfaces
-	if(m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9)!=D3D_OK)
-		return FALSE;
-	m_pd3dxSprite->OnLostDevice();
-	_InitFonts();
+    while (m_d3ddevice9->TestCooperativeLevel()==D3DERR_DEVICELOST)
+      ;
+	  OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
+    m_pd3dxSprite->OnLostDevice();
+    pFont->OnLostDevice();
+	  OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
+     if(m_d3ddevice9->Reset(&m_d3dpp)!=D3D_OK) {
+      OutputDebugString("Tried to reset, reset failed...\n");
+      exit(1);
+		  return FALSE;
+    }
+    DefaultRenderState();
+    m_pd3dxSprite->OnResetDevice();
+    pFont->OnResetDevice();
+	  _InitFonts();
   }
   return D3D_OK;
 } //DeviceLost
@@ -340,8 +394,8 @@ int D3DObject::_InitFonts() {
 	D3DXFONT_DESC fdesc;
 	memset (&fdesc,0,sizeof(fdesc));
 	strcpy (fdesc.FaceName,"Arial");
-	fdesc.Weight = 1000;
-	fdesc.Height = 42;
+	fdesc.Weight = FW_NORMAL;
+	fdesc.Height = 12;
 	hr = D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont);
 
 	if(FAILED(hr))
@@ -468,7 +522,7 @@ int D3DObject::SpriteDraw( IDirect3DTexture9 *texture, RECT *rect, D3DXVECTOR2 *
 						  float rotation,
 						  D3DXVECTOR2 *trans, D3DCOLOR color)
 {	
-   D3DXMATRIX transform;
+   D3DXMATRIXA16 transform;
    D3DXMatrixTransformation2D(&transform,
 	   scale,          // Scaling Center D3DXVECTOR2 
 	   NULL,            // Scaling Rotation factor

@@ -19,12 +19,16 @@ cSkyBox::cSkyBox(void)
 {
 	m_w = SKY_WIDTH;
 	m_h = SKY_HEIGHT;
-  	_Init();
+  _Init();
 }
 
 cSkyBox::~cSkyBox(void)
 {
   m_tertex[0]->Release();
+  m_tertex[1]->Release();
+  m_tertex[2]->Release();
+  m_tertex[3]->Release();
+  m_tertex[4]->Release();
   if (m_SkyMesh) m_SkyMesh->Release();
   m_sbtop->Release();
   m_sbposz->Release();
@@ -47,11 +51,12 @@ void cSkyBox::Paint()
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
 
 
-	D3DXMATRIX matwrld;
+	D3DXMATRIXA16 matwrld;
 	D3DXMatrixIdentity(&matwrld);
 	D3DXVECTOR3 pos, blah;
 	g_GameState->GetCurrentTankState(&pos,&blah);
-	matwrld._41 = pos.x; matwrld._42 = pos.y; matwrld._43 = pos.z;
+	matwrld._41 = pos.x; matwrld._42 = 0; matwrld._43 = pos.z;
+
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
 
     D3DMATERIAL9 mtrl;
@@ -66,9 +71,9 @@ void cSkyBox::Paint()
     g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
 	if (m_sbnegx!= NULL)
   {    
-      g_D3DObject->m_d3ddevice9->SetFVF(BILLBOARDVERTEX::FVF); 
+    g_D3DObject->m_d3ddevice9->SetFVF(BILLBOARDVERTEX::FVF); 
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
+	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[3]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbnegx,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
 
@@ -76,15 +81,15 @@ void cSkyBox::Paint()
 	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbposx,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
+	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[1]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbnegz,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
+	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[2]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbposz,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[1]);
+	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[4]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbtop,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
   }
@@ -110,7 +115,7 @@ BOOL cSkyBox::_Init()
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
-				D3DPOOL_MANAGED,
+				D3DPOOL_SYSTEMMEM,
 				&m_sbnegx,
 				NULL))
 	)
@@ -164,63 +169,66 @@ BOOL cSkyBox::_Init()
 
   BILLBOARDVERTEX *pTetVB = NULL; //Pointer to vertex buffer.
 
+#define SK_1 0.994f
+#define SK_0 0.006f
+
   if(SUCCEEDED(m_sbnegx->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-     pTetVB->p=D3DXVECTOR3 (-w/2,h,-w/2);     pTetVB->tu=1.0f;  	pTetVB->tv=0.0f;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,w/2);   pTetVB->tu=0.0f;     pTetVB->tv=0.0f;
+     pTetVB->p=D3DXVECTOR3 (-w/2,h,-w/2);  pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,w/2);   pTetVB->tu=SK_0;     pTetVB->tv=SK_0;
     
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,-w/2);    pTetVB->tu=1.0f;		pTetVB->tv=1.0f;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,-w/2);    pTetVB->tu=SK_1;		pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,w/2);   pTetVB->tu=0.0f;		pTetVB->tv=1.0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,w/2);   pTetVB->tu=SK_0;		pTetVB->tv=SK_1;
     m_sbnegx->Unlock();
   }
 
   if(SUCCEEDED(m_sbposx->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(w/2,h,w/2);    pTetVB->tu=1.0f;  	pTetVB->tv=0.0f;
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=0.0f;    pTetVB->tv=0.0f;
+    pTetVB->p=D3DXVECTOR3(w/2,h,w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,0,w/2);    pTetVB->tu=1.0f;	pTetVB->tv=1.0f;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,0,w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,0,-w/2);	 pTetVB->tu=0.0f;	pTetVB->tv=1.0;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,0,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
     m_sbposx->Unlock();
   }
 
   if(SUCCEEDED(m_sbnegz->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=1.0f;  	pTetVB->tv=0.0f;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,-w/2);    pTetVB->tu=0.0f;    pTetVB->tv=0.0f;
+    pTetVB->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,0,-w/2);    pTetVB->tu=1.0f;	pTetVB->tv=1.0f;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,0,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,-w/2);	 pTetVB->tu=0.0f;	pTetVB->tv=1.0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,0,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
     m_sbnegz->Unlock();
   }
 
   if(SUCCEEDED(m_sbposz->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(-w/2,h, w/2);    pTetVB->tu=1.0f;  	pTetVB->tv=0.0f;
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h, w/2);    pTetVB->tu=0.0f;    pTetVB->tv=0.0f;
+    pTetVB->p=D3DXVECTOR3(-w/2,h, w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,h, w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
     
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,0, w/2);    pTetVB->tu=1.0f;	pTetVB->tv=1.0f;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,0, w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,0,w/2);	 pTetVB->tu=0.0f;	pTetVB->tv=1.0;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,0,w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
     m_sbposz->Unlock();
   }
 
   if(SUCCEEDED(m_sbtop->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(w/2,h,w/2);    pTetVB->tu=1.0f;  	pTetVB->tv=0.0f;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,w/2);    pTetVB->tu=0.0f;    pTetVB->tv=0.0f;
+    pTetVB->p=D3DXVECTOR3(w/2,h,w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=1.0f;	pTetVB->tv=1.0f;
+  (++pTetVB)->p=D3DXVECTOR3(w/2,h,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,-w/2);	 pTetVB->tu=0.0f;	pTetVB->tv=1.0;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,h,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
     m_sbtop->Unlock();
   }
 
@@ -228,18 +236,33 @@ BOOL cSkyBox::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
-  m_tertex = new LPDIRECT3DTEXTURE9 [2];
-  sprintf (texpath,"resource\\%s","skysides.JPG");
+  m_tertex = new LPDIRECT3DTEXTURE9 [5];
+  sprintf (texpath,"resource\\%s","morning\\morning_up.jpg");
+  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+    return false;
+  m_tertex[4] = tempt;
+
+  sprintf (texpath,"resource\\%s","morning\\morning_rt.jpg");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[0] = tempt;
 
-  sprintf (texpath,"resource\\%s","skytop.jpg");
+  sprintf (texpath,"resource\\%s","morning\\morning_lf.jpg");
+  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+    return false;
+  m_tertex[3] = tempt;
+
+  sprintf (texpath,"resource\\%s","morning\\morning_fr.jpg");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[1] = tempt;
 
-	sSkyVertex *VertexPtr;
+  sprintf (texpath,"resource\\%s","morning\\morning_bk.jpg");
+  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+    return false;
+  m_tertex[2] = tempt;
+
+  sSkyVertex *VertexPtr;
 	DWORD *IndexPtr;
 
 	IndexPtr =NULL;

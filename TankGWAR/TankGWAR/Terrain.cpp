@@ -26,7 +26,7 @@ cTerrain::cTerrain(void)
 
 void cTerrain::Paint()
 {
-	D3DXMATRIX matwrld;
+	D3DXMATRIXA16 matwrld;
 	D3DXMatrixIdentity(&matwrld);
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
 	if (g_TerrainMesh != NULL)
@@ -175,4 +175,5 @@ cTerrain::~cTerrain(void)
 {
   m_tertex[0]->Release();
 	g_TerrainMesh->Release();
+  delete m_Heights;
 }

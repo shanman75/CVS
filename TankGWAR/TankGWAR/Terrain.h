@@ -3,9 +3,9 @@
 #include "stdafx.h"
 #include "D3DObject.h"
 
-#define TER_X 200
-#define TER_Y 200
-#define TER_WIDTH 5.0f
+#define TER_X 40
+#define TER_Y 40
+#define TER_WIDTH 10.0f
 
 // DEFINES
 #define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)

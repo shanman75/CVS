@@ -39,12 +39,12 @@ c3DObjectTank::~c3DObjectTank(void)
 
 void c3DObjectTank::MakeWorldMatrix( int x )
 {
-	D3DXMATRIX MatWorld; 
-	D3DXMATRIX *pMatWorld = &MatWorld;
-  D3DXMATRIX MatTemp;  // Temp matrix for rotations.
-  D3DXMATRIX MatRot;   // Final rotation matrix, applied to 
+	D3DXMATRIXA16 MatWorld; 
+	D3DXMATRIXA16 *pMatWorld = &MatWorld;
+  D3DXMATRIXA16 MatTemp;  // Temp matrix for rotations.
+  D3DXMATRIXA16 MatRot;   // Final rotation matrix, applied to 
                          // pMatWorld.
-	D3DXMATRIX MatRotY, MatTrY;   // Rotation Matrix for turret
+	D3DXMATRIXA16 MatRotY, MatTrY;   // Rotation Matrix for turret
 
   D3DXMatrixIdentity(&MatRot);
 	D3DXMatrixIdentity(&MatRotY);
@@ -97,7 +97,7 @@ void c3DObjectTank::paint()
 }
 void c3DObjectTank::_UnloadGraphics()
 {
-  m_tankmesh->Release();
+  SAFE_RELEASE(m_tankmesh);
   for (int x = 0; x < (int)m_nMat; x++) {
 	  SAFE_RELEASE(m_tanktex[x]);
   }
@@ -110,17 +110,17 @@ void c3DObjectTank::event(enum EVENT evnt)
   if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.01; break;
+      m_barrelHeight -= 0.0003*m_time.PeekTime(); break;
     case DOWN:
-      m_barrelHeight +=0.01; break;
+      m_barrelHeight +=0.0003*m_time.PeekTime(); break;
     case LEFT:
-      m_turretRotate-=0.01; break;
+      m_turretRotate-=0.0003*m_time.PeekTime(); break;
     case RIGHT:
-      m_turretRotate+=0.01; break;
+      m_turretRotate+=0.0003*m_time.PeekTime(); break;
     case PWRUP:
-      m_firePower+=0.2f; break;
+      m_firePower+=0.002f*m_time.PeekTime(); break;
     case PWRDN:
-      m_firePower-=0.2f; break;
+      m_firePower-=0.002f*m_time.PeekTime(); break;
     default:
       break;
   }
@@ -165,7 +165,7 @@ void c3DObjectTank::_LoadGraphics()
 
    m_tanktex = new LPDIRECT3DTEXTURE9 [m_tankNmat];
    m_tankmat = new D3DMATERIAL9 [m_tankNmat];
- 
+  
    for (DWORD x = 0; x < m_tankNmat; x++) {
 	   LPDIRECT3DTEXTURE9 tempt;
 	   tempt = NULL;

@@ -7,6 +7,8 @@
 #include <d3dx9.h>
 #include <d3dx9math.h>
 
+#define MAX_TEXTURES 255
+
 class CTexture;
 
 #define SafeRelease(x) if (x) {x->Release(); x=NULL;}
@@ -46,7 +48,7 @@ public:
 
 	IDirect3D9* m_d3d9;
 	IDirect3DDevice9* m_d3ddevice9;
-	IDirect3DSurface9* m_d3dbackbuffer9;
+//	IDirect3DSurface9* m_d3dbackbuffer9;
 
 	D3DPRESENT_PARAMETERS m_d3dpp;
 	D3DCAPS9 m_d3dcps;
@@ -66,6 +68,10 @@ protected:
 
 	static BOOL m_initfonts;
 	LPD3DXFONT pFont;
+  IDirect3DTexture9 *m_textures[MAX_TEXTURES];
+  int m_numTextures;
+  void DefaultRenderState();
+
 	//	CTimer m_timer;
 
 public:

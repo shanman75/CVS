@@ -51,7 +51,7 @@ c3DObjectMissile::~c3DObjectMissile(void)
 
 void c3DObjectMissile::_UnloadGraphics()
 {
-  m_missilemesh->Release();
+  SAFE_RELEASE(m_missilemesh);
   for (int x = 0; x < (int)m_nMat; x++) {
 	  SAFE_RELEASE(m_missiletex[x]);
   }

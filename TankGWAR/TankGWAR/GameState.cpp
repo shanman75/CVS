@@ -8,27 +8,35 @@ void cGameState::GetInput(void)
 {
   c3DObjectTank *tmpP = NULL;
 
-  tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
-  if (g_D3DInput->KeyDown(DIK_F))
-    tmpP->Fire(c3DObjectTank::MISSILE);
-  else if (g_D3DInput->KeyDown(DIK_SPACE))
-    tmpP->Fire(c3DObjectTank::MISSILE);
-  if (g_D3DInput->KeyDown(DIK_UP))
-    tmpP->event(c3DObjectTank::UP);
-  else if (g_D3DInput->KeyDown(DIK_DOWN))
-    tmpP->event(c3DObjectTank::DOWN);
-  if (g_D3DInput->KeyDown(DIK_LEFT))
-    tmpP->event(c3DObjectTank::LEFT);
-  else if (g_D3DInput->KeyDown(DIK_RIGHT))
-    tmpP->event(c3DObjectTank::RIGHT);
-  if (g_D3DInput->KeyDown(DIK_MINUS))
-    tmpP->event(c3DObjectTank::PWRDN);
-  else if (g_D3DInput->KeyDown(DIK_EQUALS))
-    tmpP->event(c3DObjectTank::PWRUP);
-  if (g_D3DInput->MouseDown(0)) {
-    tmpP->Fire(c3DObjectTank::MISSILE);
-	m_currentplayer++;
-	if (m_currentplayer >= m_numplayers) m_currentplayer = 0;
+  switch (m_gstate) {
+     case TURN:
+        tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
+        if (g_D3DInput->KeyDown(DIK_UP))
+          tmpP->event(c3DObjectTank::UP);
+        else if (g_D3DInput->KeyDown(DIK_DOWN))
+          tmpP->event(c3DObjectTank::DOWN);
+        if (g_D3DInput->KeyDown(DIK_LEFT))
+          tmpP->event(c3DObjectTank::LEFT);
+        else if (g_D3DInput->KeyDown(DIK_RIGHT))
+          tmpP->event(c3DObjectTank::RIGHT);
+        if (g_D3DInput->KeyDown(DIK_MINUS))
+          tmpP->event(c3DObjectTank::PWRDN);
+        else if (g_D3DInput->KeyDown(DIK_EQUALS))
+          tmpP->event(c3DObjectTank::PWRUP);
+        if (g_D3DInput->MouseDown(0) | g_D3DInput->KeyDown(DIK_F) | g_D3DInput->KeyDown(DIK_SPACE)) {
+          tmpP->Fire(c3DObjectTank::MISSILE);
+          m_gstate = FIRING;
+        }
+        break;
+     case FIRING:
+       if (g_D3DInput->KeyDown(DIK_N))
+       {
+         m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
+         m_gstate = TURN;
+       }
+       break;
+     default:
+       break;
   }
 }
 
@@ -60,13 +68,13 @@ void cGameState::AddPlayer(BOOL human)
   g_ObjMgr->add(m_PlayerState[m_numplayers].object);
   m_numplayers++;
 
+  m_gstate = cGameState::TURN;
 
-  for (int x =0 ; x < 3; x++)  {
+  for (int x =0 ; x < 2; x++)  {
     tmpP = new c3DObjectTank();
     tmpP->pos(D3DXVECTOR3(rand()%200-100,7,rand()%200-100));
     m_PlayerState[m_numplayers].object = tmpP;
     g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
     m_numplayers++;
   }
-
 }

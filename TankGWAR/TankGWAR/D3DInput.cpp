@@ -297,5 +297,7 @@ D3DInput::~D3DInput(void)
 {
 	if (m_DIKB) m_DIKB->Unacquire();
 	SafeRelease(m_DIKB);
+	if (m_DIMO) m_DIMO->Unacquire();
+  SafeRelease(m_DIMO);
 	SafeRelease(m_DInput);
 }

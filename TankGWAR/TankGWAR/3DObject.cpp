@@ -23,13 +23,13 @@ c3DObject::~c3DObject(void)
 
 void c3DObject::MakeWorldMatrix( int x )
 {
-	D3DXMATRIX MatWorld; 
-	D3DXMATRIX *pMatWorld = &MatWorld;
+	D3DXMATRIXA16 MatWorld; 
+	D3DXMATRIXA16 *pMatWorld = &MatWorld;
  
-  D3DXMATRIX MatTemp;  // Temp matrix for rotations.
-  D3DXMATRIX MatRot;   // Final rotation matrix, applied to 
+  D3DXMATRIXA16 MatTemp;  // Temp matrix for rotations.
+  D3DXMATRIXA16 MatRot;   // Final rotation matrix, applied to 
                          // pMatWorld.
-	D3DXMATRIX MatRotY, MatTrY;   // Rotation Matrix for turret		
+	D3DXMATRIXA16 MatRotY, MatTrY;   // Rotation Matrix for turret		
 
 	float m_fPitch = m_orient.x;
 	float m_fRoll  = m_orient.y;

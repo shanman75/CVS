@@ -41,31 +41,6 @@ void g_MainInit()
    g_GameState->SetCurrentCamera(new cCameraBehindTank);
    g_GameState->AddPlayer();
 
-   D3DLIGHT9 light,light2,light3;
-   ZeroMemory(&light,sizeof(light));
-   D3DXVECTOR3 pos (0,400,0);
-   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
-   light.Position = pos;
-   light.Direction = D3DXVECTOR3 (0,-1,0);
-   light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
-   light.Specular = light.Diffuse;
-   light.Diffuse.r = 0.9f;
-   light.Range = 5000;
-   light.Type = D3DLIGHT_DIRECTIONAL;
-   g_D3DObject->m_d3ddevice9->SetLight(0,&light);
-   g_D3DObject->m_d3ddevice9->LightEnable(0,true);
-
-   light2 = light;
-   light3 = light;
-   light2.Position = D3DXVECTOR3(30,400,30);
-   light3.Position = D3DXVECTOR3(-30,400,30);
-   light2.Direction = D3DXVECTOR3(0.2,-1,0.2);
-   light3.Direction = D3DXVECTOR3(-0.2,-1,-0.2);
-
-//   g_D3DObject->m_d3ddevice9->SetLight(1,&light2);
-//   g_D3DObject->m_d3ddevice9->LightEnable(1,true);
-//   g_D3DObject->m_d3ddevice9->SetLight(2,&light3);
-//   g_D3DObject->m_d3ddevice9->LightEnable(2,true);
 
 
    g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(180,180,180,255) );
@@ -100,24 +75,10 @@ void g_MainGameLoop()
  
    g_D3DObject->BeginPaint();
    skybox->Paint();
+   terrain->Paint();
    g_D3DObject->DrawTextStr(50,500,D3DCOLOR_XRGB(240,0,50),debg);
    
    g_ObjMgr->paint();
  
-/*
-   D3DMATERIAL9 d3dMaterial;
-   memset(&d3dMaterial, 0, sizeof(d3dMaterial));
-   d3dMaterial.Diffuse.r = 
-   d3dMaterial.Diffuse.g = 
-   d3dMaterial.Diffuse.b = 
-   d3dMaterial.Diffuse.a = 1.0f;
-   d3dMaterial.Specular = d3dMaterial.Diffuse;
-   d3dMaterial.Diffuse.g = 1.0f;
-   d3dMaterial.Power = 1.0f; // arbitrary
-
-   g_D3DObject->m_d3ddevice9->SetMaterial( &d3dMaterial );
-*/
-   terrain->Paint();
-
    g_D3DObject->EndPaint();
 }
