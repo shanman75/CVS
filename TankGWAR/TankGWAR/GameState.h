@@ -14,12 +14,14 @@
 #include "CameraAboveHit.h"
 #include "Skybox.h"
 #include "Terrain.h"
+#include "TExture.h"
 
 struct st_PlayerState {
    char *name;
-   c3DObject *object;
-   c3DObject *msl_object;
+   c3DObjectTank *object;
+   c3DObjectMissile *msl_object;
    c3DObjectExplosion *exp_object;
+   c3DObjectMissile::MSLTYPE msl_cur_type;
    float money;
    float health;
 };
@@ -63,6 +65,11 @@ private:
      enum STATES m_gstate;
      int RoundNumber;
 
+     void _Init(void);
+     void _Delete(void);
+
+     //static LPDIRECT3DTEXTURE9	  m_statusbartex;
+     static CTexture *m_statusbartex;
 };
 
 extern cGameState *g_GameState;

@@ -285,6 +285,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
     g_GameState->OnLostDevice();
 	  OutputDebugString("D3DObject::DeviceLost Restoring Font\n");
     pFont->OnLostDevice();
+    pFont_StatusBar->OnLostDevice();
     switch(m_d3ddevice9->Reset(&m_d3dpp)) {
         case D3DERR_DEVICELOST:
           OutputDebugString ("D3DERR_DEVICELOST\n");exit(1); break;
@@ -302,6 +303,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
     DefaultRenderState();
     m_pd3dxSprite->OnResetDevice();
     pFont->OnResetDevice();
+    pFont_StatusBar->OnResetDevice();
     g_GameState->OnResetDevice();
   }
   return D3D_OK;
@@ -434,6 +436,15 @@ int D3DObject::_InitFonts() {
      MessageBox(NULL,"TankGWAR Error","Failed to create font!",MB_OK);
      exit(1);
   }
+
+	strcpy (fdesc.FaceName,"Arial");
+	fdesc.Weight = FW_BOLD;
+	fdesc.Height = 27;
+  if (FAILED(D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont_StatusBar)))
+  {
+     MessageBox(NULL,"TankGWAR Error","Failed to create font!",MB_OK);
+     exit(1);
+  }
   
   m_initfonts=TRUE;
 	return m_initfonts;
@@ -454,6 +465,28 @@ int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
 
 	// Outputn the text, left aligned
 	pFont->DrawText( NULL, str, -1, &TextRect, DT_LEFT | DT_NOCLIP, color );
+
+	// Finish up drawing
+	//pFont->End();
+	return TRUE;
+}
+
+//int D3DObject::DrawTextStr_StatusBar(int x, int y, DWORD color, const TCHAR * str)
+int D3DObject::DrawTextStr_StatusBar(RECT *rct, DWORD color, const TCHAR * str, DWORD fmt)
+{
+
+	if (!m_initfonts) _InitFonts();
+	// Rectangle where the text will be located
+//	RECT TextRect = { x, y, 0, 0 };
+
+	// Inform font it is about to be used
+	//pFont->Begin();
+
+	// Calculate the rectangle the text will occupy
+	//pFont_StatusBar->DrawText( NULL, str, -1, &TextRect, DT_CALCRECT, color);
+
+	// Outputn the text, left aligned
+	pFont_StatusBar->DrawText( NULL, str, -1, rct, fmt, color );
 
 	// Finish up drawing
 	//pFont->End();

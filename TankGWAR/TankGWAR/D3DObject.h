@@ -59,7 +59,8 @@ public:
 	IDirect3DSurface9* m_pBackgroundSurface;
 	IDirect3DTexture9* m_pVidmemTex1;
 	D3DDISPLAYMODE curmode; //current mode under consideration
-    ID3DXFont*              m_pD3DXFont;            // D3DX font    
+  ID3DXFont*              m_pD3DXFont;            // D3DX font    
+//  ID3DXFont*              m_pD3DXSmallFont;       // Smaller Font
 	int m_x;
 	LPD3DXSPRITE m_pd3dxSprite;
 
@@ -68,6 +69,7 @@ protected:
 
 	static BOOL m_initfonts;
 	LPD3DXFONT pFont;
+	LPD3DXFONT pFont_StatusBar;
   IDirect3DTexture9 *m_textures[MAX_TEXTURES];
   int m_numTextures;
   void DefaultRenderState();
@@ -88,6 +90,7 @@ public:
 	int CreateTexture(UINT Width,UINT Height,UINT  Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL Pool,IDirect3DTexture9** ppTexture);
 	int PaintText ();
 	int DrawTextStr(int x, int y, DWORD color, const TCHAR * str);
+	int DrawTextStr_StatusBar(RECT *rct, DWORD color, const TCHAR * str, DWORD fmt);
 	void BlitRect(LPDIRECT3DTEXTURE9 lpSrc,
               float left, float top,
               float right, float bottom,

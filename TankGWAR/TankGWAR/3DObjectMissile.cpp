@@ -78,7 +78,7 @@ void c3DObjectMissile::_LoadGraphics()
      &m_missileNmat,				// DWORD *pNumMaterials,
      &m_missilemesh
    )))
-     m_missilemesh = NULL;
+     exit(1);
    else
      if( FAILED( m_missilemesh->OptimizeInplace(
                         D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
@@ -119,4 +119,25 @@ void c3DObjectMissile::_LoadGraphics()
    }
     SAFE_RELEASE( pAdjacencyBuffer );
     SAFE_RELEASE( lpMat );
+}
+
+char *c3DObjectMissile::GetMissileStr(enum MSLTYPE m)
+{
+  //  enum MSLTYPE { SHELL, ATOMBOMB, SCUD, AMRAM, FUNKIEBOMB };
+
+  switch (m)
+  {
+  case FUNKIEBOMB:
+    return "Funky Bomb"; break;
+  case AMRAM:
+    return "AM-RAM"; break;
+  case ATOMBOMB:
+    return "Atom Bomb"; break;
+  case SHELL:
+    return "44mm Shell"; break;
+  case SCUD:
+    return "Scud"; break;
+  default:
+    return "NONE"; break;
+  }
 }

@@ -137,8 +137,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 char debg[255];
 	switch (message) 
 	{
-    case WM_ACTIVATEAPP: g_ActiveApp=(int)wParam; sprintf (debg,"Activate app called %i\n",(int)wParam); OutputDebugString(debg); break; //iconize
-	case WM_DESTROY:
+    case WM_ACTIVATEAPP: g_ActiveApp=(int)wParam; sprintf (debg,"Activate app called %i\n",(int)wParam); OutputDebugString(debg);
+                         g_time.UnPause();
+                          break; //iconize
+	  case WM_DESTROY:
 		/*
 		OutputDebugString("Deleting global Midi\n");
 		SafeDelete(g_Midi);

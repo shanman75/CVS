@@ -5,9 +5,11 @@ class c3DObjectMissile :
 	public c3DObject
 {
 public:
+  enum MSLTYPE { SHELL, ATOMBOMB, SCUD, AMRAM, FUNKIEBOMB };
 	c3DObjectMissile(void);
 	virtual ~c3DObjectMissile(void);
   void move();
+  static char *GetMissileStr (enum MSLTYPE m);
 protected:
 	static LPD3DXMESH			m_missilemesh;
   static LPDIRECT3DTEXTURE9*	m_missiletex;

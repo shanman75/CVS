@@ -7,6 +7,14 @@
 #define DEF_TER_Z 100
 #define DEF_TER_WIDTH 5.0f
 
+#define TER_X_BIG 14
+#define TER_Z_BIG 14
+#define TER_WIDTH_BIG 800.0f
+
+#define TER_X_SMALL 220
+#define TER_Z_SMALL 220
+#define TER_WIDTH_SMALL 7.0f
+
 // DEFINES
 //#define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
 #define   D3DFVF_MESH   (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
@@ -37,10 +45,11 @@ public:
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;
-	ID3DXMesh *g_BigTerrainMesh;
+	ID3DXMesh *g_TerrainMeshBig;
 	float *m_Heights;
 
-  float TER_X, TER_Z, TER_WIDTH;
+  float TER_X, TER_Z;
+  float TER_WIDTH;
 
   static LPDIRECT3DTEXTURE9*	  m_tertex;
 };
