@@ -47,6 +47,8 @@ public:
   cCamera *GetCurrentCamera(void);
   void SetCurrentCamera(cCamera *cam) { if (cam !=NULL) m_curcamera =cam; }
 
+  void OnLostDevice(void);
+  void OnResetDevice(void);
 private:     
      cSkyBox *m_skybox;
      cTerrain *m_terrain;

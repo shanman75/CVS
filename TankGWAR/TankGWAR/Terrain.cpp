@@ -42,7 +42,7 @@ void cTerrain::_Init()
 
   D3DXCreateMeshFVF( 2*TER_X*TER_Z, (TER_X + 1) * (TER_Z + 1) , 
     //D3DPOOL_DEFAULT | D3DXMESH_32BIT,  //	  
-    D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, 
+    D3DXMESH_32BIT | D3DXMESH_MANAGED, 
 	  D3DFVF_MESH,
 	  g_D3DObject->m_d3ddevice9, 
 	  &g_TerrainMesh 
@@ -68,8 +68,23 @@ void cTerrain::_Init()
 
   m_tertex = new LPDIRECT3DTEXTURE9 [1];
   sprintf (texpath,"resource\\%s","BUMP_Dents_bp.dds");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[0] = tempt;
 
 	RandomizeMesh();
@@ -148,17 +163,26 @@ void cTerrain::RandomizeMesh(void)
 	g_TerrainMesh->UnlockIndexBuffer();
   g_TerrainMesh->UnlockVertexBuffer();	
 
-  g_TerrainMesh->OptimizeInplace(
-                            D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-                            NULL, NULL, NULL, NULL);
-	D3DXComputeNormals(g_TerrainMesh,NULL);
+//  g_TerrainMesh->OptimizeInplace(
+//                            D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+//                            NULL, NULL, NULL, NULL);
+//	D3DXComputeNormals(g_TerrainMesh,NULL);
 }
 
 cTerrain::~cTerrain(void)
 {
-  SAFE_RELEASE(m_tertex[0]);
-	g_TerrainMesh->Release();
   delete [] m_Heights;
+}
+
+void cTerrain::OnLostDevice(void)
+{
+  SAFE_RELEASE(m_tertex[0]);
+	SAFE_RELEASE(g_TerrainMesh);
+}
+
+void cTerrain::OnResetDevice(void)
+{
+  _Init();
 }
 
 float cTerrain::GetHeight(float x, float z)

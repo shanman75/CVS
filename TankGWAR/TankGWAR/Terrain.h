@@ -32,6 +32,8 @@ public:
 	float GetHeight(float x, float y);
   void SetHeight(float x, float z, float y);
 
+  void OnLostDevice(void);
+  void OnResetDevice(void);
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;

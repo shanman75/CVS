@@ -12,29 +12,20 @@ LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbleft;
 LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbright;
 LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbtop;
 
-const DWORD BILLBOARDVERTEX::FVF=D3DFVF_XYZ|D3DFVF_TEX1; //flexible vertex format
+const DWORD cSkyBox::m_FVF=D3DFVF_XYZ|D3DFVF_TEX1; //flexible vertex format
 
 
 cSkyBox::cSkyBox(void)
 {
 	m_w = SKY_WIDTH;
 	m_h = SKY_HEIGHT;
-  _Init();
+  if (!_Init())
+    exit (1);
 }
 
 cSkyBox::~cSkyBox(void)
 {
-  m_tertex[0]->Release();
-  m_tertex[1]->Release();
-  m_tertex[2]->Release();
-  m_tertex[3]->Release();
-  m_tertex[4]->Release();
-  if (m_SkyMesh) m_SkyMesh->Release();
-  m_sbtop->Release();
-  m_sbback->Release();
-  m_sbfront->Release();
-  m_sbleft->Release();
-  m_sbright->Release();
+  OnLostDevice();
 }
 
 void cSkyBox::Paint()
@@ -48,8 +39,7 @@ void cSkyBox::Paint()
 
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZENABLE, FALSE );
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
-
-
+    g_D3DObject->m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
 	  D3DXMATRIXA16 matwrld;
 	  D3DXMatrixIdentity(&matwrld);
 	  D3DXVECTOR3 pos, blah;
@@ -58,19 +48,17 @@ void cSkyBox::Paint()
 
     D3DMATERIAL9 mtrl,mtrlSave;
     ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
-    mtrl.Ambient.r = 1.0f;
-    mtrl.Ambient.g = 1.0f;
-    mtrl.Ambient.b = 1.0f;
-    mtrl.Ambient.a = 1.0f;
-//    mtrl.Specular = mtrl.Diffuse;
-    //mtrl.Ambient = mtrl.Diffuse;
-    //mtrl.Power = 100.0f;
+    mtrl.Ambient = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
+    mtrl.Specular = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+    mtrl.Diffuse = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+    mtrl.Emissive = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+    mtrl.Power = 0.0f;
     g_D3DObject->m_d3ddevice9->GetMaterial(&mtrlSave);
     g_D3DObject->m_d3ddevice9->SetMaterial(&mtrl);
     
 	if (m_sbtop!= NULL)
   {    
-    g_D3DObject->m_d3ddevice9->SetFVF(BILLBOARDVERTEX::FVF); 
+    g_D3DObject->m_d3ddevice9->SetFVF(m_FVF); 
 
 	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[0]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbfront,0,sizeof(BILLBOARDVERTEX));
@@ -94,9 +82,10 @@ void cSkyBox::Paint()
   }
 
   g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_VIEW,      &matViewSave );
-    g_D3DObject->m_d3ddevice9->SetMaterial(&mtrlSave);
+  g_D3DObject->m_d3ddevice9->SetMaterial(&mtrlSave);
   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZENABLE, TRUE );
   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZWRITEENABLE, TRUE);
+  g_D3DObject->m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
 }
 
 BOOL cSkyBox::_Init()
@@ -114,8 +103,8 @@ BOOL cSkyBox::_Init()
   if (FAILED(g_D3DObject->m_d3ddevice9->CreateVertexBuffer( 
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
-				BILLBOARDVERTEX::FVF,
-				D3DPOOL_SYSTEMMEM,
+				m_FVF,
+				D3DPOOL_DEFAULT,
 				&m_sbback,
 				NULL))
 	)
@@ -124,8 +113,8 @@ BOOL cSkyBox::_Init()
   if (FAILED(g_D3DObject->m_d3ddevice9->CreateVertexBuffer( 
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
-				BILLBOARDVERTEX::FVF,
-				D3DPOOL_SYSTEMMEM,
+				m_FVF,
+				D3DPOOL_DEFAULT,
 				&m_sbfront,
 				NULL))
 	)
@@ -134,8 +123,8 @@ BOOL cSkyBox::_Init()
     if (FAILED(g_D3DObject->m_d3ddevice9->CreateVertexBuffer( 
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
-				BILLBOARDVERTEX::FVF,
-				D3DPOOL_SYSTEMMEM,
+				m_FVF,
+				D3DPOOL_DEFAULT,
 				&m_sbleft,
 				NULL))
 	)
@@ -145,8 +134,8 @@ BOOL cSkyBox::_Init()
   if (FAILED(g_D3DObject->m_d3ddevice9->CreateVertexBuffer( 
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
-				BILLBOARDVERTEX::FVF,
-				D3DPOOL_SYSTEMMEM,
+				m_FVF,
+				D3DPOOL_DEFAULT,
 				&m_sbright,
 				NULL))
 	)
@@ -156,8 +145,8 @@ BOOL cSkyBox::_Init()
   if (FAILED(g_D3DObject->m_d3ddevice9->CreateVertexBuffer( 
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
-				BILLBOARDVERTEX::FVF,
-				D3DPOOL_SYSTEMMEM,
+				m_FVF,
+				D3DPOOL_DEFAULT,
 				&m_sbtop,
 				NULL))
 	)
@@ -248,28 +237,103 @@ BOOL cSkyBox::_Init()
   m_tertex = new LPDIRECT3DTEXTURE9 [5];
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"1");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return false;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[0] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"2");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return false;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[1] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"3");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return false;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[2] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"4");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return false;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[3] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"5");
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return false;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )));
   m_tertex[4] = tempt;
 
   sSkyVertex *VertexPtr;
@@ -335,4 +399,24 @@ BOOL cSkyBox::_Init()
     */
 	//D3DXComputeNormals(g_SkyMesh,NULL);
 	return true;
+}
+
+void cSkyBox::OnLostDevice(void)
+{
+  m_tertex[0]->Release();
+  m_tertex[1]->Release();
+  m_tertex[2]->Release();
+  m_tertex[3]->Release();
+  m_tertex[4]->Release();
+  if (m_SkyMesh) m_SkyMesh->Release();
+  m_sbtop->Release();
+  m_sbback->Release();
+  m_sbfront->Release();
+  m_sbleft->Release();
+  m_sbright->Release();
+}
+
+void cSkyBox::OnResetDevice()
+{
+  _Init();
 }

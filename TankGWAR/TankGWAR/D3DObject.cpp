@@ -2,6 +2,7 @@
 #include "d3dobject.h"
 #include <stdio.h>
 #include "MainWnd.h"
+#include "GameState.h"
 
 //#include "objmgr.h"
 //#include "text.h"
@@ -178,7 +179,7 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
 
   m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(190,150,190,255));
 
-  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_NONE);
+  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
 /*
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
@@ -281,6 +282,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
       ;
 	  OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
     m_pd3dxSprite->OnLostDevice();
+    g_GameState->OnLostDevice();
 	  OutputDebugString("D3DObject::DeviceLost Restoring Font\n");
     pFont->OnLostDevice();
     switch(m_d3ddevice9->Reset(&m_d3dpp)) {
@@ -300,6 +302,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
     DefaultRenderState();
     m_pd3dxSprite->OnResetDevice();
     pFont->OnResetDevice();
+    g_GameState->OnResetDevice();
   }
   return D3D_OK;
 } //DeviceLost

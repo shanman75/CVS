@@ -176,3 +176,14 @@ void cGameState::AddPlayer(BOOL human)
 cCamera * cGameState::GetCurrentCamera() { 
   return m_curcamera; 
 }
+
+
+void cGameState::OnLostDevice() {
+  m_skybox->OnLostDevice();
+  m_terrain->OnLostDevice();
+}
+
+void cGameState::OnResetDevice() {
+  m_skybox->OnResetDevice();
+  m_terrain->OnResetDevice();
+}
