@@ -38,21 +38,22 @@ void CObjEnemy2::paint()
 	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case JETTING:
-			m_jetting[m_jet_seq%4]->Paint(&pnt);
+			m_curtexture = m_jetting[m_jet_seq%4];
 			if (m_jet_seq >= 4*4) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 120) { m_jet_seq++; m_ani_time.Reset(); }
 			break;
 		case FIRING:
-			m_firing[m_fir_seq]->Paint(&pnt);
+			m_curtexture = m_firing[m_fir_seq];
 			if (m_fir_seq >= 3) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 95) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
 		default:
 			if (m_regular[0] != NULL)
-				m_regular[0]->Paint(&pnt);
+				m_curtexture = m_regular[0];
 			break;
 	};
+	CObj::paint();
 }
 
 void CObjEnemy2::Jet()

@@ -11,6 +11,7 @@ CObj::CObj(void)
 	m_max_y=(float)45.5;
 	m_time.GetTime();
 	m_z = 0;
+	m_curtexture = NULL;
 }
 
 CObj::~CObj(void)
@@ -19,7 +20,12 @@ CObj::~CObj(void)
 
 void CObj::paint(void)
 {
+	D3DXVECTOR2 pnt;
+	pnt.x = m_dpos_x;
+	pnt.y = m_dpos_y;
 
+	if (m_curtexture)
+			m_curtexture->Paint(&pnt);
 }
 
 void CObj::move(void)

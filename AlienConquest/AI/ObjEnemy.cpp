@@ -24,20 +24,18 @@ CObjEnemy::~CObjEnemy(void)
 
 void CObjEnemy::paint()
 {
-	D3DXVECTOR2 pnt;
-	pnt.x = m_dpos_x;
-	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case FIRING:
-			m_firing[m_fir_seq]->Paint(&pnt);
+			m_curtexture = m_firing[m_fir_seq];
 			if (m_fir_seq >= 3) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 135) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
 		default:
-		    m_regular[0]->Paint(&pnt);
+			m_curtexture = m_regular[0];
 			break;
 	};
+	CObj::paint();
 }
 
 void CObjEnemy::Fire()

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Timer.h"
+#include "Texture.h"
 
 typedef enum {
 	REGULAR,FIRING,DYING,DEAD,JETTING
@@ -22,12 +23,14 @@ public:
 	const static float SSCALE;
 	const static float ASCALE;
 protected:
-	float m_accel_x, m_accel_y;   // Acceleration X,Y
-	float m_speed_x, m_speed_y;   // Current X,Y Speed
-	int m_pos_x, m_pos_y;	   // Current X,Y Position
-	float m_dpos_x, m_dpos_y;	// Current float x,y position
-    float m_max_x, m_max_y;	   // Maximum X,Y Velocity
-	CTimer m_time;				   // A Timer
+	float m_accel_x, m_accel_y;		// Acceleration X,Y
+	float m_speed_x, m_speed_y;		// Current X,Y Speed
+	int m_pos_x, m_pos_y;			// Current X,Y Position
+	float m_dpos_x, m_dpos_y;		// Current float x,y position
+    float m_max_x, m_max_y;			// Maximum X,Y Velocity
+	CTimer m_time;					// A Timer
 	EN_OBJ_STATE m_state;
 	int m_z;						// Defines the plane to be drawn on
+	CTexture *m_curtexture;			// Current frame to paint
+
 };

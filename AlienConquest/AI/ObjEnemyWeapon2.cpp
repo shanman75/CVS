@@ -7,18 +7,16 @@ CTexture *CObjEnemyWeapon2::m_regular[1];
 
 void CObjEnemyWeapon2::paint()
 {
-	D3DXVECTOR2 pnt;
-	pnt.x = m_dpos_x;
-	pnt.y = m_dpos_y;
 	int anit = m_ani_time.GetTime();
 	m_age -= anit;
 	if (m_age < 0) g_ObjMgr->del(this);
 	switch (m_state) {
 		case REGULAR:
 		default:
-		    m_regular[0]->Paint(&pnt);
+			m_curtexture = m_regular[0];
 			break;
 	};   
+	CObj::paint();
 }
 
 CObjEnemyWeapon2::CObjEnemyWeapon2(void)

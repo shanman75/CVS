@@ -35,16 +35,14 @@ void CHero::_UnloadGraphics(void)
 
 void CHero::paint(void)
 {
-	D3DXVECTOR2 pnt;
-	pnt.x = m_dpos_x;
-	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case REGULAR:
 		default:
 			if (m_regular[0] != NULL)
-				m_regular[0]->Paint(&pnt);
+				m_curtexture = m_regular[0];
 			break;
 	};
+	CObj::paint();
 }
 
 void CHero::move(void)
