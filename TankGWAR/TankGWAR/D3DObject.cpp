@@ -75,7 +75,7 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
 
 
-  if (0) {  
+  if (WINDOWED) {  
   m_d3dpp.Windowed = true;
   m_d3dpp.hDeviceWindow = g_hWnd;
   m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
@@ -91,8 +91,7 @@ int D3DObject::_InitD3D9(void)
 			500,
 			SWP_NOZORDER | SWP_SHOWWINDOW
 		);
-}
-
+  }
 
 /*
 if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
@@ -195,14 +194,15 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
   if (m_d3ddevice9->TestCooperativeLevel()!=D3D_OK)
   {
 	OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
-	m_d3dbackbuffer9->Release();
-	m_d3dbackbuffer9=NULL;
+	SafeRelease(m_d3dbackbuffer9);
+	SafeRelease(pFont);
 	if(m_d3ddevice9->Reset(&m_d3dpp)!=D3D_OK)
 		return FALSE;
 	//get new surfaces
 	if(m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9)!=D3D_OK)
 		return FALSE;
 	m_pd3dxSprite->OnLostDevice();
+	_InitFonts();
   }
   return D3D_OK;
 } //DeviceLost
@@ -342,6 +342,7 @@ int D3DObject::_InitFonts() {
 	fdesc.Weight = 1000;
 	fdesc.Height = 42;
 	hr = D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont);
+
 	if(FAILED(hr))
 		return FALSE;
 	m_initfonts=TRUE;

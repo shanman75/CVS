@@ -3,6 +3,7 @@
 #include "Timer.h"
 #include <dinput.h>
 #include "Camera.h"
+#include "Terrain.h"
 
 #define SafeRelease(x) if (x) {x->Release(); x=NULL;}
 
@@ -18,6 +19,7 @@ public:
 	void GetInput(CObjMenu *mnu);
 */
 	void GetInput(cCamera *cam);
+	void GetInput(cTerrain *);
 private:
 	IDirectInput8 *m_DInput;
 	IDirectInputDevice8 *m_DIKB;

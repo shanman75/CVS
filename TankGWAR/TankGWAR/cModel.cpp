@@ -2,73 +2,25 @@
 #include "cmodel.h"
 #include <stdio.h>
 
-cModel::cModel(void)
+int					cModel::m_graph_init = 0;
+LPD3DXMESH			cModel::m_tank = NULL;
+DWORD				cModel::m_nMat = 0;
+LPDIRECT3DTEXTURE9*	cModel::m_tanktex = NULL;
+D3DMATERIAL9*		cModel::m_tankmat = NULL;
+
+
+cModel::cModel(float x, float y, float z)
 {
-	m_xPos = 0;
-	m_yPos = 0;
-	m_zPos = 0;
+	m_xPos = x;
+	m_yPos = y;
+	m_zPos = z;
 
-	LPD3DXBUFFER lpMat = NULL;
-    LPD3DXBUFFER pAdjacencyBuffer = NULL;
-	HRESULT hr;
-
-  if (FAILED(D3DXLoadMeshFromX(
-     "resource\\tank2.x",
-     D3DXMESH_SYSTEMMEM,
-	 g_D3DObject->m_d3ddevice9,
-     &pAdjacencyBuffer,				// LPD3DXBUFFER *ppAdjacency,
-     &lpMat,				// LPD3DXBUFFER *ppMaterials,
-     NULL,			    // LPD3DXBUFFER *ppEffectInstances,
-     &m_nMat,				// DWORD *pNumMaterials,
-     &m_tank
-   )))
-     m_tank = NULL;
-   else
-     if( FAILED( hr = m_tank->OptimizeInplace(
-                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-                        (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
-    {
-        SAFE_RELEASE( pAdjacencyBuffer );
-        SAFE_RELEASE( lpMat );
-        return;
-    }
-
-   D3DXMATERIAL* mat = (D3DXMATERIAL*) lpMat->GetBufferPointer();
-   char texpath[512];
-
-   m_tanktex = new LPDIRECT3DTEXTURE9 [m_nMat];
-   m_tankmat = new D3DMATERIAL9 [m_nMat];
- 
-   for (DWORD x = 0; x < m_nMat; x++) {
-	   LPDIRECT3DTEXTURE9 tempt;
-	   tempt = NULL;
-	   m_tankmat[x] = mat[x].MatD3D;
-	   m_tanktex[x] = NULL;
-	   if (mat[x].pTextureFilename != NULL) {               
-		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
-	       if (hr = D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-		   {
-			   m_tanktex[x] = NULL;
-			   OutputDebugString("Create Texture Failed\n");
-		   }
-		   else {
-			   m_tanktex[x] = tempt;
-		   }
-	   }
-//      g_D3DObject->LoadTextureFromFile(texpath,&tanktex[nMat],0);
-   }
-    SAFE_RELEASE( pAdjacencyBuffer );
-    SAFE_RELEASE( lpMat );
+	if (!m_graph_init++) _LoadGraphics();
 }
 
 cModel::~cModel(void)
 {
-  m_tank->Release();
-  for (int x = 0; x < (int)m_nMat; x++) {
-	  SAFE_RELEASE(m_tanktex[x]);
-  }
-  SAFE_DELETE_ARRAY(m_tanktex);
-  SAFE_DELETE_ARRAY(m_tankmat);
+   if (!--m_graph_init) _UnloadGraphics();
 }
 
 void cModel::MakeWorldMatrix( int x )
@@ -176,4 +128,67 @@ void cModel::Paint()
      //if (x == 1 || x == 2)
 	 m_tank->DrawSubset(x);
    }
+}
+void cModel::_UnloadGraphics()
+{
+  m_tank->Release();
+  for (int x = 0; x < (int)m_nMat; x++) {
+	  SAFE_RELEASE(m_tanktex[x]);
+  }
+  SAFE_DELETE_ARRAY(m_tanktex);
+  SAFE_DELETE_ARRAY(m_tankmat);
+}
+void cModel::_LoadGraphics()
+{
+	LPD3DXBUFFER lpMat = NULL;
+    LPD3DXBUFFER pAdjacencyBuffer = NULL;
+	HRESULT hr;
+
+  if (FAILED(D3DXLoadMeshFromX(
+     "resource\\tank2.x",
+     D3DXMESH_SYSTEMMEM,
+	 g_D3DObject->m_d3ddevice9,
+     &pAdjacencyBuffer,				// LPD3DXBUFFER *ppAdjacency,
+     &lpMat,				// LPD3DXBUFFER *ppMaterials,
+     NULL,			    // LPD3DXBUFFER *ppEffectInstances,
+     &m_nMat,				// DWORD *pNumMaterials,
+     &m_tank
+   )))
+     m_tank = NULL;
+   else
+     if( FAILED( hr = m_tank->OptimizeInplace(
+                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                        (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+    {
+        SAFE_RELEASE( pAdjacencyBuffer );
+        SAFE_RELEASE( lpMat );
+        return;
+    }
+
+   D3DXMATERIAL* mat = (D3DXMATERIAL*) lpMat->GetBufferPointer();
+   char texpath[512];
+
+   m_tanktex = new LPDIRECT3DTEXTURE9 [m_nMat];
+   m_tankmat = new D3DMATERIAL9 [m_nMat];
+ 
+   for (DWORD x = 0; x < m_nMat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt;
+	   tempt = NULL;
+	   m_tankmat[x] = mat[x].MatD3D;
+	   m_tanktex[x] = NULL;
+	   if (mat[x].pTextureFilename != NULL) {               
+		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
+	       if (hr = D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+		   {
+			   m_tanktex[x] = NULL;
+			   OutputDebugString("Create Texture Failed\n");
+		   }
+		   else {
+			   m_tanktex[x] = tempt;
+		   }
+	   }
+//      g_D3DObject->LoadTextureFromFile(texpath,&tanktex[nMat],0);
+   }
+    SAFE_RELEASE( pAdjacencyBuffer );
+    SAFE_RELEASE( lpMat );
 }

@@ -67,11 +67,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 
    g_hInst = hInstance; // Store instance handle in our global variable
 
+   DWORD style;
+
+   if (WINDOWED) 
+	   style = WS_POPUP | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW;
+   else
+	   style = WS_POPUP;
+
    hWnd = CreateWindowEx(
 		WS_EX_APPWINDOW | WS_EX_DLGMODALFRAME,  //	   WS_EX_TOPMOST,
 	   szWindowClass, 
 	   szTitle, 
-	   WS_POPUP | WS_CLIPCHILDREN | WS_OVERLAPPEDWINDOW,//WS_POPUP,
+	   style,
        0, 
 	   0, 
 	   0, //GetSystemMetrics(SM_CXSCREEN),
@@ -149,6 +156,7 @@ char debg[255];
     case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);    // Remark this out to remove the ESCAPE
 		                                                   // Key exiting functionality
+		OutputDebugString("Help");
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
@@ -193,6 +201,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
            g_MainGameLoop();
 	   }
 	   else {
+		   g_time.Pause();
 		   WaitMessage();
 	   }
    }

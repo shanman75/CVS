@@ -156,6 +156,9 @@
 				RelativePath=".\TankGWAR.cpp">
 			</File>
 			<File
+				RelativePath=".\Terrain.cpp">
+			</File>
+			<File
 				RelativePath=".\Texture.cpp">
 			</File>
 			<File
@@ -198,6 +201,9 @@
 			</File>
 			<File
 				RelativePath=".\TankGWAR.h">
+			</File>
+			<File
+				RelativePath=".\Terrain.h">
 			</File>
 			<File
 				RelativePath=".\Texture.h">

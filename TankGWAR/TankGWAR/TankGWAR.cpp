@@ -17,12 +17,14 @@
 #include "MainWnd.h"
 #include "Timer.h"
 #include "Camera.h"
+#include "Terrain.h"
 
+CTimer g_time;
 CTimer time, time2;
 CTexture *tex1;
+cTerrain *terrain;
 cModel *model, *model2, *model3;
 cCamera cam;
-
 
 void g_MainDestroy()
 {
@@ -30,6 +32,7 @@ void g_MainDestroy()
   delete model;
   delete model2;
   delete model3;
+  delete terrain;
 }
 void g_MainInit()
 {
@@ -37,11 +40,32 @@ void g_MainInit()
    CObj *myobj = new CObj();
    g_ObjMgr.add(myobj);
    tex1 = new CTexture("resource\\blah.png",0xFFFF00FF);
-   model = new cModel();
-   model2 = new cModel();
-   model2->SetXYZ(0,0,5);
-   model3 = new cModel();
-   model3->SetXYZ(0,0,-5);
+   model = new cModel(0,0,0);
+   model2 = new cModel(0,0,50);
+   model3 = new cModel(30,0,-10);
+
+   D3DLIGHT9 light;
+   ZeroMemory(&light,sizeof(light));
+   D3DXVECTOR3 pos (0,40,0);
+   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
+   light.Position = pos;
+   light.Direction = D3DXVECTOR3 (0,-1,0);
+   light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
+   light.Diffuse.r = 0.2f;
+//   light.Ambient = light.Diffuse;
+   light.Specular = light.Diffuse;
+   light.Range = 500;
+   light.Type = D3DLIGHT_DIRECTIONAL;
+   g_D3DObject->m_d3ddevice9->SetLight(0,&light);
+   g_D3DObject->m_d3ddevice9->LightEnable(0,true);
+
+   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(150,150,150,0) );
+   //float clip = 500.0f;
+   //g_D3DObject->m_d3ddevice9->SetClipPlane(0,&clip);
+   //g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(15,15,15,0) );
+
+   terrain = new cTerrain();
+
 }
 
 
@@ -50,21 +74,20 @@ void g_MainGameLoop()
    static int tm = 1;
    static char debg[255];
 
-   time.UpdateClock();
+   g_time.UpdateClock();
+   g_time.UnPause();
+
    if (--tm == 0) {
      sprintf (debg,"FPS %.2f\n",4000 / time.GetTime());
-     OutputDebugString(debg);
+     //OutputDebugString(debg);
 	 tm = 4;
    }
-
-
-   
+ 
    g_D3DObject->BeginPaint();
    g_ObjMgr.paint();
-   g_D3DObject->DrawTextStr((int)(time2.PeekTime()/50)%800,100,D3DCOLOR_XRGB(240,0,50),"Hello World!!!");
+   //g_D3DObject->DrawTextStr((int)(time2.PeekTime()/50)%800,100,D3DCOLOR_XRGB(240,0,50),"Hello World!!!");
    g_D3DObject->DrawTextStr(50,500,D3DCOLOR_XRGB(240,0,50),debg);
    
-   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,        0x00FFFFFF );
    D3DMATERIAL9 d3dMaterial;
    memset(&d3dMaterial, 0, sizeof(d3dMaterial));
    d3dMaterial.Diffuse.r = 1.0f;
@@ -77,16 +100,18 @@ void g_MainGameLoop()
 
    g_D3DObject->m_d3ddevice9->SetMaterial( &d3dMaterial );
 
-	g_D3DInput->GetInput((cCamera *)&cam);					 
-	cam.SetCamera();
+   g_D3DInput->GetInput((cCamera *)&cam);					 
+   g_D3DInput->GetInput((cTerrain *)terrain);
+   cam.SetCamera();
  
-	model->Paint();
-	model2->Paint();
-	model3->Paint();
+   model->Paint();
+   model2->Paint();
+   model3->Paint();
 
-   g_D3DObject->m_pd3dxSprite->Begin(0);
-   tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
-   g_D3DObject->m_pd3dxSprite->End();
+   terrain->Paint();
+   //g_D3DObject->m_pd3dxSprite->Begin(0);
+   //tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
+   //g_D3DObject->m_pd3dxSprite->End();
 
    g_D3DObject->EndPaint();
 }

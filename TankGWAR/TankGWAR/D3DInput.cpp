@@ -55,10 +55,41 @@ void D3DInput::GetInput(cCamera *cam)
 	else if(KEYDOWN(buffer, DIK_DOWN))
 		cam->event(cCamera::DOWN);
 
+    if (KEYDOWN(buffer, DIK_A))
+		cam->event(cCamera::ZOOMIN);
+	else if(KEYDOWN(buffer, DIK_Z))
+		cam->event(cCamera::ZOOMOUT);
+
+
 //	if(KEYDOWN(buffer, DIK_X)){
 //		hero->SetSpeed(0,0);
 //		hero->SetAccel(0,0);
 //	}
+
+}
+void D3DInput::GetInput(cTerrain *ter)
+{
+    char     buffer[256]; 
+    HRESULT  hr; 
+ 
+    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
+    if FAILED(hr) 
+    { 
+		hr=m_DIKB->Acquire();
+		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
+		return;
+    } 
+
+	static int keydwn = 0;
+
+	if (KEYDOWN(buffer,DIK_R))
+		keydwn = DIK_R;
+
+	if (!KEYDOWN(buffer, DIK_R) && keydwn == DIK_R) {
+		ter->event(cTerrain::RAND);
+		keydwn  = 0;
+	}
+
 
 }
 
