@@ -13,6 +13,7 @@ Last updated: April 8,2004
 #define mp3aud_h
 
 #include "StdAfx.h"
+#include "MainWnd.h"
 #include <dshow.h>
 
 class cmp3stream

@@ -60,7 +60,16 @@ void cmp3stream::OnGraphEvent()
 		{
         case EC_COMPLETE:            
             // here when media is completely done playing
-            MediaPosition->put_CurrentPosition(0);   // reset to beginning
+			if(MediaPosition) MediaPosition->Release();
+            if(MediaEvent) MediaEvent->Release();
+            if(MediaControl) MediaControl->Release();
+            if(GraphBuilder) GraphBuilder->Release();
+            CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, 
+                          IID_IGraphBuilder,(void**)&GraphBuilder);
+	        GraphBuilder->QueryInterface(IID_IMediaControl, (void**)&MediaControl);
+	        GraphBuilder->QueryInterface(IID_IMediaEvent, (void**)&MediaEvent);
+ 	        GraphBuilder->QueryInterface(IID_IMediaPosition, (void**)&MediaPosition);
+			playlist();
             break;
 		default:
 			break;

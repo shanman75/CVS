@@ -21,6 +21,8 @@ int g_ActiveApp=1;
 cmp3stream *g_mp3_1;							//first mp3 sound
 cwavsound *wav;
 minimap *g_map=NULL;
+FILE * playlistfile=NULL;
+char filename[128]="\0";
 
 
 //
@@ -123,6 +125,22 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    return TRUE;
 }
 
+void playlist()
+{ 	if(playlistfile==NULL)
+		playlistfile=fopen("resource\\playlist.txt","r");
+    char test[64]="\0";
+	if(playlistfile!=NULL)
+	{  sprintf(filename,"resource\\mp3s\\");
+	   if((fscanf(playlistfile,"%[^\n]s",test))>=0)
+	   {  strcat(filename,test);
+	      fscanf(playlistfile,"%*c");
+	      g_mp3_1->CreateGraph((LPCSTR)filename);
+	   }
+	}
+}
+
+
+
 //
 //  FUNCTION: WndProc(HWND, unsigned, WORD, LONG)
 //
@@ -160,10 +178,12 @@ char debg[255];
 		SafeDelete(g_ObjMgr);
 		OutputDebugString("Deleting global D3D Input\n");
 		SafeDelete(g_D3DInput);
-    OutputDebugString("Deleting MP3 object\n");
-    SafeDelete(g_mp3_1);
-	SafeDelete(wav);
-    CoUninitialize();
+        OutputDebugString("Deleting MP3 object\n");
+        SafeDelete(g_mp3_1);
+	    SafeDelete(wav);
+        CoUninitialize();
+		fclose(playlistfile);
+
 		
 		OutputDebugString("Deleting global D3D Object\n");
 		SafeDelete(g_D3DObject);
@@ -204,7 +224,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	}
   CoInitialize(NULL);
   g_mp3_1=new cmp3stream(g_hWnd);
-  g_mp3_1->CreateGraph(NULL);
+  //g_mp3_1->CreateGraph(NULL);
+  playlist();
   wav=new cwavsound(g_hWnd);
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_TANKGWAR);
