@@ -39,8 +39,11 @@ struct CVERTEX
 };
 #define D3DFVF_CVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1)
 
+class cGameState;
+
 class D3DObject
 {
+  friend class cGameState;
 public:
 	D3DObject(void);
 	~D3DObject(void);

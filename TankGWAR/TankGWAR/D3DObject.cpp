@@ -595,7 +595,7 @@ int D3DObject::SpriteDraw( IDirect3DTexture9 *texture, RECT *rect, D3DXVECTOR2 *
 						  float rotation,
 						  D3DXVECTOR2 *trans, D3DCOLOR color)
 {	
-   D3DXMATRIXA16 transform;
+   D3DXMATRIXA16 transform, saveTransform;
    D3DXMatrixTransformation2D(&transform,
 	   scale,          // Scaling Center D3DXVECTOR2 
 	   NULL,            // Scaling Rotation factor
@@ -606,9 +606,11 @@ int D3DObject::SpriteDraw( IDirect3DTexture9 *texture, RECT *rect, D3DXVECTOR2 *
 	   );
 
 
+   m_pd3dxSprite->GetTransform(&saveTransform);
    m_pd3dxSprite->SetTransform(&transform);
-   return m_pd3dxSprite->Draw(texture,rect,NULL,NULL,
+   m_pd3dxSprite->Draw(texture,rect,NULL,NULL,
 	                color);
+   return m_pd3dxSprite->SetTransform(&saveTransform);
    //return m_pd3dxSprite->Draw( texture, rect, 
 	//                           scale, rotate, rotation, trans, 
 	//						   color );

@@ -89,8 +89,9 @@ private:
 
      //static LPDIRECT3DTEXTURE9	  m_statusbartex;
      static CTexture *m_statusbartex;
-     static CTexture *m_roundBk;
-     static CTexture *m_mouseptr;
+     static CTexture *m_preroundBk;
+     static CTexture *m_preroundMousePtr;
+     static CTexture *m_preroundRegButton[2];
      
      c3DObjectMissile *m_tmissile;
 };

@@ -5,8 +5,9 @@
 cGameState *g_GameState;
 //LPDIRECT3DTEXTURE9 cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_statusbartex = NULL;
-CTexture *cGameState::m_roundBk = NULL;
-CTexture *cGameState::m_mouseptr =NULL;
+CTexture *cGameState::m_preroundBk = NULL;
+CTexture *cGameState::m_preroundMousePtr =NULL;
+CTexture *cGameState::m_preroundRegButton[2];
 extern bool sh_FPS;
 
 void cGameState::move(void)
@@ -73,16 +74,35 @@ void cGameState::NextPlayer(void)
     m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
 }
 
+BOOL PointInRect(D3DXVECTOR2 *pnt, RECT *rct)
+{
+  if ( (pnt->x >= rct->left) && (pnt->x <= rct->right))
+    if ((pnt->y >= rct->bottom) && (pnt->y <= rct->bottom))
+      return true;
+  return false;
+}
+
 void cGameState::paintbg(void)
 {
   D3DXVECTOR2 mscreen;
+  RECT mrect;
 
   g_D3DInput->MouseScreen(&mscreen);
 
   if (m_mainstate == MAINSTATES::PRELEVEL) {
+    int but_ng;
     g_D3DObject->m_pd3dxSprite->Begin(0);
-    m_roundBk->Paint(0.0f,0.0f);
-    m_mouseptr->Paint(mscreen.x,mscreen.y);
+    m_preroundBk->Paint(0.0f,0.0f);
+
+    SetRect(&mrect,340,100,800,135);
+    SetRect(&mrect,0,0,800,300);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"New Game",-1,
+               &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.4f,1.0f,1.0f));
+
+    m_preroundMousePtr->Paint(&mscreen);
+//    m_preroundButtons->Paint(&mouserect,&mscreen);
     g_D3DObject->m_pd3dxSprite->End;
   } 
   else {
@@ -420,14 +440,26 @@ void cGameState::_Init(void)
                                   )))
                                   exit(0);
     */
+  RECT imgrect;    
+    
     m_statusbartex = new CTexture("resource\\statusbar\\statusbar.dds");
-    m_roundBk = new CTexture("resource\\pre-round\\roundbackground.png");
-    m_mouseptr = new CTexture("resource\\pre-round\\mousepointer.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f));
+    m_preroundBk = new CTexture("resource\\pre-round\\roundbackground.png");
+    SetRect(&imgrect,1,1,35,35);
+    m_preroundMousePtr = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+
+    SetRect(&imgrect,1,37,401,81);
+    m_preroundRegButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+    SetRect(&imgrect,1,84,401,128);
+    m_preroundRegButton[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 }
 
 void cGameState::_Delete(void)
 {
   SAFE_DELETE(m_statusbartex);
+  SAFE_DELETE(m_preroundBk);
+  SAFE_DELETE(m_preroundMousePtr);
+  SAFE_DELETE(m_preroundRegButton[0]);
+  SAFE_DELETE(m_preroundRegButton[1]);
 }
 
 void cGameState::OnLostDevice() {
