@@ -3,10 +3,12 @@
 
 #include <d3d9.h>
 #include <d3dx9.h>
-#include "Texture.h"
-#include "d3dobject.h"
-#include "gamestate.h"
+#include "D3DObject.h"
 
-void drawmap();
-
+class minimap
+{  public:	minimap();
+			void drawmap(float x=0,float y=0);
+			~minimap();
+   private: LPD3DXSPRITE map;
+};
 #endif

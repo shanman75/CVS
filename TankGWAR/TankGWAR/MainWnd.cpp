@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "mp3aud.h"
 #include "mainwnd.h"
+#include "minimap.h"
 #include "D3DObject.h"
 #include "D3DInput.h"
 #include "ObjMgr.h"
@@ -19,8 +20,7 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int g_ActiveApp=1;
 cmp3stream *g_mp3_1;							//first mp3 sound
 cwavsound *wav;
-LPD3DXSPRITE map=NULL;
-LPDIRECT3DTEXTURE9 maptex=NULL;
+minimap *g_map=NULL;
 
 
 //
