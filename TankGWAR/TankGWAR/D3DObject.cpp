@@ -59,19 +59,30 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.BackBufferFormat=curmode.Format; //color mode
   m_d3dpp.BackBufferCount=2; //one back buffer
   m_d3dpp.MultiSampleType=D3DMULTISAMPLE_NONE;
+  m_d3dpp.MultiSampleQuality = 0;
   m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
   m_d3dpp.SwapEffect=D3DSWAPEFFECT_DISCARD; // Try it..
 //  m_d3dpp.SwapEffect             = D3DSWAPEFFECT_COPY_VSYNC;
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=false; //full screen
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+
+  m_d3dpp.EnableAutoDepthStencil=true; //not needed
+  m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
+  m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
+  m_d3dpp.Flags = 0;
+  m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
+  //m_d3dpp.FullScreen_RefreshRateInHz =70;
 
 
-  if (1) {  
+  if (0) {  
   m_d3dpp.Windowed = true;
   m_d3dpp.hDeviceWindow = g_hWnd;
   m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+  m_d3dpp.BackBufferCount = 1;
+  m_d3dpp.FullScreen_RefreshRateInHz = 0;
   SetWindowPos(
 			g_hWnd,
 			NULL,
@@ -83,34 +94,56 @@ int D3DObject::_InitD3D9(void)
 		);
 }
 
-  m_d3dpp.EnableAutoDepthStencil=true; //not needed
-  m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
-  m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
-  m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
-  //m_d3dpp.FullScreen_RefreshRateInHz =70;
 
 /*
 if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 	  D3DCREATE_SOFTWARE_VERTEXPROCESSING,&m_d3dpp,&m_d3ddevice8) != D3D_OK)
 	  return FALSE;
 */
-  if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,g_hWnd,
-	  D3DCREATE_SOFTWARE_VERTEXPROCESSING ,&m_d3dpp,&m_d3ddevice9) != D3D_OK)
+  if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
+					       D3DDEVTYPE_HAL,
+	                       g_hWnd,
+						   D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING,
+						   &m_d3dpp,
+						   &m_d3ddevice9
+						  ) != D3D_OK)
 	  return FALSE;
 
-  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_NONE);
-  m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
-  m_d3ddevice9->SetRenderState ( D3DRS_ZENABLE, FALSE);
+  m_d3ddevice9->SetRenderState ( D3DRS_ZENABLE, D3DZB_TRUE);
+  m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
+  m_d3ddevice9->SetRenderState ( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 
   m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
   m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
   m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+
+//m_d3ddevice9->SetRenderState(D3DRS_FOGENABLE, 1);
+//m_d3ddevice9->SetRenderState(D3DRS_FOGCOLOR, D3DCOLOR_ARGB(50,250,250,250));
+//m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, 0);
+//m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, *(DWORD*)(&fogNear));
+
+
+  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_XRGB(200,200,200));
+
+  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
+  //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
+  
 
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,  D3DTOP_SELECTARG1);
 
+  /*
+    m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE );
+    m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
+      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
+      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
+      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
+      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
+      m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
+      m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+*/
 //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
 
 
@@ -457,14 +490,15 @@ void D3DObject::BeginPaint()
 {
 	DeviceLost();
 	m_d3ddevice9->BeginScene();
-    m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET, 
+    m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 
           D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
-	m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255,255,255),1.0f,0);
-    m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE);
+//	m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE|D3DXSPRITE_OBJECTSPACE);
+//	m_pd3dxSprite->Begin(0);
 }
 
 void D3DObject::EndPaint()
-{	m_pd3dxSprite->End();
+{	
+//	m_pd3dxSprite->End();
 	m_d3ddevice9->EndScene();  
 	m_d3ddevice9->Present(NULL,NULL,NULL,NULL);
 }

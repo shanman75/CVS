@@ -139,6 +139,7 @@ char debg[255];
 		SafeDelete(g_D3DInput);
 		*/
 
+    	g_MainDestroy();
 		OutputDebugString("Deleting global D3D Object\n");
 		SafeDelete(g_D3DObject);
 		PostQuitMessage(0);
@@ -194,6 +195,5 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	   }
    }
 
-	g_MainDestroy();
 	return (int) msg.wParam;
 }

@@ -125,6 +125,12 @@
 				RelativePath=".\MainWnd.cpp">
 			</File>
 			<File
+				RelativePath=".\Obj.cpp">
+			</File>
+			<File
+				RelativePath=".\ObjMgr.cpp">
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -148,6 +154,9 @@
 			<File
 				RelativePath=".\Timer.cpp">
 			</File>
+			<File
+				RelativePath=".\World.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -163,6 +172,12 @@
 				RelativePath=".\MainWnd.h">
 			</File>
 			<File
+				RelativePath=".\Obj.h">
+			</File>
+			<File
+				RelativePath=".\ObjMgr.h">
+			</File>
+			<File
 				RelativePath=".\Resource.h">
 			</File>
 			<File
@@ -176,6 +191,9 @@
 			</File>
 			<File
 				RelativePath=".\Timer.h">
+			</File>
+			<File
+				RelativePath=".\World.h">
 			</File>
 		</Filter>
 		<Filter

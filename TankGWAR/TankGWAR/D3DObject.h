@@ -42,12 +42,12 @@ class D3DObject
 public:
 	D3DObject(void);
 	~D3DObject(void);
-protected:
 	int m_cnt;
 
 	IDirect3D9* m_d3d9;
 	IDirect3DDevice9* m_d3ddevice9;
 	IDirect3DSurface9* m_d3dbackbuffer9;
+
 	D3DPRESENT_PARAMETERS m_d3dpp;
 	D3DCAPS9 m_d3dcps;
 
@@ -60,6 +60,7 @@ protected:
     ID3DXFont*              m_pD3DXFont;            // D3DX font    
 	int m_x;
 	LPD3DXSPRITE m_pd3dxSprite;
+protected:
 	HRESULT RenderText();
 
 	static BOOL m_initfonts;

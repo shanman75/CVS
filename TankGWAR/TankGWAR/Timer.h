@@ -30,6 +30,7 @@ private:
 	static BOOL m_pause;
 	static int m_dltime;
 	float m_timeinterval;
+
 	static LARGE_INTEGER m_gtime;
 	static float m_perfFreq;
 	static LARGE_INTEGER m_largeInt;
