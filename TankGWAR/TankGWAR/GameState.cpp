@@ -9,6 +9,10 @@ CTexture *cGameState::m_preroundBk = NULL;
 CTexture *cGameState::m_preroundMousePtr =NULL;
 CTexture *cGameState::m_preroundRegButton[2];
 CTexture *cGameState::m_preroundLogo = NULL;
+CTexture *cGameState::m_helpBk = NULL;
+
+CTexture *cGameState::m_creditsBk = NULL;
+
 extern bool sh_FPS;
 
 void cGameState::move(void)
@@ -91,7 +95,7 @@ void cGameState::paintbg(void)
   g_D3DInput->MouseScreen(&mscreen);
 
   if (m_mainstate == MAINSTATES::MAINMENU) {
-    m_mainmenubutt = MAINMENUBUTT::NONE;
+    m_mainmenubutt = MAINMENUBUTT::MM_NONE;
     int but_ng;
     g_D3DObject->m_pd3dxSprite->Begin(0);
     m_preroundBk->Paint(0.0f,0.0f);
@@ -101,7 +105,7 @@ void cGameState::paintbg(void)
     // New Game Button
     SetRect(&mrect,200,st_y+(41+30)*0,600,st_y+(41+30)*0+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
-    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NEWGAME;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_NEWGAME;
     m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41+30)*0));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"New Game",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
@@ -109,7 +113,7 @@ void cGameState::paintbg(void)
     // Credits button
     SetRect(&mrect,200,st_y+(41+30)*1,600,st_y+(41+30)*1+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
-    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_CREDITS;
     m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41+30)*1));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Credits",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
@@ -117,7 +121,7 @@ void cGameState::paintbg(void)
     // Help button
     SetRect(&mrect,200,st_y+(41+30)*2,600,st_y+(41+30)*2+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
-    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_NONE;
     m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41.0f+30.0f)*2));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Help",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
@@ -125,7 +129,7 @@ void cGameState::paintbg(void)
     // Quit button
     SetRect(&mrect,200,st_y+(41+30)*3,600,st_y+(41+30)*3+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
-    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::QUIT;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_QUIT;
     m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41.0f+30.0f)*3));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Quit",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
@@ -134,6 +138,18 @@ void cGameState::paintbg(void)
 //    m_preroundButtons->Paint(&mouserect,&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
   } 
+  else if (m_mainstate == MAINSTATES::CREDITS)
+  {
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_creditsBk->Paint(0.0f,0.0f);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
+  else if (m_mainstate == MAINSTATES::HELP)
+  {
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_helpBk->Paint(0.0f,0.0f);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
   else {
     m_skybox->Paint();
     m_terrain->Paint();
@@ -235,6 +251,8 @@ void cGameState::GetInput(void)
   static bool v_KEYUP_A = true;
 
   static bool v_KEYUP_W = true;
+  static bool v_MOUSEUP_0 = true;
+
   static bool WIREFRAME = false;
 
   static bool v_KEYUP_F = true;
@@ -254,21 +272,37 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_mainstate) {
+    case MAINSTATES::CREDITS:
+      if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
+         (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
+        SAFE_DELETE(m_creditsBk);
+        m_mainstate = MAINSTATES::MAINMENU;
+        v_KEYUP_ESC = false;
+        v_MOUSEUP_0 = false;
+      }
+      break;
     case MAINSTATES::MAINMENU:
       if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
                SendMessage(g_hWnd,WM_QUIT,0,0);
                return;
       }
-      if(g_D3DInput->MouseDown(0)) {
+      if(g_D3DInput->MouseDown(0) && v_MOUSEUP_0) {
         switch (m_mainmenubutt) {
-         case MAINMENUBUTT::NEWGAME:
+         case MAINMENUBUTT::MM_CREDITS:
+           m_mainstate = MAINSTATES::CREDITS;
+           m_creditsBk = new CTexture("resource\\pre-round\\credits.png");
+           v_MOUSEUP_0 = false;
+           v_KEYUP_ESC = false;
+           break;
+          break;
+         case MAINMENUBUTT::MM_NEWGAME:
           CTimer::Pause();
           AddPlayer();
           CTimer::UnPause();
           m_mainstate = MAINSTATES::LEVEL;
           m_gstate = STATES::TARGETING;
           break;
-         case MAINMENUBUTT::QUIT:
+         case MAINMENUBUTT::MM_QUIT:
            SendMessage(g_hWnd,WM_QUIT,0,0);
          default: break;
         }
@@ -358,6 +392,8 @@ void cGameState::GetInput(void)
     default:
       break;
   }
+          if (!g_D3DInput->MouseDown(0))
+            v_MOUSEUP_0 = true;
           if (!g_D3DInput->KeyDown(DIK_ESCAPE))
             v_KEYUP_ESC = true;
           if (!g_D3DInput->KeyDown(DIK_PGUP))

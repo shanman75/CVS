@@ -38,8 +38,8 @@ class cGameState
 {
 public:
   enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
-  enum MAINSTATES { MAINMENU, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
-  enum MAINMENUBUTT { NEWGAME, QUIT, NONE };
+  enum MAINSTATES { MAINMENU, CREDITS, HELP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
+  enum MAINMENUBUTT { MM_NEWGAME, MM_CREDITS, MM_QUIT, MM_NONE };
   cGameState(void);
   ~cGameState(void);
   void move(void);
@@ -94,6 +94,9 @@ private:
      static CTexture *m_preroundMousePtr;
      static CTexture *m_preroundLogo;
      static CTexture *m_preroundRegButton[2];
+
+     static CTexture *m_creditsBk;
+     static CTexture *m_helpBk;
 
      enum MAINMENUBUTT m_mainmenubutt;
      
