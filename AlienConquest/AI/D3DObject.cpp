@@ -220,19 +220,18 @@ int D3DObject::LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3D
 
 int D3DObject::PaintText ()
 {
-//  OutputDebugString("D3DObject::Test - begin\n");
+//  OutputDebugString("D3DObject::Test - begin\n"); 
 	static float newfps = 30;
-	static float fps = 50;
+	static float fps = 30;
 	if (m_timer.PeekTime() > 1000) 
 	{
-		fps=newfps;
+		fps=newfps/m_timer.GetTime()*1000;
 		newfps=0;
-		m_timer.Reset();
 	}
 	newfps++;
 
 	char *outstr2 = new char[500];
-	sprintf(outstr2,"FPS = %f NUM Objects=%i\n",fps,g_ObjMgr->GetNumObj());
+	sprintf(outstr2,"FPS = %.2f NUM Objects=%i\n",fps,g_ObjMgr->GetNumObj());
 	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
 	delete outstr2;
 
@@ -244,9 +243,17 @@ return D3D_OK;
 int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
 {
 	HRESULT hr;
+	LOGFONT fn;
+
+	memset(&fn,0,sizeof(LOGFONT));
+	strcpy (fn.lfFaceName,"Arial Black");
+	fn.lfHeight = 50;
+	fn.lfWeight = 200;
+	fn.lfCharSet = DEFAULT_CHARSET;
 
 	// Get a handle for the font to use
-	HFONT hFont = (HFONT)GetStockObject(SYSTEM_FONT);
+	//HFONT hFont = (HFONT)GetStockObject(SYSTEM_FONT);
+	HFONT hFont = (HFONT) CreateFontIndirect(&fn);
 
 	LPD3DXFONT pFont = NULL;
 

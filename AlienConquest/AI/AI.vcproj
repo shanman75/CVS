@@ -148,6 +148,12 @@
 				RelativePath="ObjEnemyWeapon3.cpp">
 			</File>
 			<File
+				RelativePath="ObjHeroWeaponMain.cpp">
+			</File>
+			<File
+				RelativePath="ObjHeroWeaponMissile.cpp">
+			</File>
+			<File
 				RelativePath="ObjMgr.cpp">
 			</File>
 			<File
@@ -219,6 +225,9 @@
 			</File>
 			<File
 				RelativePath="ObjEnemyWeapon3.h">
+			</File>
+			<File
+				RelativePath="ObjHeroWeaponMain.h">
 			</File>
 			<File
 				RelativePath="ObjMgr.h">

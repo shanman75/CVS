@@ -23,11 +23,19 @@ CObj::CObj(void)
 void CObj::paint(void)
 {
 	D3DXVECTOR2 pnt;
+	D3DXVECTOR2 tex;
+
 	pnt.x = m_dpos_x;
 	pnt.y = m_dpos_y;
 
-	if (m_curtexture)
+	tex.x = m_curtexture->GetWidth();
+	tex.y = m_curtexture->GetHeight();
+
+	if (SUCCEEDED(m_world.ToScreen(&pnt,&tex))) {
+		if (m_curtexture)
 			m_curtexture->Paint(&pnt);
+	}
+	else { OutputDebugString("Object is OFF THE SCREEN\n"); }
 }
 
 void CObj::move(void)
@@ -35,25 +43,27 @@ void CObj::move(void)
 	if (m_age  && ((int)m_age_timer.PeekTime() > m_age)) {m_state = DEAD; return;}
 	float tm = (float)m_time.GetTime()/1000;
 
-//	char buff[500];
-	//sprintf(buff,"Moving tm=%f\n",tm);
-	//OutputDebugString(buff);
-	//sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,
-	//	m_accel_x,m_accel_y);
-	//OutputDebugString(buff);
+	// char buff[500];
+	// sprintf(buff,"Moving tm=%f\n",tm);
+	// OutputDebugString(buff);
+	// sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,
+	// m_accel_x,m_accel_y);
+	// OutputDebugString(buff);
 
 	// Calculate Distance
 	float dlt_x = (float)(m_speed_x*tm + 0.5*m_accel_x*tm*tm);
 	float dlt_y = (float)(m_speed_y*tm + 0.5*m_accel_x*tm*tm);
-	//sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
-	//	m_dpos_x, m_dpos_y
-	//	);
-	//OutputDebugString(buff);
+	// sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
+	// m_dpos_x, m_dpos_y
+	// OutputDebugString(buff);
 
 	// Take into account acceleration
 	m_dpos_x += dlt_x;
 	m_dpos_y += dlt_y;
-	float MARGIN_X = 50;
+
+/*
+// SHould be taken care of by World code now...
+    float MARGIN_X = 50;
 	float MARGIN_Y = 50;
 	if (m_dpos_x < (0-MARGIN_X)) m_dpos_x = WIDTH;
 	if (m_dpos_y < (0-MARGIN_Y)) m_dpos_y = HEIGHT;
@@ -63,6 +73,7 @@ void CObj::move(void)
 	//m_pos_y = (int) m_dpos_y % HEIGHT;
 	//sprintf(buff,"X,Y = %i,%i\n",m_pos_x, m_pos_y);
 	//OutputDebugString(buff);
+*/
 
 	// New speed
 	m_speed_x += m_accel_x*tm;
@@ -106,19 +117,6 @@ BOOL CObj::TestRect(const RECT *cmp1, const POINT ptx, const RECT *cmp2, const P
   OffsetRect(x,ptx.x,ptx.y);
   OffsetRect(y,pty.x,pty.y);
 
-  /*
-  char buff[500];
-
-  sprintf (buff,"Comparing (L,T,R,B) cmp1 to cmp2 (%i,%i,%i,%i) (%i,%i,%i,%i)\n",
-	  cmp1->left,cmp1->top,cmp1->right,cmp1->bottom,
-	  cmp2->left,cmp2->top,cmp2->right,cmp2->bottom);
-  OutputDebugString(buff);
-
-  sprintf (buff,"Comparing (L,T,R,B) X to Y (%i,%i,%i,%i) (%i,%i,%i,%i)\n",
-	  x->left,x->top,x->right,x->bottom,
-	  y->left,y->top,y->right,y->bottom);
-  OutputDebugString(buff);
-  */
 
   if (x->left > y->right || y->left > x->right ||
 	  x->top > y->bottom || y->top > x->bottom )

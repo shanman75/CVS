@@ -53,6 +53,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
 
+	/*
 #define NUM_ENEMY1 1
 #define NUM_ENEMY2 1
 #define NUM_ENEMY3 1
@@ -60,9 +61,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	CObjEnemy  *enemy1[NUM_ENEMY1];
 	CObjEnemy2 *enemy2[NUM_ENEMY2];
 	CObjEnemy3 *enemy3[NUM_ENEMY3];
-	CHero *hero;
-	CBkGround *bkg=new CBkGround;
-	g_ObjMgr->add(bkg);
 
 	srand(GetTickCount());
 	for (int x= 0; x<NUM_ENEMY1;x++) {
@@ -86,15 +84,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 //		enemy3[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 		g_ObjMgr->add(enemy3[x]);
 	}
-
+*/
+	CBkGround *bkg=new CBkGround;
+	g_ObjMgr->add(bkg);
+	CHero *hero;
 	hero = new CHero;
 	hero->SetPosition(50,50);
-	enemy1[0]->SetPosition(450,50);
-//	enemy1[0]->Fire();
-//	hero->SetAccel((float)(rand()%50-25),(float)(rand()%30-15));
-//	hero->SetSpeed(50.0,10);
 	g_ObjMgr->add(hero);
-
 
 
 	// Main message loop:
@@ -145,37 +141,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
        }
 	   else if (ActiveApp) 
 	   {
-			g_D3DInput->GetInput(hero);
-			
+			g_D3DInput->GetInput(hero);			
 		    g_Time.UpdateClock();
+			g_ObjMgr->spawn();
 			g_ObjMgr->coldet();
 			g_ObjMgr->move();
 			// Collision detection
-			if (g_FireClock.PeekTime() > 800) {
-				g_FireClock.Reset();
-				//enemy1[0]->Fire();
-				//enemy2[0]->Fire();
-				//enemy3[0]->Fire();
-			}
-/*
-			if (g_FireClock.PeekTime() > 4200) { 
-				for (int x= 0; x < NUM_ENEMY1; x++) 
-					//enemy1[x]->Fire();
-	//				enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
-					//enemy1[rand()%NUM_ENEMY1]->accel((rand()%15)-7,(rand()%15)-7);
-					//enemy2[rand()%NUM_ENEMY2]->accel((rand()%15)-7,(rand()%15)-7);
-												switch (rand()%4) {
-													case 0:
-										//				enemy2[rand()%NUM_ENEMY2]->Jet();														
-														break;
-													case 1:
-													default:
-														//enemy2[rand()%NUM_ENEMY2]->Fire();
-														break;
-												}
-								//hero->accel(rand()%5-2.5,rand()%5-2.5);
-			}
-*/
 		    g_D3DObject->BeginPaint();
 			g_ObjMgr->paint();
 			g_D3DObject->PaintText();

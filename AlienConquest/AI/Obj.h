@@ -2,6 +2,7 @@
 
 #include "Timer.h"
 #include "Texture.h"
+#include "World.h"
 
 class CObj
 {
@@ -16,7 +17,7 @@ public:
 	void SetAccel(float xaccel,float yaccel);
 	void SetPosition(float x, float y);
 	BOOL CollisionDet(CObj *colwith);
-	void Collision(CObj *colwith);
+	virtual void Collision(CObj *colwith);
 	static BOOL TestRect(const RECT *x, const POINT, const RECT *y, const POINT);
 
 	enum STATE { REGULAR, FIRING, DYING, DEAD, JETTING };
@@ -41,4 +42,5 @@ protected:
 	long m_age;						// Age of object (-1 = perm, any other value is ms)
 	CTimer m_age_timer;				// Age timer
     OTYPE m_type;
+	CWorld m_world;
 };

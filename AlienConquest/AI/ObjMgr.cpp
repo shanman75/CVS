@@ -9,6 +9,7 @@ CObjMgr::CObjMgr(void)
 {
 	m_numobj = 0;
 	m_obj[0] = NULL;	
+	m_spawn_interval = 1200;
 }
 
 CObjMgr::~CObjMgr(void)
@@ -41,8 +42,44 @@ void CObjMgr::coldet(void)
 
 void CObjMgr::move()
 {
+	// Move the world
+	m_world.move();
+
 	for (int x=0; x < m_numobj; x++)
 		m_obj[x]->move();
+}
+
+void CObjMgr::spawnOne(void)
+{
+	int objtype = rand() % 3;
+	CObj *newobj;
+
+	// Choose an object type
+	switch (objtype)
+	{
+	case 0:
+		newobj = new CObjEnemy;
+		break;
+	case 1:
+		newobj = new CObjEnemy2;
+		break;
+	default:
+	case 2:
+		newobj = new CObjEnemy3;
+		break;
+	}
+	newobj->SetPosition(800,300+rand()%200-100);
+	newobj->SetSpeed(-150+rand()%50-25,rand()%50 - 25);
+	add(newobj);
+}
+
+void CObjMgr::spawn(void)
+{
+	if (m_spawn_tim.PeekTime() > m_spawn_interval) {
+		m_spawn_tim.Reset();
+		// Choose a spawn type..only one now
+		spawnOne();
+	}
 }
 
 void CObjMgr::paint()

@@ -58,6 +58,10 @@ void D3DInput::GetInput(CHero *hero)
 //		hero->SetAccel(0,0);
 	}
 
+	if (KEYDOWN(buffer, DIK_SPACE)) {
+		hero->event(CHero::FIRE);
+	}
+
 	if (KEYDOWN(buffer, DIK_PAUSE)) {
 		OutputDebugString("Pause\n");
 //		CTimer t_time;

@@ -1,8 +1,10 @@
 #include "StdAfx.h"
 #include "hero.h"
+#include "objmgr.h"
 
 int CHero::m_graph_init = 0;
 CTexture *CHero::m_regular[1];
+CTexture *CHero::m_dying[1];
 
 CHero::CHero(void)
 {
@@ -35,16 +37,29 @@ void CHero::_LoadGraphics(void)
    SetRect(&trect,1,1,126,97);
    OutputDebugString("Loading Hero graphics\n");
    m_regular[0] = new CTexture("resource/herodumdum2.bmp",0xFFFF00FF,NULL);
+   m_dying[0] = new CTexture("resource/explosion.bmp",0xFFFF00FF,NULL);
 }
 
 void CHero::_UnloadGraphics(void)
 {
 	delete m_regular[0];
+	delete m_dying[0];
 }
 
 void CHero::paint(void)
 {
 	switch (m_state) {
+		case DYING:
+			m_curtexture = m_dying[0];
+			if (m_ani_tim.PeekTime() > 600) { m_state=DEAD; }
+			break;
+		case DEAD:
+			m_curtexture = m_regular[0];
+			break;
+		case FIRING:
+			m_state = REGULAR;
+			m_curtexture = m_regular[0];
+			break;
 		case REGULAR:
 		default:
 			if (m_regular[0] != NULL)
@@ -74,6 +89,27 @@ void CHero::move(void)
 	*/
 }
 
+void CHero::Fire(void)
+{
+	static int missiles = 0;
+	if (m_state != FIRING) {
+		m_state = FIRING;
+		m_fir_seq = 0;
+		CObjHeroWeaponMain *bull = new CObjHeroWeaponMain;
+		bull->SetPosition(m_dpos_x+54,m_dpos_y+47);
+		bull->SetSpeed(350+m_speed_x,0);
+		bull->SetAccel(-15,0);
+		g_ObjMgr->add(bull);
+		if (missiles++ % 2 == 0) {
+		CObjHeroWeaponMissile *missile = new CObjHeroWeaponMissile;
+		missile->SetPosition(m_dpos_x+35,m_dpos_y+5);
+		missile->SetSpeed(200+m_speed_x,0);
+		missile->SetAccel(170,0);
+		g_ObjMgr->add(missile);
+		}
+	}
+}
+
 void CHero::event(EVENT event)
 {
 	float spdx = 150.5;
@@ -94,7 +130,18 @@ void CHero::event(EVENT event)
 		case RIGHT:
 			m_speed_x = spdx; m_mov_x.Reset();
 			break;
+		case FIRE:
+			if (m_state != FIRING && m_fir_tim.PeekTime() > 180 ) { m_fir_tim.Reset(); Fire(); }
+			break;
 		default:
 			break;
 	}
+}
+
+void CHero::Collision (CObj *colwith)
+{
+	m_ani_tim.Reset();
+	m_speed_x=0;
+	m_speed_y=0;
+    m_state = DYING;
 }
