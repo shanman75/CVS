@@ -24,6 +24,7 @@
 CTimer g_time;
 CTimer time, time2;
 bool sh_FPS = false;
+bool sh_MAP = false;
 extern minimap *g_map;
 
 void g_MainDestroy()
@@ -68,9 +69,12 @@ void g_MainGameLoop()
    
    g_ObjMgr->paint();
    g_GameState->paint();
-   //g_D3DObject->m_pd3dxSprite->Begin(0);
-   //g_map->drawmap(40.0f,40.0f);
-   //g_D3DObject->m_pd3dxSprite->End();
- 
+
+   if (sh_MAP) {
+     g_D3DObject->m_pd3dxSprite->Begin(0);
+     g_map->drawmap(40.0f,40.0f);
+     g_D3DObject->m_pd3dxSprite->End();
+   }
+
    g_D3DObject->EndPaint();
 }

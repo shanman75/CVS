@@ -23,6 +23,7 @@ CTexture *cGameState::m_spinner[3];
 CTexture *cGameState::m_textfield[1];
 
 extern bool sh_FPS;
+extern bool sh_MAP;
 
 void cGameState::move(void)
 {
@@ -804,6 +805,7 @@ void cGameState::GetInput(void)
   static bool WIREFRAME = false;
 
   static bool v_KEYUP_F = true;
+  static bool v_KEYUP_M = true;
 
  // g_D3DInput->GetInput((cTerrain *)m_terrain);
   if (g_D3DInput->KeyDown(DIK_W) && v_KEYUP_W) {
@@ -815,6 +817,10 @@ void cGameState::GetInput(void)
   if (g_D3DInput->KeyDown(DIK_F) && v_KEYUP_F) {
      sh_FPS = !sh_FPS;
      v_KEYUP_F = false; 
+   }
+  if (g_D3DInput->KeyDown(DIK_LMENU) && g_D3DInput->KeyDown(DIK_M) && v_KEYUP_M) {
+     sh_MAP = !sh_MAP;
+     v_KEYUP_M = false; 
    }
   if (!g_D3DInput->KeyDown(DIK_W)) v_KEYUP_W = true;
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
@@ -1212,6 +1218,8 @@ void cGameState::GetInput(void)
             v_KEYUP_Z = true;
           if (!g_D3DInput->KeyDown(DIK_A))
             v_KEYUP_A = true;
+          if (!g_D3DInput->KeyDown(DIK_M))
+            v_KEYUP_M = true;
 }
 
 void cGameState::GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient)
