@@ -156,7 +156,7 @@ char debg[255];
     case WM_KEYDOWN:
 		if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);    // Remark this out to remove the ESCAPE
 		                                                   // Key exiting functionality
-		OutputDebugString("Help");
+		//OutputDebugString("Help");
 		break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);

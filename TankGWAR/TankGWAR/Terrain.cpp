@@ -72,6 +72,20 @@ void cTerrain::_Init()
 //	D3DXSaveMeshToX( "Test.x", g_TerrainMesh, NULL, &Mat, 1, DXFILEFORMAT_TEXT );
 }
 
+D3DCOLOR randcolor()
+{
+	switch (rand()%3) {
+		case 3:
+			return D3DCOLOR_RGBA(0,0,0,255); break;
+		case 2:
+			return D3DCOLOR_RGBA(0,0,40,255); break;
+		case 1:
+			return D3DCOLOR_RGBA(0,0,0,255); break;
+		default:
+			return D3DCOLOR_RGBA(0,12,99,255); break;
+	}
+}
+
 void cTerrain::event(EVENT evnt)
 {
 	  switch (evnt) {
@@ -83,6 +97,10 @@ void cTerrain::RandomizeMesh(void)
 {
 	sCustomVertex *VertexPtr;
 	DWORD *IndexPtr;
+	float *t_Heights = m_Heights;
+
+	IndexPtr =NULL;
+	VertexPtr =NULL;
 
 	g_TerrainMesh->LockVertexBuffer( 0, (LPVOID *) &VertexPtr );	
 	g_TerrainMesh->LockIndexBuffer( 0, (LPVOID *) &IndexPtr );	
@@ -91,16 +109,15 @@ void cTerrain::RandomizeMesh(void)
 	  for (int j = 0; j < (TER_Y + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
 		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%200/10)-15;
-		  //VertexPtr->y = -0.5;
+		  VertexPtr->y = (float) (rand()%50/4)-18;
 		  VertexPtr->nx = 0;
 		  VertexPtr->ny = 1;
 		  VertexPtr->nz = 0;
-		  VertexPtr->diffuse = D3DCOLOR_RGBA(rand()%25,rand()%255,rand()%255,255);
+		  VertexPtr->diffuse = randcolor();
 		  //VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
  		  VertexPtr->u = i%2;
 		  VertexPtr->v = j%2;
-		  *m_Heights++ = VertexPtr->y;
+		  *t_Heights++ = VertexPtr->y;
 		  VertexPtr++;
 
 	}
@@ -118,18 +135,11 @@ void cTerrain::RandomizeMesh(void)
 
 		  *IndexPtr++ = te + TER_Y + 1;
 		  *IndexPtr++ = te + 1;
-
-//		  *IndexPtr++ = 0;
-//		  *IndexPtr++ = 1;
-//		  *IndexPtr++ = 2;
-//		  *IndexPtr++ = 3;
-//		  *IndexPtr++ = 2;
-//		  *IndexPtr++ = 1;
     }
 	g_TerrainMesh->UnlockIndexBuffer();
     g_TerrainMesh->UnlockVertexBuffer();	
 
-//	D3DXComputeNormals(g_TerrainMesh,NULL);
+	D3DXComputeNormals(g_TerrainMesh,NULL);
 }
 
 cTerrain::~cTerrain(void)

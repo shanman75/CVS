@@ -77,12 +77,15 @@ void cCamera::SetCamera(void)
 	m_z = m_zoom * ( tanh(m_roty) );
    */
 
-	m_y = terrain->GetHeight(m_x,m_z)+10.0f;
-	m_y = 20;
+	//m_y = terrain->GetHeight(m_x,m_z)+10.0f;
+	m_y = 19.2;
+	
+	
+    /*
 	char debg[255];
-
 	sprintf (debg, "Y = %.2f - X = %.2f ZM = %.1f",m_y, m_rotx,m_zoom);
     g_D3DObject->DrawTextStr(300,450,D3DCOLOR_XRGB(240,0,50),debg);
+	*/
 
 
     D3DXVECTOR3 vFromPt   = D3DXVECTOR3( m_x, m_y, m_z );
@@ -96,6 +99,6 @@ void cCamera::SetCamera(void)
 
     D3DXMATRIX matProj;
     FLOAT fAspect = ((FLOAT)WIDTH) / HEIGHT;
-    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 200.0f );
+    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 250.0f );
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
 }

@@ -46,13 +46,13 @@ void g_MainInit()
 
    D3DLIGHT9 light;
    ZeroMemory(&light,sizeof(light));
-   D3DXVECTOR3 pos (0,40,0);
+   D3DXVECTOR3 pos (0,400,0);
    //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
    light.Position = pos;
    light.Direction = D3DXVECTOR3 (0,-1,0);
    light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
-   light.Diffuse.r = 0.2f;
-//   light.Ambient = light.Diffuse;
+   //light.Diffuse.r = 0.2f;
+   //light.Ambient = light.Diffuse;
    light.Specular = light.Diffuse;
    light.Range = 500;
    light.Type = D3DLIGHT_DIRECTIONAL;
@@ -105,13 +105,11 @@ void g_MainGameLoop()
    cam.SetCamera();
  
    model->Paint();
-   model2->Paint();
-   model3->Paint();
-
    terrain->Paint();
-   //g_D3DObject->m_pd3dxSprite->Begin(0);
-   //tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
-   //g_D3DObject->m_pd3dxSprite->End();
+
+   g_D3DObject->m_pd3dxSprite->Begin(0);
+   tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
+   g_D3DObject->m_pd3dxSprite->End();
 
    g_D3DObject->EndPaint();
 }
