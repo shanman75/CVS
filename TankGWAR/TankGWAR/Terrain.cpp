@@ -15,14 +15,43 @@ cTerrain::cTerrain(float x,float z,float w)
   for (int i = 0; i < (TER_X+1); i++) {
     m_Heights[i] = new float[(int)(TER_Z+1)];
     for (int j = 0; j < (TER_Z+1); j++) {
-       m_Heights[i][j] = (float)((rand()%500)/15);
-//       m_Heights[i][j] = 2.0f;
+//       m_Heights[i][j] = (float)((rand()%500)/15);
+       m_Heights[i][j] = 44.0f;
     }
   }
 
+	_Init();
+}
+
+void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
+{
+  // Number of hills 40 through 100
+//  int numHills = rand()%60 + 10;
+//  numHills = 0;
+//  numHills = 10;
+
+  for (long i =0; i < numHills; i++)
+  {
+     static char hilldebg[255];
+     sprintf(hilldebg,"Generating hill %i of %i\n",i,numHills);
+     OutputDebugString(hilldebg);
+      float tx = ((float)(rand() % 3000))/10 - 150.0f;
+      float tz = ((float)(rand() % 3000))/10 - 150.0f;
+      float ty = rand()%4500+550;
+//      SetHeight(tx,tz,ty);
+      for (int t=0; t< (int)ty; t++)
+      {
+        float dx = (rand()%1000)/100 - 5.0f;
+        float dz = (rand()%1000)/100 - 5.0f;
+        DripDrop(tx+dx,tz+dz,1.5f);
+      }
+  }
+  for (long i = 0; i < numDirtBalls; i++)
+    DripDrop((float)(rand() % 3000)/10-150.0f,(float)(rand() % 3000)/10-150.0f,((float)(rand()%100))/100);
+    //SetHeight((float)(rand() % 3000)/10-150.0f,(float)(rand() % 3000)/10-150.0f,((float)(rand()%100))/100);
   // Pass 1
-  for (int t = 1; t < 2; t++)
-  for (int i = 1; i < TER_X-1; i++)
+  /*
+  for (int t = 1; t < 2; t++)  for (int i = 1; i < TER_X-1; i++)
   for (int j = 1; j < TER_Z-1; j+=2)
     m_Heights[i][j] = 
                    ( m_Heights[i][j-1] + m_Heights[i][j] + 
@@ -39,7 +68,49 @@ cTerrain::cTerrain(float x,float z,float w)
                      m_Heights[i][j] + m_Heights[i+1][j] +
                      m_Heights[i-1][j] + 0
                     )/5;
-	_Init();
+  */
+  UpdateMeshHeights();
+}
+
+void cTerrain::DripDrop(float x, float z, float y)
+{
+   D3DXVECTOR3 r_p;
+   D3DXVECTOR3 t_p;
+
+BreakIt:
+   r_p = D3DXVECTOR3(x,1000000.0f*1000000.0f,z);
+   
+   t_p = D3DXVECTOR3(x,GetHeight(x,z),z);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x-1,z),z);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x+1,z),z);
+   if (t_p.y < r_p.y) r_p = t_p;
+
+   t_p = D3DXVECTOR3(x,GetHeight(x,z-1),z-1);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x-1,z-1),z-1);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x+1,z-1),z-1);
+   if (t_p.y < r_p.y) r_p = t_p;
+
+   t_p = D3DXVECTOR3(x,GetHeight(x,z+1),z+1);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x-1,z+1),z+1);
+   if (t_p.y < r_p.y) r_p = t_p;
+   t_p = D3DXVECTOR3(x-1,GetHeight(x+1,z+1),z+1);
+   if (t_p.y < r_p.y) r_p = t_p;
+
+   if (r_p.x != x || r_p.z != z)
+   {
+     x = r_p.x; z = r_p.z;
+//     t_p = r_p;
+     goto BreakIt;
+   }
+//   if (t_p.x == r_p.x && t_p.z == r_p.z)
+     SetHeight(r_p.x,r_p.z,r_p.y+y);
+//   else 
+//     DripDrop(t_p.x,t_p.z,y);
 }
 
 void cTerrain::Paint()
@@ -47,16 +118,25 @@ void cTerrain::Paint()
 	D3DXMATRIXA16 matwrld;
   D3DMATERIAL9 mtrl;
   ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
+  mtrl.Ambient = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
+  mtrl.Diffuse = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
+  mtrl.Emissive = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
+  mtrl.Specular = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+  mtrl.Power = 1.0f;
+
 	D3DXMatrixIdentity(&matwrld);
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
-  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,FALSE);
+//  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,FALSE);
+  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,TRUE);
 
   if (g_TerrainMesh != NULL)
   {   
     g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
 //    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_WRAP0, D3DWRAPCOORD_0 | D3DWRAPCOORD_1 |D3DWRAPCOORD_2|D3DWRAPCOORD_3);
 	  g_TerrainMesh->DrawSubset(0);
-//    g_TerrainMeshBig->DrawSubset(0);
+    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_WRAP0, 0);
+    g_TerrainMeshBig->DrawSubset(0);
   }
   g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,TRUE);
 }
@@ -93,7 +173,9 @@ void cTerrain::_Init()
   LPDIRECT3DTEXTURE9 tempt;
 
   m_tertex = new LPDIRECT3DTEXTURE9 [1];
-  sprintf (texpath,"resource\\%s","BUMP_Dents_bp.dds");
+  //sprintf (texpath,"resource\\%s","BUMP_Dents_bp.dds");
+  sprintf (texpath,"resource\\%s","rock_bw.dds");
+  
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return;
   if (FAILED(D3DXCreateTextureFromFileEx(
@@ -117,18 +199,33 @@ void cTerrain::_Init()
 	RandomizeMesh();
 }
 
-D3DCOLOR randcolor()
+D3DCOLOR randcolor(cTerrain::ENVIRONMENT env)
 {
-	switch (rand()%3) {
-		case 3:
-			return D3DCOLOR_RGBA(36,171,5,255); break;
-		case 2:
-			return D3DCOLOR_RGBA(245,210,3,255); break;
-		case 1:
-			return D3DCOLOR_RGBA(38,190,3,255); break;
-		default:
-			return D3DCOLOR_RGBA(38,100,3,255); break;
-	}
+  switch (env) {
+    case cTerrain::ROCK:
+	   switch (rand()%3) {
+		   case 3:
+			   return D3DCOLOR_RGBA(128,64,0,255); break;
+		   case 2:
+			   return D3DCOLOR_RGBA(113,56,0,255); break;
+		   case 1:
+			   return D3DCOLOR_RGBA(128,64,0,255); break;
+		   default:
+			   return D3DCOLOR_RGBA(170,85,0,255); break;
+	   }
+    default:
+	   switch (rand()%3) {
+		   case 3:
+			   return D3DCOLOR_RGBA(36,171,5,255); break;
+		   case 2:
+			   return D3DCOLOR_RGBA(245,210,3,255); break;
+		   case 1:
+			   return D3DCOLOR_RGBA(38,190,3,255); break;
+		   default:
+			   return D3DCOLOR_RGBA(38,100,3,255); break;
+	   }
+      break;
+  }
 }
 
 void cTerrain::event(EVENT evnt)
@@ -156,10 +253,12 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
 		  VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
-		  VertexPtr->diffuse = randcolor();
+      VertexPtr->diffuse = randcolor(cTerrain::ENVIRONMENT::ROCK);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
+ 		  VertexPtr->u = (float)(i%5)/6;
+		  VertexPtr->v = (float)(j%5)/6;
 //      SetHeight(VertexPtr->x,VertexPtr->z,VertexPtr->y);
 		  VertexPtr++;
 	}
@@ -196,7 +295,7 @@ void cTerrain::RandomizeMesh(void)
         VertexPtr->y = min(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
       else 
         VertexPtr->y = -150.0f;
-		  VertexPtr->diffuse = randcolor();
+      VertexPtr->diffuse = randcolor(cTerrain::ENVIRONMENT::ROCK);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -219,10 +318,11 @@ void cTerrain::RandomizeMesh(void)
       }
 	g_TerrainMeshBig->UnlockIndexBuffer();
   g_TerrainMeshBig->UnlockVertexBuffer();
-//  g_TerrainMesh->OptimizeInplace(
-//                            D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-//                            NULL, NULL, NULL, NULL);
-//	D3DXComputeNormals(g_TerrainMesh,NULL);
+  g_TerrainMesh->OptimizeInplace(
+                            D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                            NULL, NULL, NULL, NULL);
+	D3DXComputeNormals(g_TerrainMesh,NULL);
+	D3DXComputeNormals(g_TerrainMeshBig,NULL);
 }
 
 cTerrain::~cTerrain(void)

@@ -11573,7 +11573,7 @@ Frame SCENE_ROOT {
      0.000000;0.000000;0.000000;;
 
      TextureFilename {
-      "green_dark1.tga";
+      "green_dark1.dds";
      }
     }
 
@@ -14366,7 +14366,7 @@ Frame SCENE_ROOT {
      0.000000;0.000000;0.000000;;
 
      TextureFilename {
-      "green_dark1.tga";
+      "green_dark1.dds";
      }
     }
 

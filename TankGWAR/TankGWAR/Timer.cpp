@@ -132,6 +132,7 @@ void CTimer::setInterval(float interval)
 
 void CTimer::UnPause(void)
 {
+  OutputDebugString("Calling Un Pause\n");
 	if (m_pause) m_dltime = 2;
 	m_pause = FALSE;
 }

@@ -37,7 +37,7 @@ struct st_PlayerState {
 class cGameState
 {
 public:
-  enum STATES { TARGETING, FIRING, EXPLODING};
+  enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
   enum MAINSTATES { MENU, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
   cGameState(void);
   ~cGameState(void);
@@ -74,7 +74,9 @@ private:
      cCameraBehindMissile  m_camBehindMissile;
      cCameraAboveExplosion m_camAboveExplosion;
      cCameraAboveTerrain m_camAboveTerrain;
+     cCamera             m_camera;
      enum STATES m_gstate;
+     enum MAINSTATES m_mainstate;
      int RoundNumber;
 
      void _Init(void);
@@ -87,6 +89,8 @@ private:
 
      //static LPDIRECT3DTEXTURE9	  m_statusbartex;
      static CTexture *m_statusbartex;
+     static CTexture *m_roundBk;
+     static CTexture *m_mouseptr;
      
      c3DObjectMissile *m_tmissile;
 };

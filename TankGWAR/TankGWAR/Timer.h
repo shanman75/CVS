@@ -24,6 +24,7 @@ public:
 	BOOL CmpTimeRaw(float cmptm);
 	void setInterval(float);
 	BOOL Paused(void);
+  BOOL WasPaused(void) { return m_dltime > 0; }
 	
 private:
 	LARGE_INTEGER m_ltime;

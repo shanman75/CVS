@@ -177,7 +177,7 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGEND, *(DWORD*)(&fogFar));
 m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
  */
 
-  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(190,150,190,255));
+  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(255,255,128,255));
 
   m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
@@ -209,29 +209,33 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
 
   D3DLIGHT9 light,light2,light3;
   ZeroMemory(&light,sizeof(light));
-  D3DXVECTOR3 pos (0,400,0);
   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
-  light.Position = pos;
-  light.Direction = D3DXVECTOR3 (0,-1,0);
-  light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
+  light.Position = D3DXVECTOR3(0,400,0);
+  light.Direction = D3DXVECTOR3 (0.3,-0.4,0.3);
+
+  light.Ambient = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+  light.Diffuse = D3DXCOLOR(0.5f,0.5f,0.5f,0.5f);
   light.Specular = light.Diffuse;
-  light.Diffuse.r = 0.9f;
   light.Range = 5000;
   light.Type = D3DLIGHT_DIRECTIONAL;
   m_d3ddevice9->SetLight(0,&light);
   m_d3ddevice9->LightEnable(0,true);
 
+  ZeroMemory(&light2,sizeof(light2));
   light2 = light;
+  light2.Diffuse = D3DXCOLOR(1.0f,1.0f,0.7f,1.0f);
   light3 = light;
   light2.Position  = D3DXVECTOR3( 30.0f,400.0f,30.0f);
   light3.Position  = D3DXVECTOR3(-30.0f,400.0f,30.0f);
   light2.Direction = D3DXVECTOR3(  0.2f, -1.0f, 0.2f);
   light3.Direction = D3DXVECTOR3( -0.2f, -1.0f,-0.2f);
 
-  //m_d3ddevice9->SetLight(1,&light2);
-  //m_d3ddevice9->LightEnable(1,true);
-  //m_d3ddevice9->SetLight(2,&light3);
-  //m_d3ddevice9->LightEnable(2,true);
+  m_d3ddevice9->SetLight(1,&light2);
+  m_d3ddevice9->LightEnable(1,true);
+  /*
+  m_d3ddevice9->SetLight(2,&light3);
+  m_d3ddevice9->LightEnable(2,true);
+  */
 
   ShowCursor(FALSE);
   m_d3ddevice9->ShowCursor(FALSE);

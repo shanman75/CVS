@@ -22,14 +22,24 @@ public:
 	void GetInput(cTerrain *);
   BOOL KeyDown(BYTE);
   BOOL MouseDown(DWORD);
+  BOOL MouseAxis(D3DXVECTOR3 *mo_axis);
+  BOOL MouseScreen(D3DXVECTOR2 *mo_screen);
+
 private:
+  BOOL UpdateMouse();
 	IDirectInput8 *m_DInput;
 	IDirectInputDevice8 *m_DIKB;
   IDirectInputDevice8 *m_DIMO;
+
   CTimer m_keytime;
   CTimer m_mousetime;
+  CTimer m_mouseDNtime;
+  CTimer m_mouseAXtime;
+  CTimer m_mouseSCtime;
 
-  DIMOUSESTATE m_dims;
+  D3DXVECTOR2 m_mousepos;
+
+  DIMOUSESTATE2 m_dims;
 };
 
 extern D3DInput *g_D3DInput;

@@ -107,7 +107,7 @@ void c3DObjectTank::_UnloadGraphics()
   for (int x = 0; x < (int)m_nMat; x++) {
 	  SAFE_RELEASE(m_tanktex[x]);
   }
-  for (int x = 0; x< (int)5 ; x++ ) {
+  for (int x = 0; x< (int)c3DObjectTank::NUM_SKINS ; x++ ) {
 	  SAFE_RELEASE(m_skintex[x]);
   }
   SAFE_DELETE_ARRAY(m_skintex);
@@ -117,7 +117,7 @@ void c3DObjectTank::_UnloadGraphics()
 
 void c3DObjectTank::event(enum EVENT evnt, float amount)
 {
-  if (m_keytime.CmpTime())
+//  if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
       m_barrelHeight -= 0.0006f*m_time.PeekTime() * amount; break;
@@ -128,9 +128,9 @@ void c3DObjectTank::event(enum EVENT evnt, float amount)
     case RIGHT:
       m_turretRotate+=0.0008f*m_time.PeekTime() * amount; break;
     case PWRUP:
-      m_firePower+=0.1f*m_time.PeekTime(); break;
+      m_firePower+=0.1f*m_time.PeekTime() * amount; break;
     case PWRDN:
-      m_firePower-=0.1f*m_time.PeekTime(); break;
+      m_firePower-=0.1f*m_time.PeekTime() * amount; break;
     default:
       break;
   }
@@ -199,32 +199,52 @@ void c3DObjectTank::_LoadGraphics()
     SAFE_RELEASE( lpMat );
 
 // Skins
-       m_skintex = new LPDIRECT3DTEXTURE9 [5];
-       sprintf (texpath,"resource\\tanks\\skins\\%s","green.dds");
-       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
-         exit(1);
-       m_skintex[c3DObjectTank::SKINS::GREEN] = tempt;
+       m_skintex = new LPDIRECT3DTEXTURE9 [c3DObjectTank::NUM_SKINS];
 
        sprintf (texpath,"resource\\tanks\\skins\\%s","blue.dds");
        if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
          exit(1);
        m_skintex[c3DObjectTank::SKINS::BLUE] = tempt;
 
-       sprintf (texpath,"resource\\tanks\\skins\\%s","steelblue.dds");
+       sprintf (texpath,"resource\\tanks\\skins\\%s","brown.dds");
+       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::BROWN] = tempt;
+
+      sprintf (texpath,"resource\\tanks\\skins\\%s","camoblue.dds");
       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
          exit(1);
-       m_skintex[c3DObjectTank::SKINS::STEELBLUE] = tempt;
+       m_skintex[c3DObjectTank::SKINS::CAMOBLUE] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","grey.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::GREY] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","green.dds");
+       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::GREEN] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","orange.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::ORANGE] = tempt;
 
        sprintf (texpath,"resource\\tanks\\skins\\%s","rainbow.dds");
       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
          exit(1);
        m_skintex[c3DObjectTank::SKINS::RAINBOW] = tempt;
 
-
        sprintf (texpath,"resource\\tanks\\skins\\%s","red.dds");
       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
          exit(1);
        m_skintex[c3DObjectTank::SKINS::RED] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","steelblue.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::STEELBLUE] = tempt;
 
 }
 
@@ -261,8 +281,8 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
   OutputDebugString(debg);
 
   objadd = new c3DObjectMissile(tpe);
-  objadd->accel   (D3DXVECTOR3(0.0f,-25.8f,0.0f));
-  objadd->velocity(tVelocity * m_firePower/4);
+  objadd->accel   (D3DXVECTOR3(0.0f,-9.8f,0.0f));
+  objadd->velocity(tVelocity * m_firePower/7);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);

@@ -5,6 +5,8 @@
 cGameState *g_GameState;
 //LPDIRECT3DTEXTURE9 cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_statusbartex = NULL;
+CTexture *cGameState::m_roundBk = NULL;
+CTexture *cGameState::m_mouseptr =NULL;
 extern bool sh_FPS;
 
 void cGameState::move(void)
@@ -73,8 +75,20 @@ void cGameState::NextPlayer(void)
 
 void cGameState::paintbg(void)
 {
-  m_skybox->Paint();
-  m_terrain->Paint();
+  D3DXVECTOR2 mscreen;
+
+  g_D3DInput->MouseScreen(&mscreen);
+
+  if (m_mainstate == MAINSTATES::PRELEVEL) {
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_roundBk->Paint(0.0f,0.0f);
+    m_mouseptr->Paint(mscreen.x,mscreen.y);
+    g_D3DObject->m_pd3dxSprite->End;
+  } 
+  else {
+    m_skybox->Paint();
+    m_terrain->Paint();
+  }
 }
 
 void cGameState::paint(void)
@@ -83,7 +97,7 @@ void cGameState::paint(void)
   static char szHeight[255];
 
 
-  if (0) {
+  if(0){
   sprintf(szPower,"Pos (%.1f,%.1f,%.1f) Power %.2f\n",
        ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_position.x,
        ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_position.y,
@@ -97,29 +111,8 @@ void cGameState::paint(void)
     );
   g_D3DObject->DrawTextStr(50,470,D3DCOLOR_XRGB(240,240,50),szHeight);
   }
-/*
-  D3DXVECTOR2 mytrans= D3DXVECTOR2(90,90);
-//  g_D3DObject->m_pd3dxSprite->Begin(D3DXSPRITE_DONOTMODIFY_RENDERSTATE|D3DXSPRITE_DONOTSAVESTATE);
-   g_D3DObject->m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE);
-   D3DXMATRIXA16 transform;
-   D3DXMatrixTransformation2D(&transform,
-	   NULL,          // Scaling Center D3DXVECTOR2 
-	   NULL,            // Scaling Rotation factor
-	   NULL,           // Scaling Matrix  D3DXVECTOR2 
-	   NULL,           // Rotation Center D3DXVECTOR2
-	   NULL,			   // Rotation (in radians)
-	  &mytrans           // Translation D3DXVECTOR2
-	   );
 
-  //g_D3DObject->m_pd3dxSprite->SetTransform(&transform);
-  g_D3DObject->m_pd3dxSprite->Draw(
-                          m_statusbartex,
-                          NULL,   // Rectangle
-                          NULL,   // Center
-                          NULL,   // Position
-                          0xFFFFFFFF    // Color
-                          );
-*/
+  if (m_mainstate == MAINSTATES::LEVEL) {
   g_D3DObject->m_pd3dxSprite->Begin(0);
   m_statusbartex->Paint(0.0f,0.0f);
   g_D3DObject->m_pd3dxSprite->End();
@@ -172,10 +165,17 @@ void cGameState::paint(void)
     min(m_PlayerState[m_currentplayer].numweapons[m_PlayerState[m_currentplayer].msl_cur_type],9));
   g_D3DObject->DrawTextStr_StatusBar(&missilerect,D3DCOLOR_XRGB(255,255,255),
     missilestr, DT_CENTER | DT_VCENTER);
+  }
 
 }
 void cGameState::GetInput(void)
 {
+  D3DXVECTOR3 maxis;
+  D3DXVECTOR2 mscreen;
+
+  g_D3DInput->MouseAxis(&maxis);        
+  g_D3DInput->MouseScreen(&mscreen);
+
   c3DObjectTank *tmpP = NULL;
   static bool v_KEYUP_PGUP = true;
   static bool v_KEYUP_PGDN = true;
@@ -206,84 +206,102 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_W)) v_KEYUP_W = true;
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
-  switch (m_gstate) {
-     case TARGETING:
-        tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
-        if (g_D3DInput->KeyDown(DIK_PGUP) && v_KEYUP_PGUP) {
-          NextWeapon(-1); v_KEYUP_PGUP = false; 
-        }
-        if (g_D3DInput->KeyDown(DIK_PGDN) && v_KEYUP_PGDN) {
-          NextWeapon(+1); v_KEYUP_PGDN = false; 
-        }
+  switch (m_mainstate) {
+    case MAINSTATES::PRELEVEL:
+      if(g_D3DInput->MouseDown(0)) {
+        OutputDebugString("Mouse down!  Going to Level State\n");
+        this->AddPlayer();
+        m_mainstate = MAINSTATES::LEVEL;
+        m_gstate = STATES::TARGETING;
+      }
+      break;
+    case MAINSTATES::LEVEL:
+    switch (m_gstate) {
+      case TARGETING:
+          tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
+          if (g_D3DInput->KeyDown(DIK_PGUP) && v_KEYUP_PGUP) {
+            NextWeapon(-1); v_KEYUP_PGUP = false; 
+          }
+          if (g_D3DInput->KeyDown(DIK_PGDN) && v_KEYUP_PGDN) {
+            NextWeapon(+1); v_KEYUP_PGDN = false; 
+          }
 
-        if (g_D3DInput->KeyDown(DIK_F1) && v_KEYUP_F1) {
-            m_PlayerState[m_currentplayer].camabove = true;
-            SetCurrentCamera(&m_camBehindTank);
-            v_KEYUP_F1= false; 
-        }
+          if (g_D3DInput->KeyDown(DIK_F1) && v_KEYUP_F1) {
+              m_PlayerState[m_currentplayer].camabove = true;
+              SetCurrentCamera(&m_camBehindTank);
+              v_KEYUP_F1= false; 
+          }
 
-        if (g_D3DInput->KeyDown(DIK_F2) && v_KEYUP_F2) {
-            m_PlayerState[m_currentplayer].camabove = false;
-            SetCurrentCamera(&m_camAboveTerrain);
-            v_KEYUP_F2= false; 
-        }
+          if (g_D3DInput->KeyDown(DIK_F2) && v_KEYUP_F2) {
+              m_PlayerState[m_currentplayer].camabove = false;
+              SetCurrentCamera(&m_camAboveTerrain);
+              v_KEYUP_F2= false; 
+          }
 
-        if (g_D3DInput->KeyDown(DIK_Z) && v_KEYUP_Z) {
-            m_PlayerState[m_currentplayer].camabovezoom *= 0.80f;
-            v_KEYUP_Z= false; 
-        }
+          if (g_D3DInput->KeyDown(DIK_Z) && v_KEYUP_Z) {
+              m_PlayerState[m_currentplayer].camabovezoom *= 0.80f;
+              v_KEYUP_Z= false; 
+          }
 
-        if (g_D3DInput->KeyDown(DIK_A) && v_KEYUP_A) {
-            m_PlayerState[m_currentplayer].camabovezoom *= 1.10f;
-            v_KEYUP_A= false; 
-        }
+          if (g_D3DInput->KeyDown(DIK_A) && v_KEYUP_A) {
+              m_PlayerState[m_currentplayer].camabovezoom *= 1.10f;
+              v_KEYUP_A= false; 
+          }
 
-        if (g_D3DInput->KeyDown(DIK_UP))
-          tmpP->event(c3DObjectTank::UP);
-        else if (g_D3DInput->KeyDown(DIK_DOWN))
-          tmpP->event(c3DObjectTank::DOWN);
-        if (g_D3DInput->KeyDown(DIK_LEFT))
-          tmpP->event(c3DObjectTank::LEFT);
-        else if (g_D3DInput->KeyDown(DIK_RIGHT))
-          tmpP->event(c3DObjectTank::RIGHT);
-        if (g_D3DInput->KeyDown(DIK_MINUS))
-          tmpP->event(c3DObjectTank::PWRDN);
-        else if (g_D3DInput->KeyDown(DIK_EQUALS))
-          tmpP->event(c3DObjectTank::PWRUP);
-        if (g_D3DInput->KeyDown(DIK_SPACE)) {
-          m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)tmpP->Fire(m_PlayerState[m_currentplayer].msl_cur_type);          
-          SetCurrentCamera(&m_camBehindMissile);
-          m_gstate = FIRING;
-        }
-        if (g_D3DInput->MouseDown(0))
-        {
-          OutputDebugString("Mouse 0 Down!!\n");
-        }
-        if (!g_D3DInput->KeyDown(DIK_PGUP))
-           v_KEYUP_PGUP = true;
-        if (!g_D3DInput->KeyDown(DIK_PGDN))
-           v_KEYUP_PGDN = true;
-        if (!g_D3DInput->KeyDown(DIK_F1))
-           v_KEYUP_F1 = true;
-        if (!g_D3DInput->KeyDown(DIK_F2))
-           v_KEYUP_F2 = true;
-        if (!g_D3DInput->KeyDown(DIK_Z))
-           v_KEYUP_Z = true;
-        if (!g_D3DInput->KeyDown(DIK_A))
-           v_KEYUP_A = true;
+          if (g_D3DInput->KeyDown(DIK_UP))
+            tmpP->event(c3DObjectTank::UP);
+          else if (g_D3DInput->KeyDown(DIK_DOWN))
+            tmpP->event(c3DObjectTank::DOWN);
+          if (g_D3DInput->KeyDown(DIK_LEFT))
+            tmpP->event(c3DObjectTank::LEFT);
+          else if (g_D3DInput->KeyDown(DIK_RIGHT))
+            tmpP->event(c3DObjectTank::RIGHT);
+          if (g_D3DInput->KeyDown(DIK_MINUS))
+            tmpP->event(c3DObjectTank::PWRDN);
+          else if (g_D3DInput->KeyDown(DIK_EQUALS))
+            tmpP->event(c3DObjectTank::PWRUP);
+          if (g_D3DInput->KeyDown(DIK_SPACE) || g_D3DInput->MouseDown(0)) {
+            m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)tmpP->Fire(m_PlayerState[m_currentplayer].msl_cur_type);          
+            SetCurrentCamera(&m_camBehindMissile);
+            m_gstate = FIRING;
+          }
+          
+          if (fabs(maxis.x) > 0.10)
+            tmpP->event(c3DObjectTank::EVENT::RIGHT,maxis.x/70);
+          if (fabs(maxis.y) > 0.10)
+            tmpP->event(c3DObjectTank::EVENT::DOWN,maxis.y/70);
+          if (fabs(maxis.z) > 0.10)
+            tmpP->event(c3DObjectTank::EVENT::PWRDN,maxis.z/70);
 
+          if (!g_D3DInput->KeyDown(DIK_PGUP))
+            v_KEYUP_PGUP = true;
+          if (!g_D3DInput->KeyDown(DIK_PGDN))
+            v_KEYUP_PGDN = true;
+          if (!g_D3DInput->KeyDown(DIK_F1))
+            v_KEYUP_F1 = true;
+          if (!g_D3DInput->KeyDown(DIK_F2))
+            v_KEYUP_F2 = true;
+          if (!g_D3DInput->KeyDown(DIK_Z))
+            v_KEYUP_Z = true;
+          if (!g_D3DInput->KeyDown(DIK_A))
+            v_KEYUP_A = true;
+
+          break;
+      case FIRING:
         break;
-     case FIRING:
-       break;
-       if (g_D3DInput->KeyDown(DIK_N))
-       {
-         m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
-         SetCurrentCamera(&m_camBehindTank);
-         m_gstate = TARGETING;
-       }
-       break;
-     default:
-       break;
+        if (g_D3DInput->KeyDown(DIK_N))
+        {
+          m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
+          SetCurrentCamera(&m_camBehindTank);
+          m_gstate = TARGETING;
+        }
+        break;
+      default:
+        break;
+    }
+    break;
+    default:
+      break;
   }
 }
 
@@ -320,10 +338,13 @@ void cGameState::GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D
 cGameState::cGameState(void)
 {
   m_numplayers=0;
-  m_terrain = new cTerrain(1850,1850,20.0f);
+  m_terrain = new cTerrain(1024,1024,20.0f);
   //m_terrain = new cTerrain(50,50,10.0f);
   m_skybox = new cSkyBox();
   m_tmissile = new c3DObjectMissile();
+  m_mainstate = MAINSTATES::PRELEVEL;
+  m_gstate = STATES::NOTHING;
+  SetCurrentCamera(&m_camera);
   //m_terrain->RandomizeMesh();
   _Init();
 }
@@ -344,14 +365,15 @@ void cGameState::AddPlayer(BOOL human)
 
   m_gstate = cGameState::TARGETING;
 
-  srand(timeGetTime());
+  srand(150);
+  m_terrain->RandomizeTerrain(5,500);
   float t_x, t_y, t_z;
 
   for (int x =0 ; x < 5; x++)  {
     tmpP = new c3DObjectTank();
-    t_x = (float)(rand()%400-200);
-    t_z = (float)(rand()%400-200);
-    m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*4.0f);
+    t_x = (float)(rand()%300-150);
+    t_z = (float)(rand()%300-150);
+    m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*2.1f);
     t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
     tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
     ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)x);
@@ -399,6 +421,8 @@ void cGameState::_Init(void)
                                   exit(0);
     */
     m_statusbartex = new CTexture("resource\\statusbar\\statusbar.dds");
+    m_roundBk = new CTexture("resource\\pre-round\\roundbackground.png");
+    m_mouseptr = new CTexture("resource\\pre-round\\mousepointer.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f));
 }
 
 void cGameState::_Delete(void)
@@ -423,7 +447,8 @@ void cGameState::AssignHits()
    for (int x = 0; x < m_numplayers; x++)
    {
      D3DXVECTOR3 dis = m_PlayerState[x].object->m_position - m_PlayerState[m_currentplayer].exp_object->m_position;
-     m_PlayerState[m_currentplayer].health -= max(0,m_PlayerState[m_currentplayer].exp_object->m_radius - D3DXVec3Length(&dis));
+     m_PlayerState[m_currentplayer].health -= max(0,m_PlayerState[m_currentplayer].exp_object->m_radius*
+                         (m_PlayerState[m_currentplayer].exp_object->m_radius - D3DXVec3Length(&dis)));
    }
 }
 
@@ -441,7 +466,7 @@ void cGameState::DropTanks()
        //OutputDebugString("Drop tanks registered it on ");
        //OutputDebugString(m_PlayerState[x].name);
        //OutputDebugString("\n");
-       m_terrain->FlattenSquare(pl_x,pl_z,c3DObjectTank::tank_width*3.0f);
+       m_terrain->FlattenSquare(pl_x,pl_z,c3DObjectTank::tank_width*2.1f);
        // Assign Damage
        m_PlayerState[x].health -= min((m_PlayerState[x].object->m_position.y - m_terrain->GetHeight(pl_x,pl_z)),10);
        // Move tank down!!!

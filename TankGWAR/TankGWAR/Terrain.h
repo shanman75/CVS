@@ -11,17 +11,17 @@
 #define TER_Z_BIG 14
 #define TER_WIDTH_BIG 800.0f
 
-#define TER_X_SMALL 110
-#define TER_Z_SMALL 110
-#define TER_WIDTH_SMALL 7.0f
+#define TER_X_SMALL 70
+#define TER_Z_SMALL 70
+#define TER_WIDTH_SMALL 3.5f
 
 // DEFINES
 //#define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
-#define   D3DFVF_MESH   (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+#define   D3DFVF_MESH   (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1 | D3DFVF_NORMAL)
 // STRUCTURES
 struct sCustomVertex{	
 	float		x, y, z;			// Position	
-//	float   nx, ny, nz;			// Normals	
+	float   nx, ny, nz;			// Normals	
 	D3DCOLOR	diffuse;			// Colour	
 	float	u, v;				// Texture Coordinates
 };
@@ -31,6 +31,7 @@ class cTerrain
 {
 public:
 	enum EVENT { RAND };
+  enum ENVIRONMENT { ROCK };
 
 	cTerrain(float ter_x=DEF_TER_X, float ter_z=DEF_TER_Z, float ter_width=DEF_TER_WIDTH);
 	~cTerrain(void);
@@ -47,6 +48,10 @@ public:
   void OnResetDevice(void);
 
   void UpdateMeshHeights();
+
+  void DripDrop(float x, float z, float y);
+  void RandomizeTerrain(long numHills = rand()%60+40, long numDirtBalls = 50000);
+
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;

@@ -16,7 +16,8 @@ public:
 
   static enum FIRE_TYPE {MISSILE,ABOMB};
   static enum EVENT {UP,DOWN,LEFT,RIGHT,PWRUP,PWRDN};
-  static enum SKINS { GREEN, BLUE, STEELBLUE, RAINBOW, RED };
+  static enum SKINS { BLUE, BROWN, CAMOBLUE, GREY, GREEN, ORANGE, RAINBOW, RED, STEELBLUE };
+  static const int NUM_SKINS = 9;
 
   c3DObjectTank();
 	~c3DObjectTank(void);

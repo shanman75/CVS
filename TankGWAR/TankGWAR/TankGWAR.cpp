@@ -33,7 +33,7 @@ void g_MainInit()
    g_GameState = new cGameState;
    //g_GameState = NULL;
    g_ObjMgr->reset();
-   g_GameState->AddPlayer();
+//   g_GameState->AddPlayer();
 
 }
 

@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "d3dinput.h"
 #include "MainWnd.h"
+#include <stdio.h>
 
 D3DInput *g_D3DInput;
 #define KEYDOWN(name, key) (name[key] & 0x80) 
@@ -26,6 +27,7 @@ D3DInput::D3DInput(void)
   dipdw.diph.dwHeaderSize=sizeof(DIPROPHEADER);
   dipdw.diph.dwObj=0;
   dipdw.diph.dwHow=DIPH_DEVICE;
+
   dipdw.dwData=1; //buffer size
 
   if(FAILED(m_DIKB->SetProperty(DIPROP_BUFFERSIZE,&dipdw.diph)))
@@ -34,52 +36,82 @@ D3DInput::D3DInput(void)
 
   if(FAILED(m_DInput->CreateDevice(GUID_SysMouse, &m_DIMO, NULL)))
     return;
-  if(FAILED(m_DIMO->SetDataFormat(&c_dfDIMouse)))
+  if(FAILED(m_DIMO->SetDataFormat(&c_dfDIMouse2)))
     return;
   if(FAILED(m_DIMO->SetCooperativeLevel(g_hWnd,DISCL_EXCLUSIVE|DISCL_FOREGROUND)))
     return;
 
+  m_mousepos = D3DXVECTOR2(HEIGHT/2,WIDTH/2);
 }
 
 BOOL D3DInput::MouseDown(DWORD button)
 {
-  if (button > 3) return false;
+  if (button > 5) return false;
 
-  if (m_mousetime.GetTime() > 0)
+  UpdateMouse();
+  if (m_dims.rgbButtons[button] & 0x80)
+    return true;
+  return false;
+}
+
+BOOL D3DInput::UpdateMouse()
+{
+  if (m_mousetime.WasPaused() || m_mousetime.GetTime() > 0)
     if (m_DIMO->GetDeviceState(sizeof(m_dims),(LPVOID)&m_dims) != DI_OK)
     { 
 		  while(m_DIMO->Acquire() == DIERR_INPUTLOST)
 		    ;
       OutputDebugString("Tried to re-acquire mouse\n");
-		  return false;
+      m_DIMO->GetDeviceState(sizeof(m_dims),(LPVOID)&m_dims);
     }
-    /*
-    if (dims.lX) {
-      OutputDebugString("Button down left\n");
-      cam->event(cCamera::LEFT);
-    }
-    if (dims.rgbButtons[0] & 0x80)
-    {
-      OutputDebugString("Button down left\n");
-      cam->event(cCamera::LEFT);
-    }
-    if (dims.rgbButtons[1] & 0x80)
-    {
-      OutputDebugString("Button down right\n");
-      cam->event(cCamera::RIGHT);
-    }
-    */
-    if (m_dims.rgbButtons[button] & 0x80)
-      return true;
-    return false;
+  return true;
 }
+
+BOOL D3DInput::MouseAxis(D3DXVECTOR3 *mo_axis)
+{
+  if (mo_axis == NULL) return false;
+
+  UpdateMouse();
+    *mo_axis = D3DXVECTOR3(m_dims.lX,m_dims.lY,m_dims.lZ);
+    return true;
+}
+
+BOOL D3DInput::MouseScreen(D3DXVECTOR2 *mo_screen)
+{
+  if (mo_screen == NULL) return false;
+
+  float tm = m_mouseSCtime.GetTime()/1000;
+
+  UpdateMouse();
+
+    float xscale = (m_dims.lX == 0) ? 1 : log((float)abs(m_dims.lX));
+    float yscale = (m_dims.lY == 0) ? 1 : log((float)abs(m_dims.lY));
+
+    //char debg[255];
+    //sprintf(debg,"Mouse was %f,%f log,log = %f,%f  (%i,%i)\n",m_mousepos.x,m_mousepos.y,xscale,yscale,m_dims.lX,m_dims.lY
+    //);
+    //OutputDebugString(debg);
+    m_mousepos += D3DXVECTOR2(m_dims.lX *xscale * tm  * 3.8f, 
+                              m_dims.lY *yscale * tm  * 3.8f);
+
+
+    if (m_mousepos.x < 0) m_mousepos.x = 0;
+    if (m_mousepos.y < 0) m_mousepos.y = 0;
+
+    if (m_mousepos.x > WIDTH) m_mousepos.x = WIDTH;
+    if (m_mousepos.y > HEIGHT) m_mousepos.y = HEIGHT;
+
+    *mo_screen = m_mousepos;
+    return true;
+}
+
 
 BOOL D3DInput::KeyDown(BYTE check)
 {
     static char buffer[256]; 
     HRESULT  hr; 
  
-    if (m_keytime.GetTime() > 0) {
+    if (m_keytime.WasPaused() || m_keytime.GetTime() > 0) {
 
       if (FAILED(hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer))) {
  		    hr=m_DIKB->Acquire();

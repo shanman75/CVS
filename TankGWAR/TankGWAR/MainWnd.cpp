@@ -137,8 +137,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 char debg[255];
 	switch (message) 
 	{
-    case WM_ACTIVATEAPP: g_ActiveApp=(int)wParam; sprintf (debg,"Activate app called %i\n",(int)wParam); OutputDebugString(debg);
-                         g_time.UnPause();
+    case WM_ACTIVATEAPP: g_ActiveApp=(int)wParam; 
+                         sprintf (debg,"Activate app called %i\n",(int)wParam); OutputDebugString(debg);
+                         if (g_ActiveApp) g_time.UnPause();
+                         else g_time.Pause();
                           break; //iconize
 	  case WM_DESTROY:
 		/*

@@ -230,13 +230,13 @@ BOOL cSkyBox::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
-  char *basedir = "worlds\\morning";
+  char *basedir = "worlds\\dawn";
   char *basefname = "newsky000";
 //  char *basedir = "attica";
 // char *basefname = "attica000";
   m_tertex = new LPDIRECT3DTEXTURE9 [5];
 
-  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"1");
+  sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"1");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return false;
   if (FAILED(D3DXCreateTextureFromFileEx(
@@ -257,7 +257,7 @@ BOOL cSkyBox::_Init()
                                   exit(1);
   m_tertex[0] = tempt;
 
-  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"2");
+  sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"2");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return false;
   if (FAILED(D3DXCreateTextureFromFileEx(
@@ -278,7 +278,7 @@ BOOL cSkyBox::_Init()
                                   exit(1);
   m_tertex[1] = tempt;
 
-  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"3");
+  sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"3");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return false;
   if (FAILED(D3DXCreateTextureFromFileEx(
@@ -299,7 +299,7 @@ BOOL cSkyBox::_Init()
                                   exit(1);
   m_tertex[2] = tempt;
 
-  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"4");
+  sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"4");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return false;
   if (FAILED(D3DXCreateTextureFromFileEx(
@@ -320,7 +320,7 @@ BOOL cSkyBox::_Init()
                                   exit(1);
   m_tertex[3] = tempt;
 
-  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"5");
+  sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"5");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 //    return false;
   if (FAILED(D3DXCreateTextureFromFileEx(
