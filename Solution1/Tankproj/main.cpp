@@ -13,10 +13,7 @@ Last Updated: March 29,2004
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <dinput.h>
-#include <dsound.h>
-#include <dmusici.h>
-#include <malloc.h>
-#include <dmusicc.h>
+//#include <malloc.h>
 #include <windows.h>
 #include <windowsx.h>
 #include "input.h"

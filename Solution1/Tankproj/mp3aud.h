@@ -14,7 +14,7 @@ Last updated: March 16,2004
 class mp3stream
 {   public:
 		mp3stream(HWND AppWindow);
-		int CreateGraph(char *filename);
+		int CreateGraph(LPCSTR filename);
 		void OnGraphEvent();
 		~mp3stream();
     private:

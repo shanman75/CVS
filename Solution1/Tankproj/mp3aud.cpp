@@ -13,7 +13,11 @@ Last updated: March 16,2004
 
 mp3stream::mp3stream(HWND AppWindow)
 //initialize an mp3 file to play
-{  	HRESULT hr;
+{  	GraphBuilder=NULL;
+	MediaControl=NULL;
+	MediaEvent=NULL;
+	MediaPosition=NULL;
+	HRESULT hr;
 	hr = CoCreateInstance(CLSID_FilterGraph, NULL, CLSCTX_INPROC_SERVER, 
                           IID_IGraphBuilder,(void**)&GraphBuilder);
 	GraphBuilder->QueryInterface(IID_IMediaControl, (void**)&MediaControl);
@@ -23,11 +27,11 @@ mp3stream::mp3stream(HWND AppWindow)
 	MediaEvent->SetNotifyFlags(0);	// turn on notifications
 }
 
-int mp3stream::CreateGraph(char *filename)
+int mp3stream::CreateGraph(LPCSTR filename)
 {   WCHAR *file;
-    file=new WCHAR [sizeof(filename)];
+    file=new WCHAR [64];
 	HRESULT hr;
-    MultiByteToWideChar(CP_ACP,0,"back.mp3",-1,file,sizeof(filename));
+    MultiByteToWideChar(CP_ACP,0,filename,-1,file,64);
     hr = GraphBuilder->RenderFile(file,0);
 	delete [] file;
 	if (FAILED(hr))
