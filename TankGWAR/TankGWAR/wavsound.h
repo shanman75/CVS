@@ -22,7 +22,7 @@ modified April 24,2004
 #define frequency 11025
 #define soundbitquality 16
 
-enum gamesound{tankmove,shell,abomb,scud,amram,fbomb,explosion,mnu_move,mnu_select,maxsounds};
+enum gamesound{tankmove,shell,abomb,scud,amram,fbomb,explosion,mnu_move,mnu_select,playerdead,maxsounds};
 
 class cwavsound
 { //class to play a wav

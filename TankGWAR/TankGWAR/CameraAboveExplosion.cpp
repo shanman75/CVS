@@ -18,6 +18,7 @@ void cCameraAboveExplosion::SetCamera()
     float tradius;
 
     g_GameState->GetCurrentExpState(&tpos, &tscale, &tradius);
+    float t_hght =g_GameState->GetTerrainHeight(tpos.x,tpos.z);
 
 //    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( tpos.x - 8*sin(tor.x), tpos.y + 2, tpos.z -8*cos(tor.x) );
     D3DXVECTOR3 vFromPt   = D3DXVECTOR3( tpos.x + cos(D3DX_PI*2*tscale.y/tradius)*tradius*2, 
@@ -25,6 +26,11 @@ void cCameraAboveExplosion::SetCamera()
                                          tpos.z + sin(D3DX_PI*2*tscale.y/tradius)*tradius*2 );
     D3DXVECTOR3 vLookatPt = D3DXVECTOR3( tpos.x, tpos.y + (tscale.y / tradius)*0.6f, tpos.z );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
+
+    if (vFromPt.y < (t_hght+1.0f)) vFromPt.y = t_hght + 1.0f;
+
+    if (m_camtime.PeekTime() > 4000.0f) 
+      vFromPt =  vFromPt * (1+(m_camtime.PeekTime()-4000.0f)/6000.0f);
 
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );
 	

@@ -32,11 +32,12 @@ void cGameState::move(void)
 
   switch (m_gstate) 
   {
+  case TARGETING: break;
   case FIRING:
          msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
          if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y ||
-             fabs(msl_pos.x) > 150.0f ||
-             fabs(msl_pos.z) > 150.0f) {
+             fabs(msl_pos.x) > 170.0f ||
+             fabs(msl_pos.z) > 170.0f) {
            // Create New Explosion
            m_PlayerState[m_currentplayer].exp_object = 
              new c3DObjectExplosion(
@@ -53,6 +54,7 @@ void cGameState::move(void)
            g_ObjMgr->add(m_PlayerState[m_currentplayer].exp_object);
            m_PlayerState[m_currentplayer].msl_object = NULL;
            SetCurrentCamera(&m_camAboveExplosion);
+           m_camAboveExplosion.m_camtime.Reset();
            m_gstate = EXPLODING;
            tmrState.setInterval(9000);
            tmrState.Reset();
@@ -67,12 +69,34 @@ void cGameState::move(void)
           KillDeadTanks();
           
           g_ObjMgr->del(m_PlayerState[m_currentplayer].exp_object);
-          NextPlayer();
-          if (m_PlayerState[m_currentplayer].camabove) 
-            SetCurrentCamera(&m_camAboveTerrain);
-          else
-            SetCurrentCamera(&m_camBehindTank);
-          m_gstate = TARGETING;
+          m_gstate = KILLDEADTANKS;
+          tmrState.setInterval(100);
+          tmrState.Reset();
+          m_savecurrentplayer = m_currentplayer;
+    }
+    break;
+  case KILLDEADTANKS:
+    // Show Dead Tanks
+    if (tmrState.CmpTime()) {
+      int dyingtank;
+      dyingtank = GetFirstDyingTank();
+      if (dyingtank == -1) {
+        m_currentplayer = m_savecurrentplayer;
+        NextPlayer();
+        SetPlayerCamera();
+        m_gstate = TARGETING;
+      }
+      else {
+        // Found a dying tank!!!
+        m_PlayerState[dyingtank].object->FadeOut(6000.0f);
+        wav->play(playerdead);
+        m_PlayerState[dyingtank].livingstate = DEAD;
+        m_PlayerState[dyingtank].health = 0;
+        tmrState.setInterval(7200.0f);
+        m_currentplayer = dyingtank;
+        m_PlayerState[dyingtank].camabovezoom = 0.3f;
+        SetCurrentCamera(&m_camAboveTerrain);
+      }
     }
     break;
   default:
@@ -80,6 +104,24 @@ void cGameState::move(void)
   }
 }
 
+int cGameState::GetFirstDyingTank()
+{
+  int x = 0; 
+  while (x < m_numplayers)
+  {
+    if (m_PlayerState[x].livingstate == DYING) return x;
+    x++;
+  }
+  return -1;
+}
+
+void cGameState::SetPlayerCamera(void)
+{
+  if (m_PlayerState[m_currentplayer].camabove)
+    SetCurrentCamera(&m_camAboveTerrain);
+  else
+    SetCurrentCamera(&m_camBehindTank);
+}
 void cGameState::NextPlayer(void)
 {
   int tplay = m_numplayers;
@@ -759,11 +801,11 @@ void cGameState::GetInput(void)
             m_gstate = FIRING;
           }
           
-          if (fabs(maxis.x) > 0.10)
-            tmpP->event(c3DObjectTank::EVENT::RIGHT,maxis.x/70);
-          if (fabs(maxis.y) > 0.10)
-            tmpP->event(c3DObjectTank::EVENT::DOWN,maxis.y/70);
-          if (fabs(maxis.z) > 0.10)
+          if (fabs(maxis.x) > 0.05)
+            tmpP->event(c3DObjectTank::EVENT::RIGHT,fabs(maxis.x/10) < 90 ? maxis.x/10 : maxis.x/-maxis.x*90 );
+          if (fabs(maxis.y) > 0.05)
+            tmpP->event(c3DObjectTank::EVENT::DOWN,fabs(maxis.y/10) < 90 ? maxis.y/10 : maxis.y/-maxis.y*90 );
+          if (fabs(maxis.z) > 0.05)
             tmpP->event(c3DObjectTank::EVENT::PWRDN,maxis.z/70);
 
           break;
@@ -1052,8 +1094,8 @@ void cGameState::DropTanks()
 void cGameState::KillDeadTanks()
 {
    for (int x = 0; x < m_numplayers; x++)
-     if (m_PlayerState[x].health <= 0.0f)
-       m_PlayerState[x].livingstate = DEAD;
+     if (m_PlayerState[x].health <= 0.0f && m_PlayerState[x].livingstate == ALIVE)
+       m_PlayerState[x].livingstate = DYING;
 }
 
 void cGameState::NextWeapon(int t_dir)
@@ -1160,7 +1202,7 @@ void cGameState::_InitGame(void)
   m_gstate = STATES::TARGETING;
 
   srand(timeGetTime());
-  int numHills = 4 + (m_LevelState.numHills*15) + rand()%6;
+  int numHills = 4 + (m_LevelState.numHills*23) + rand()%6;
   int numDirt = 1000 + (m_LevelState.numDirt*10000) + rand()%250;
   m_terrain->RandomizeTerrain(numHills,numDirt);
   m_terrain->RandomizeEnvironment();

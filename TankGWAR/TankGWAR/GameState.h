@@ -62,7 +62,7 @@ char * strLevel_DIRT(int dirt);
 class cGameState
 { friend class minimap;
 public:
-  enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
+  enum STATES { NOTHING, TARGETING, FIRING, EXPLODING, KILLDEADTANKS};
   enum MAINSTATES { MAINMENU, CREDITS, HELP, GAMESETUP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
   enum MAINMENUBUTT { MM_NEWGAME, MM_CREDITS, MM_QUIT, MM_HELP, MM_NONE };
   enum GAMESETUPBUTT { GS_HUMANPL_UP, GS_HUMANPL_DN, GS_CMPPL_UP, GS_CMPPL_DN,
@@ -125,6 +125,8 @@ private:
      void AssignHits();
      void DropTanks();
      void KillDeadTanks();
+     void SetPlayerCamera();
+     int GetFirstDyingTank();
 
      //static LPDIRECT3DTEXTURE9	  m_statusbartex;
      static CTexture *m_statusbartex;
@@ -144,6 +146,7 @@ private:
      enum GAMESETUPBUTT m_gamesetupbutt;
      
      c3DObjectMissile *m_tmissile;
+     int m_savecurrentplayer;
 };
 
 extern cGameState *g_GameState;

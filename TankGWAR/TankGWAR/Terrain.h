@@ -9,11 +9,11 @@
 
 #define TER_X_BIG 10
 #define TER_Z_BIG 10
-#define TER_WIDTH_BIG 800.0f
+#define TER_WIDTH_BIG 600.0f
 
-#define TER_X_SMALL 110
-#define TER_Z_SMALL 110
-#define TER_WIDTH_SMALL 3.5f
+#define TER_X_SMALL 240
+#define TER_Z_SMALL 240
+#define TER_WIDTH_SMALL 2.4f
 
 // DEFINES
 //#define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)

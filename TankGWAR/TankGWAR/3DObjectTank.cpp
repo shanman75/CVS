@@ -26,7 +26,7 @@ c3DObjectTank::c3DObjectTank()
   m_nMat = m_tankNmat;
   m_curtex = m_tanktex;
   m_curmat = m_tankmat;
-  m_firePower = 20.0f;
+  m_firePower = 250.0f;
 
   m_barrelHeight = 0;
   m_turretRotate = 0;
@@ -37,11 +37,21 @@ c3DObjectTank::c3DObjectTank()
   m_firetime.setInterval(600.0f);
   m_skin = c3DObjectTank::SKINS::GREEN;
 //  m_orient = D3DXVECTOR3(1,0,0);
+
+  m_fade = 1.0f;
+  m_fading = false;
 }
 
 c3DObjectTank::~c3DObjectTank(void)
 {
    if (!--m_graph_init) _UnloadGraphics();
+}
+
+void c3DObjectTank::FadeOut(float secs)
+{
+   m_fadedur = secs;
+   m_fading = true;
+   m_tmFade.Reset();
 }
 
 void c3DObjectTank::MakeWorldMatrix( int x )
@@ -93,8 +103,12 @@ void c3DObjectTank::MakeWorldMatrix( int x )
 
 void c3DObjectTank::paint()
 {	
+  m_fade = !m_fading ?  1.0f : (m_fadedur - min(m_tmFade.PeekTime(),m_fadedur))/m_fadedur;
   //g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(250,250,250,0) );
    for (int x = 0; x < (int)m_nMat; x++)  {
+     m_tankmat[x].Diffuse.a = m_fade;
+     m_tankmat[x].Ambient.a = m_fade;
+     m_tankmat[x].Specular.a = m_fade;
   	 g_D3DObject->m_d3ddevice9->SetMaterial( &m_tankmat[x] );
      MakeWorldMatrix(x);
      if (x == 0 || x == 1 || x ==5 ) g_D3DObject->m_d3ddevice9->SetTexture(0,m_skintex[(int)m_skin]);
@@ -122,19 +136,19 @@ void c3DObjectTank::event(enum EVENT evnt, float amount)
 //  if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.0006f*m_time.PeekTime() * amount; 
+      m_barrelHeight -= 0.0005f*m_time.PeekTime() * amount; 
 	  wav->play(tankmove);
 	  break;
     case DOWN:
-      m_barrelHeight +=0.0006f*m_time.PeekTime() * amount; 
+      m_barrelHeight +=0.0005f*m_time.PeekTime() * amount; 
 	  wav->play(tankmove);
 	  break;
     case LEFT:
-      m_turretRotate-=0.0008f*m_time.PeekTime() * amount; 
+      m_turretRotate-=0.0009f*m_time.PeekTime() * amount; 
 	  wav->play(tankmove);
 	  break;
     case RIGHT:
-      m_turretRotate+=0.0008f*m_time.PeekTime() * amount; 
+      m_turretRotate+=0.0009f*m_time.PeekTime() * amount; 
 	  wav->play(tankmove);
 	  break;
     case PWRUP:
@@ -151,7 +165,7 @@ void c3DObjectTank::event(enum EVENT evnt, float amount)
 
   if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
 
-  if (m_firePower < 1.2f)         m_firePower = 1.2f;
+  if (m_firePower < 40.0f)         m_firePower = 40.0f;
   if (m_firePower > 999.0f)          m_firePower = 999;
 }
 void c3DObjectTank::_LoadGraphics()

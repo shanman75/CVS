@@ -27,6 +27,7 @@ public:
   c3DObject * Fire(enum c3DObjectMissile::MSLTYPE tpe = c3DObjectMissile::MSLTYPE::SHELL);
   void event(enum EVENT, float amount=1.0f);
   void skin(enum SKINS sk) { m_skin = sk; }
+  void FadeOut(float secs);
 
   static const float tank_width;
   static const float tank_height;
@@ -51,4 +52,9 @@ protected:
 
   static D3DMATERIAL9*		      m_tankmat;
 	static int					          m_graph_init;
+
+  float m_fade;
+  float m_fadedur;
+  BOOL m_fading;
+  CTimer m_tmFade;
 };

@@ -49,6 +49,6 @@ void cCameraAboveHit::SetCamera()
 
     D3DXMATRIXA16 matProj;
     FLOAT fAspect = ((FLOAT)WIDTH) / HEIGHT;
-    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/2, fAspect, 0.01f, 5850.0f );
+    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 0.01f, 5850.0f );
 	  g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );   
 }

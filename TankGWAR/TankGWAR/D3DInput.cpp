@@ -89,12 +89,18 @@ BOOL D3DInput::MouseScreen(D3DXVECTOR2 *mo_screen)
   xscale = exp(abs(m_dims.lX) / 40.0f);
   yscale = exp(abs(m_dims.lY) / 40.0f);
 
+  xscale = m_dims.lX;
+  yscale = m_dims.lY;
+
+  xscale = tm*25;
+  yscale = tm*25;
+
     //char debg[255];
     //sprintf(debg,"Mouse was %f,%f log,log = %f,%f  (%i,%i)\n",m_mousepos.x,m_mousepos.y,xscale,yscale,m_dims.lX,m_dims.lY
     //);
     //OutputDebugString(debg);
-  m_mousepos += D3DXVECTOR2(m_dims.lX *xscale * tm , 
-                            m_dims.lY *yscale * tm);
+  m_mousepos += D3DXVECTOR2(m_dims.lX *xscale, 
+                            m_dims.lY *yscale);
 
   if (m_mousepos.x < 0) m_mousepos.x = 0;
   if (m_mousepos.y < 0) m_mousepos.y = 0;

@@ -290,6 +290,18 @@ void cwavsound::loadbuffers()
 	makecopies(tmpbuff,mnu_select,4);
   tmpbuff->Release();
 
+  length=loadsound("resource\\sounds\\playerdead.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		tmpbuff->Unlock(w1,l1,w2,l2);
+	}
+	makecopies(tmpbuff,playerdead,2);
+  tmpbuff->Release();
   
 //	fclose(logging);
 }

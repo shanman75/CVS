@@ -59,13 +59,13 @@ void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
       {
         float dx = (rand()%1000)/100 - 5.0f;
         float dz = (rand()%1000)/100 - 5.0f;
-        DripDrop(tx+dx,tz+dz,1.5f);
+        DripDrop(tx+dx,tz+dz,1.0f + (rand()%5)/10);
       }
   }
   for (long i = 0; i < numDirtBalls; i++) {
     float tx = ((float)(rand() % (int)(xsize*10)))/10 - xsize/2;
     float tz = ((float)(rand() % (int)(zsize*10)))/10 - zsize/2;
-    DripDrop(tx,tz,(0.3f+(float)(rand()%100))/100);
+    DripDrop(tx,tz,(0.3f+(float)(rand()%70))/100);
   }
     //SetHeight((float)(rand() % 3000)/10-150.0f,(float)(rand() % 3000)/10-150.0f,((float)(rand()%100))/100);
   // Pass 1
@@ -347,9 +347,10 @@ void cTerrain::RandomizeMesh(void)
         VertexPtr->y = max(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
       else 
         VertexPtr->y = -150.0f;
-      VertexPtr->y = 1.0f;
+      VertexPtr->y = -5.0f;
       VertexPtr->diffuse = randcolor(m_env);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
+//      VertexPtr->diffuse = D3DXCOLOR(0.0f,0.0f,0.0f,1.0f);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
 //      SetHeight(VertexPtr->x,VertexPtr->z,VertexPtr->y);
@@ -412,7 +413,7 @@ float cTerrain::GetHeight(float x, float z)
 // float       wt1, wt2, wt3;
  float       dt1, dt2, dt3;
 
- return m_Heights[(int)floor(x)][(int)floor(z)]; 
+ return  (m_Heights[(int)floor(x)][(int)floor(z)]);
 
  pt1 = D3DXVECTOR3(floor(x),0,floor(z));
  pt3 = D3DXVECTOR3(pt1.x+1,0,pt1.z+1);
@@ -438,6 +439,8 @@ void cTerrain::SetHeight(float x, float z, float y)
 {
  x = x + (TER_X+1)/2;
  z = z + (TER_Z+1)/2;
+
+ y = max(2.0f,y);
 
  if (x >= 0 && z >= 0 && x < (TER_X) && z < (TER_Z))
     m_Heights[(int)(floor(x))][(int)(floor(z))] = y;
