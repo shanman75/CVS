@@ -37,7 +37,7 @@ void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
      OutputDebugString(hilldebg);
       float tx = ((float)(rand() % 3000))/10 - 150.0f;
       float tz = ((float)(rand() % 3000))/10 - 150.0f;
-      float ty = rand()%4500+550;
+      float ty = (float)(rand()%4500+550);
 //      SetHeight(tx,tz,ty);
       for (int t=0; t< (int)ty; t++)
       {

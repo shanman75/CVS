@@ -72,7 +72,7 @@ BOOL D3DInput::MouseAxis(D3DXVECTOR3 *mo_axis)
   if (mo_axis == NULL) return false;
 
   UpdateMouse();
-    *mo_axis = D3DXVECTOR3(m_dims.lX,m_dims.lY,m_dims.lZ);
+    *mo_axis = D3DXVECTOR3((float)m_dims.lX,(float)m_dims.lY,(float)m_dims.lZ);
     return true;
 }
 

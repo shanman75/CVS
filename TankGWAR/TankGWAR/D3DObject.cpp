@@ -210,8 +210,8 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
   D3DLIGHT9 light,light2,light3;
   ZeroMemory(&light,sizeof(light));
   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
-  light.Position = D3DXVECTOR3(0,400,0);
-  light.Direction = D3DXVECTOR3 (0.3,-0.4,0.3);
+  light.Position = D3DXVECTOR3(0.0f,400.0f,0.0f);
+  light.Direction = D3DXVECTOR3 (0.3f,-0.4f,0.3f);
 
   light.Ambient = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
   light.Diffuse = D3DXCOLOR(0.5f,0.5f,0.5f,0.5f);

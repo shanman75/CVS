@@ -132,7 +132,7 @@ void cGameState::paintbg(void)
 
     m_preroundMousePtr->Paint(&mscreen);
 //    m_preroundButtons->Paint(&mouserect,&mscreen);
-    g_D3DObject->m_pd3dxSprite->End;
+    g_D3DObject->m_pd3dxSprite->End();
   } 
   else {
     m_skybox->Paint();
