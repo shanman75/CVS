@@ -17,10 +17,11 @@ CTexture *tex1;
 void g_MainDestroy()
 {
   delete tex1;
+  tex1 = NULL;
 }
 void g_MainInit()
 {
-tex1 = new CTexture("blah.png",0xFFFF00FF);
+  tex1 = new CTexture("blah.png",0xFFFF00FF);
 }
 
 void g_MainGameLoop() 
@@ -36,7 +37,7 @@ void g_MainGameLoop()
 
    g_D3DObject->DrawTextStr((int)(time2.PeekTime()/50)%800,100,D3DCOLOR_XRGB(240,0,50),"Hello World!!!");
    g_D3DObject->DrawTextStr(50,500,D3DCOLOR_XRGB(240,0,50),debg);
-   tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
+   //tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
 
    g_D3DObject->EndPaint();
 }

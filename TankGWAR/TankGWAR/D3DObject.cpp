@@ -64,11 +64,14 @@ int D3DObject::_InitD3D9(void)
 //  m_d3dpp.SwapEffect             = D3DSWAPEFFECT_COPY_VSYNC;
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=false; //full screen
+  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
-  if (0) {  
+
+  if (1) {  
   m_d3dpp.Windowed = true;
   m_d3dpp.hDeviceWindow = g_hWnd;
   m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
+  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
   SetWindowPos(
 			g_hWnd,
 			NULL,
@@ -85,12 +88,6 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
   //m_d3dpp.FullScreen_RefreshRateInHz =70;
-
-//  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_IMMEDIATE ;
-//  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_DEFAULT ;
-  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-
 
 /*
 if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
