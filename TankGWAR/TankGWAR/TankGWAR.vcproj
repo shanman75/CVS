@@ -129,6 +129,9 @@
 				RelativePath=".\Camera.cpp">
 			</File>
 			<File
+				RelativePath=".\CameraAboveHit.cpp">
+			</File>
+			<File
 				RelativePath=".\CameraBehindMissile.cpp">
 			</File>
 			<File
@@ -204,6 +207,9 @@
 			</File>
 			<File
 				RelativePath=".\Camera.h">
+			</File>
+			<File
+				RelativePath=".\CameraAboveHit.h">
 			</File>
 			<File
 				RelativePath=".\CameraBehindMissile.h">
