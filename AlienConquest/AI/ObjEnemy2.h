@@ -1,4 +1,5 @@
 #pragma once
+
 #include "obj.h"
 #include "Timer.h"
 #include "Texture.h"
@@ -12,15 +13,18 @@ public:
 	void Fire();
 	void Jet();
 	void move();
+	virtual void Collision(CObj *);
+
+	static const int m_numdamage = 3;
 
 private:
 	virtual void paint();
 	void _LoadGraphics();
 	void _UnloadGraphics();
 	
-	static CTexture *m_regular[1];
-	static CTexture *m_firing[3];
-	static CTexture *m_jetting[4];
+	static CTexture **m_regular;  // 3*numdamage
+	static CTexture **m_firing;   // 3*num damage
+	static CTexture **m_jetting;  // 4* num damage
 
 	static int m_graph_init;
 
@@ -32,4 +36,6 @@ private:
 	CTimer m_ani_time;
 	CTimer m_fire_time;
 	CTimer m_jet_time;
+
+	int m_curdamage;
 };

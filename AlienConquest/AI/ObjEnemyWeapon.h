@@ -1,7 +1,7 @@
 #pragma once
 #include "obj.h"
 #include "Texture.h"
-#include "Sound.h"
+//#include "Sound.h"
 
 class CObjEnemyWeapon :
 	public CObj
@@ -20,6 +20,6 @@ protected:
 
 	int m_fir_seq;
 	CTimer m_ani_time;
-	static CSound *m_regsnd;
-	static int m_snd_played;
+	//static CSound *m_regsnd;
+	//static int m_snd_played;
 };

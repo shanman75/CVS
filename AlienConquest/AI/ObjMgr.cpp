@@ -2,6 +2,8 @@
 #include "objmgr.h"
 #include <stdio.h>
 
+extern CHero *g_hero;
+
 CObjMgr *g_ObjMgr;
 const int CObjMgr::m_numz=3;
 char CObjMgr::m_scoreline[500];
@@ -76,9 +78,9 @@ void CObjMgr::spawn(void)
 	if (m_spawn_tim.CmpTime(m_spawn_interval)) {
 		// Choose a spawn type..only one now
 		int spn = rand()%50;
-		if (spn < 35)
+		if (spn < 41)
 			spawnOne();
-		else if (spn < 45)
+		else if (spn < 48)
 		{
 			spawnOne();
 			spawnOne();
@@ -88,12 +90,13 @@ void CObjMgr::spawn(void)
 		}
 		// Choose next spawn interval
 
-		m_spawn_interval = 500+rand()%500;
+		m_spawn_interval = 800+rand()%900;
 	}
 }
 
 void CObjMgr::paint()
 {
+	static char livestr[500];
 	for (int z=m_numz; z >= 0; z--) 
 	  for (int x=0; x < m_numobj; x++)
 		if (m_obj[x]->m_z == z) m_obj[x]->paint();	
@@ -102,6 +105,8 @@ void CObjMgr::paint()
 	//sprintf(m_scoreline,"%i",m_player1_score);
 	//g_D3DObject->DrawTextStr(5,5,0xFFFF00FF,m_scoreline);
 	m_D3DText.DrawScore(m_player1_score,m_player1_scorexy);
+	sprintf(livestr,"LIVES %i",g_hero->GetLives());
+	m_D3DText.DrawString(livestr,m_player1_livesxy);
 }
 
 void CObjMgr::add(CObj *add)
@@ -144,4 +149,6 @@ void CObjMgr::reset(void)
 	m_player1_score = 0;
 	m_player1_scorexy.x =150;
 	m_player1_scorexy.y = 5;
+	m_player1_livesxy.x = 550;
+	m_player1_livesxy.y = 5;
 }

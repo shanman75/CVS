@@ -19,9 +19,9 @@ CBkGround::~CBkGround(void)
 void CBkGround::_LoadGraphics(void)
 {
    OutputDebugString("Loading Background graphics\n");
-   m_regular[0] = new CTexture("resource/farsky.png",0xFFFF00FF,NULL,256,256);
-   m_regular[1] = new CTexture("resource/middleground.png",0xFFFF00FF,NULL,256,256);
-   m_regular[2] = new CTexture("resource/water.png",0xFFFF00FF);
+   m_regular[0] = new CTexture("resource/backgound.bmp",0xFFFF00FF,NULL,256,256);
+   m_regular[1] = new CTexture("resource/midground.bmp",0xFFFF00FF,NULL,256,256);
+   m_regular[2] = new CTexture("resource/sea.bmp",0xFFFF00FF);
 }
 
 void CBkGround::_UnloadGraphics(void)
@@ -55,6 +55,6 @@ void CBkGround::paint(void)
 	SetRect(&SrcRect,(int)(m_x*groud),0,(int)(m_x*groud+w),m_regular[1]->GetHeight());
 	m_regular[1]->Paint(&SrcRect,&trans);
 	SetRect(&SrcRect,(int)(m_x*below),0,(int)(m_x*below+w),m_regular[2]->GetHeight());
-	trans.y = (float)(h-50);
+//	trans.y = (float)(h-50);
 	m_regular[2]->Paint(&SrcRect,&trans);
 }

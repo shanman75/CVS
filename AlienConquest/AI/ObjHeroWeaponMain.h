@@ -14,10 +14,12 @@ protected:
 	virtual void paint();
 	void _LoadGraphics();
 	void _UnloadGraphics();
-	static CTexture *m_regular[1];
+	static CTexture *m_regular[3];
 
 	static int m_graph_init;
 
 	int m_fir_seq;
-	CTimer m_ani_time;
+	int m_reg_seq;
+
+	CTimer m_ani_tim;
 };

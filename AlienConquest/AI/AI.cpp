@@ -52,7 +52,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 {
  	// TODO: Place code here.
 	MSG msg;
-	HACCEL hAccelTable;
+//	HACCEL hAccelTable;
 
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
@@ -242,13 +242,13 @@ void Init_Level (int levelnum)
 	Cleanup_Level(1);
 	switch (levelnum) {
 		case 1:
+			g_preload[g_preload_num++] = new CHero;
 			g_preload[g_preload_num++] = new CObjEnemy;
 			g_preload[g_preload_num++] = new CObjEnemyWeapon;				   
 			g_preload[g_preload_num++] = new CObjEnemy2;
 			g_preload[g_preload_num++] = new CObjEnemyWeapon2;
 			g_preload[g_preload_num++] = new CObjEnemy3;
 			g_preload[g_preload_num++] = new CObjEnemyWeapon3;
-			g_preload[g_preload_num++] = new CHero;
 			g_preload[g_preload_num++] = new CObjHeroWeaponMain;
 			g_preload[g_preload_num++] = new CObjHeroWeaponMissile;
 			g_preload[g_preload_num++] = new CBkGround;
@@ -353,6 +353,21 @@ void Process_Phase(void)
 			if (g_PhaseTimer.PeekTime() > 6000 || g_ScrBmp->done())
 			{
 				delete g_ScrBmp;
+				g_ScrBmp = new CObjBmp("resource/menu.bmp");
+				g_phase=MENU_PHASE;
+				g_PhaseTimer.Reset();
+			} 
+			else {
+				g_D3DObject->BeginPaint();
+				g_ScrBmp->paint();
+				g_D3DObject->EndPaint();		
+			}
+			break;
+	case MENU_PHASE:
+			g_D3DInput->GetInput(g_ScrBmp);					 
+			if (g_ScrBmp->done())
+			{
+				delete g_ScrBmp;
 				g_phase=GAME_PHASE;
 				Init_Level(1);
 				Start_Level(1);
@@ -374,6 +389,14 @@ void Process_Phase(void)
 			g_ObjMgr->paint();
 			g_D3DObject->PaintText();
 			g_D3DObject->EndPaint();
+			if (g_hero->GetLives() == 0) {
+				Cleanup_Level(1);
+				g_phase = MENU_PHASE;
+				delete g_ObjMgr;
+				g_ObjMgr = new CObjMgr;
+				g_PhaseTimer.Reset();
+				g_ScrBmp = new CObjBmp("resource/menu.bmp");
+			}
 			break;
 	default:
 		break;

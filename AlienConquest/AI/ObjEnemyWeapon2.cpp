@@ -44,7 +44,7 @@ void CObjEnemyWeapon2::_LoadGraphics()
    RECT trect;
    SetRect(&trect,379,195,402,200);
    OutputDebugString("Loading Cenemy weapon graphics\n");
-   m_regular[0] = new CTexture("resource/enemyhead2.bmp",0xFFFF00FF,&trect);
+   m_regular[0] = new CTexture("resource/enemyhead2-old.bmp",0xFFFF00FF,&trect);
 }
 
 void CObjEnemyWeapon2::_UnloadGraphics()

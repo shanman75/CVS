@@ -3,16 +3,16 @@
 //#include "objmgr.h"
 
 int CObjEnemyWeapon::m_graph_init = 0;
-int CObjEnemyWeapon::m_snd_played = 0;
-CSound *CObjEnemyWeapon::m_regsnd = NULL;
+//int CObjEnemyWeapon::m_snd_played = 0;
+//CSound *CObjEnemyWeapon::m_regsnd = NULL;
 CTexture *CObjEnemyWeapon::m_regular[1];
 
 void CObjEnemyWeapon::paint()
 {
-	if (!m_snd_played) {
-		m_snd_played=1;
-		m_regsnd->play();
-	}
+//	if (!m_snd_played) {
+//		m_snd_played=1;
+//		m_regsnd->play();
+//	}
 	switch (m_state) {
 		case REGULAR:
 		default:
@@ -48,12 +48,12 @@ void CObjEnemyWeapon::_LoadGraphics()
    m_boundrectnum = 1;
    m_boundrects = new RECT [m_boundrectnum];
    SetRect((LPRECT)&m_boundrects[0],0,0,18,8);
-   m_regsnd = new CSound ("resource/enemyweapon1.wav");
+//   m_regsnd = new CSound ("resource/enemyweapon1.wav");
 
 }
 
 void CObjEnemyWeapon::_UnloadGraphics()
 {
 	delete m_regular[0];
-	delete m_regsnd;
+//	delete m_regsnd;
 }

@@ -10,16 +10,22 @@ public:
 	CObjEnemy3(void);
 	virtual ~CObjEnemy3(void);
 	void Fire();
+	void Jet();
+	virtual void move();
 private:
 	virtual void paint();
 	void _LoadGraphics();
 	void _UnloadGraphics();
 	static CTexture *m_regular[1];
 	static CTexture *m_firing[4];
+	static CTexture *m_jetting[4];
 
 	static int m_graph_init;
 
 	int m_fir_seq;
+	int m_jet_seq;
+
 	CTimer m_ani_time;
 	CTimer m_fire_time;
+	CTimer m_jet_time;
 };

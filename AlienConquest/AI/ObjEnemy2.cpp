@@ -5,9 +5,9 @@
 
 int CObjEnemy2::m_graph_init = 0;
 
-CTexture *CObjEnemy2::m_regular[1];
-CTexture *CObjEnemy2::m_firing[3];
-CTexture *CObjEnemy2::m_jetting[4];
+CTexture **CObjEnemy2::m_regular = new CTexture*[3];
+CTexture **CObjEnemy2::m_firing = new CTexture*[9];
+CTexture **CObjEnemy2::m_jetting = new CTexture*[12];
 
 void CObjEnemy2::move(void)
 {
@@ -25,6 +25,7 @@ CObjEnemy2::CObjEnemy2(void)
 	m_max_x= m_org_max_x = 120;
 	m_max_y=50;
 	m_type = ENEMY;
+	m_curdamage = 0;
 
 	m_boundrectnum = 4;
 	m_boundrects = new RECT [m_boundrectnum];
@@ -47,8 +48,8 @@ void CObjEnemy2::paint()
 	pnt.x = m_dpos_x;
 	pnt.y = m_dpos_y;
 
-	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1300)) { m_fire_time.Reset(); Fire(); }
-	if (m_state == REGULAR && (m_jet_time.PeekTime() > 1500)) { m_jet_time.Reset(); Jet(); }
+//	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1300)) { m_fire_time.Reset(); Fire(); }
+//	if (m_state == REGULAR && (m_jet_time.PeekTime() > 1500)) { m_jet_time.Reset(); Jet(); }
 
 	switch (m_state) {
 		case JETTING:
@@ -57,14 +58,14 @@ void CObjEnemy2::paint()
 			if (m_ani_time.PeekTime() > 120) { m_jet_seq++; m_ani_time.Reset(); }
 			break;
 		case FIRING:
-			m_curtexture = m_firing[m_fir_seq];
+			m_curtexture = m_firing[m_fir_seq%3];
 			if (m_fir_seq >= 3) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 95) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
 		default:
-			if (m_regular[0] != NULL)
-				m_curtexture = m_regular[0];
+			if (m_regular[m_curdamage] != NULL)
+				m_curtexture = m_regular[m_curdamage];
 			break;
 	};
 	CObj::paint();
@@ -97,17 +98,20 @@ void CObjEnemy2::Fire()
 void CObjEnemy2::_LoadGraphics()
 {
    RECT trect;
+   int dmg=0;
    SetRect(&trect,1,1,126,97);
    OutputDebugString("Loading Cenemy2 graphics\n");
    m_regular[0] = new CTexture("resource/enemyhead2.bmp",0xFFFF00FF,&trect);
+   m_regular[1] = new CTexture("resource/enemyhead2damage.bmp",0xFFFF00FF,&trect);
+   m_regular[2] = new CTexture("resource/enemyhead2damage2.bmp",0xFFFF00FF,&trect);
 //   SetRect(&trect,1,195,126,291);
    SetRect(&trect,1,1,126,97);
    for (int x=0; x < 3; x++) {
+	   int offset = dmg*m_numdamage;
 	   trect.left=x*126+1;
 	   trect.right = trect.left +125;
-	   m_firing[x]=new CTexture("resource/enemyhead2firing.bmp",0xFFFF00FF,&trect);
+	   m_firing[x]=new CTexture("resource/enemyhead2fireing.bmp",0xFFFF00FF,&trect);
    }
-//   SetRect(&trect,1,98,126,194);
    SetRect(&trect,1,1,126,97);
    for (int x=0; x < 4; x++) {
 	   trect.left=x*126+1;
@@ -116,6 +120,11 @@ void CObjEnemy2::_LoadGraphics()
    }
 }
 
+void CObjEnemy2::Collision(CObj *colwith)
+{
+   if (++m_curdamage > 0)
+	   m_state=DEAD;
+}
 void CObjEnemy2::_UnloadGraphics()
 {
 	delete m_regular[0];

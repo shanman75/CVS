@@ -48,6 +48,7 @@ private:
 	void spawnOne(void);
 	int m_player1_score;
 	D3DXVECTOR2 m_player1_scorexy;
+	D3DXVECTOR2 m_player1_livesxy;
 
 	static char CObjMgr::m_scoreline[500];
 	CText m_D3DText;
