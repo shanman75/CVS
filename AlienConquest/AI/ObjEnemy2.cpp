@@ -55,7 +55,7 @@ void CObjEnemy2::Jet()
 		// Save the previous accel and speed for jettin!
 		m_jet_spd_x = m_speed_x;
 		m_jet_accel_x = m_accel_x;
-		m_accel_x = 5;
+		m_accel_x = 10;
 
 	}
 }
