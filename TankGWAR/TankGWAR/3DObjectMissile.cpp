@@ -65,7 +65,7 @@ void c3DObjectMissile::_LoadGraphics()
 	HRESULT hr;
 
   if (FAILED(D3DXLoadMeshFromX(
-     "resource\\abomb.X",
+     "resource\\scud.X",
      D3DXMESH_SYSTEMMEM,
 	 g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,		// LPD3DXBUFFER *ppAdjacency,

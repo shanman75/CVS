@@ -3,9 +3,11 @@
 #include "stdafx.h"
 #include "D3DObject.h"
 
-#define SKY_HEIGHT 500
-#define SKY_WIDTH 2000
+//#define SKY_HEIGHT 500
+//#define SKY_WIDTH 2000
 #define SKY_DEPTH 1000
+#define SKY_HEIGHT 10
+#define SKY_WIDTH 10
 
 // DEFINES
 #define		D3DFVF_SKYMESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)

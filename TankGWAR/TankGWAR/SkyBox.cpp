@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "skybox.h"
+#include "GameState.h"
 #include <stdio.h>
 
 LPDIRECT3DTEXTURE9*	  cSkyBox::m_tertex;
@@ -35,17 +36,24 @@ cSkyBox::~cSkyBox(void)
 void cSkyBox::Paint()
 {
     D3DXMATRIXA16 matView, matViewSave;
-    //g_D3DObject->m_d3ddevice9->GetTransform( D3DTS_VIEW, &matViewSave );
+    g_D3DObject->m_d3ddevice9->GetTransform( D3DTS_VIEW, &matViewSave );
     //matView = matViewSave;
     //matView._41 = 0; matView._42 = 0.0f; matView._43 = 0;
     //g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_VIEW,      &matView );
+
+	//g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, &matViewSave);
+
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZENABLE, FALSE );
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZWRITEENABLE, FALSE );
 
 
 	D3DXMATRIX matwrld;
 	D3DXMatrixIdentity(&matwrld);
+	D3DXVECTOR3 pos, blah;
+	g_GameState->GetCurrentTankState(&pos,&blah);
+	matwrld._41 = pos.x; matwrld._42 = pos.y; matwrld._43 = pos.z;
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
+
     D3DMATERIAL9 mtrl;
     ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
     mtrl.Diffuse.r = 1.0f;
@@ -221,7 +229,7 @@ BOOL cSkyBox::_Init()
   LPDIRECT3DTEXTURE9 tempt;
 
   m_tertex = new LPDIRECT3DTEXTURE9 [2];
-  sprintf (texpath,"resource\\%s","DSC05370.JPG");
+  sprintf (texpath,"resource\\%s","skysides.JPG");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[0] = tempt;
