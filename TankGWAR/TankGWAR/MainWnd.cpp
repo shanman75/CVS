@@ -1,4 +1,5 @@
 #include "StdAfx.h"
+#include "mp3aud.h"
 #include "mainwnd.h"
 #include "D3DObject.h"
 #include "D3DInput.h"
@@ -15,6 +16,7 @@ HINSTANCE g_hInst;
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int g_ActiveApp=1;
+cmp3stream *g_mp3_1;							//first mp3 sound
 
 
 //
@@ -147,6 +149,9 @@ char debg[255];
 		SafeDelete(g_ObjMgr);
 		OutputDebugString("Deleting global D3D Input\n");
 		SafeDelete(g_D3DInput);
+		delete g_mp3_1;
+		CoUninitialize();
+
 
     	g_MainDestroy();
 		
@@ -159,6 +164,8 @@ char debg[255];
 		                                                   // Key exiting functionality
 		//OutputDebugString("Help");
 		break;
+    case WM_USER:      g_mp3_1->OnGraphEvent();		// handles events
+                       break;    
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -186,6 +193,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		return FALSE;
 	}
 
+	CoInitialize(NULL);
+	g_mp3_1=new cmp3stream(g_hWnd);
+	g_mp3_1->CreateGraph(NULL);
+
+
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_TANKGWAR);
 
 	g_MainInit();
@@ -198,10 +210,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		DispatchMessage(&msg); //translate it
        }
 	   else if (g_ActiveApp) 
-	   {
+	   {   g_mp3_1->startsound();
            g_MainGameLoop();
 	   }
 	   else {
+		   g_mp3_1->stopsound();
 		   g_time.Pause();
 		   WaitMessage();
 	   }
