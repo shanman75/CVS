@@ -298,11 +298,12 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
   g_ObjMgr->add(objadd);
 
   switch(tpe)
-  {  case 0:		wav->play(shell); break;
-	 case 1:		wav->play(abomb); break;
-	 case 2:		wav->play(scud); break;
-	 case 3:		wav->play(amram); break;
-	 case 4:		wav->play(fbomb); break;
+  {  
+  case c3DObjectMissile::MSLTYPE::SHELL:		wav->play(shell); break;
+  case c3DObjectMissile::MSLTYPE::ATOMBOMB:		wav->play(abomb); break;
+   case c3DObjectMissile::MSLTYPE::SCUD:		wav->play(scud); break;
+   case c3DObjectMissile::MSLTYPE::AMRAM:		wav->play(amram); break;
+   case c3DObjectMissile::MSLTYPE::FUNKIEBOMB:		wav->play(fbomb); break;
   }
   return objadd;
 }

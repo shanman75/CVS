@@ -92,6 +92,7 @@ private:
      static CTexture *m_statusbartex;
      static CTexture *m_preroundBk;
      static CTexture *m_preroundMousePtr;
+     static CTexture *m_preroundLogo;
      static CTexture *m_preroundRegButton[2];
 
      enum MAINMENUBUTT m_mainmenubutt;

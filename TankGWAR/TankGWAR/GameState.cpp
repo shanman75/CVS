@@ -8,6 +8,7 @@ CTexture *cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_preroundBk = NULL;
 CTexture *cGameState::m_preroundMousePtr =NULL;
 CTexture *cGameState::m_preroundRegButton[2];
+CTexture *cGameState::m_preroundLogo = NULL;
 extern bool sh_FPS;
 
 void cGameState::move(void)
@@ -94,36 +95,38 @@ void cGameState::paintbg(void)
     int but_ng;
     g_D3DObject->m_pd3dxSprite->Begin(0);
     m_preroundBk->Paint(0.0f,0.0f);
+    m_preroundLogo->Paint(200.0f,0.0f);
 
+    const int st_y = 196;
     // New Game Button
-    SetRect(&mrect,200,96,600,137);
+    SetRect(&mrect,200,st_y+(41+30)*0,600,st_y+(41+30)*0+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
     if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NEWGAME;
-    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f);
+    m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41+30)*0));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"New Game",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
     // Credits button
-    SetRect(&mrect,200,96+41+30,600,96+41+30+41);
+    SetRect(&mrect,200,st_y+(41+30)*1,600,st_y+(41+30)*1+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
     if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
-    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+41.0f+30.0f);
+    m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41+30)*1));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Credits",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
     // Help button
-    SetRect(&mrect,200,96+(41+30)*2,600,96+(41+30)*2+41);
+    SetRect(&mrect,200,st_y+(41+30)*2,600,st_y+(41+30)*2+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
     if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
-    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+(41.0f+30.0f)*2);
+    m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41.0f+30.0f)*2));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Help",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
     // Quit button
-    SetRect(&mrect,200,96+(41+30)*3,600,96+(41+30)*3+41);
+    SetRect(&mrect,200,st_y+(41+30)*3,600,st_y+(41+30)*3+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
     if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::QUIT;
-    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+(41.0f+30.0f)*3);
+    m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41.0f+30.0f)*3));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Quit",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
@@ -497,6 +500,9 @@ void cGameState::_Init(void)
     m_preroundRegButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
     SetRect(&imgrect,1,84,401,128);
     m_preroundRegButton[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+
+    SetRect(&imgrect,1,130,385,230);
+    m_preroundLogo = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 }
 
 void cGameState::_Delete(void)
@@ -506,6 +512,7 @@ void cGameState::_Delete(void)
   SAFE_DELETE(m_preroundMousePtr);
   SAFE_DELETE(m_preroundRegButton[0]);
   SAFE_DELETE(m_preroundRegButton[1]);
+  SAFE_DELETE(m_preroundLogo);
 }
 
 void cGameState::OnLostDevice() {
