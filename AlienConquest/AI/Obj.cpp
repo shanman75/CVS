@@ -2,7 +2,7 @@
 #include "obj.h"
 
 const double CObj::SSCALE=0.003;
-const double CObj::ASCALE=0.014;
+const double CObj::ASCALE=0.0014;
 
 CObj::CObj(void)
 {
