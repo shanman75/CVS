@@ -34,7 +34,7 @@ void g_MainInit()
    tex1 = new CTexture("resource\\blah.png",0xFFFF00FF);
    model = new cModel();
    model2 = new cModel();
-   model2->SetXYZ(2,0,0);
+   model2->SetXYZ(0,0,0);
 }
 
 
@@ -71,7 +71,8 @@ void g_MainGameLoop()
    g_D3DObject->m_d3ddevice9->SetMaterial( &d3dMaterial );
 
     D3DXMATRIX matView;
-    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( 0.0f, 0.0f, -10.0f );
+//    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( 0.0f, 0.0f, 20.0f );
+    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( 8.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );
@@ -83,7 +84,7 @@ void g_MainGameLoop()
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
 
 	model->Paint();
-	model2->Paint();
+	//model2->Paint();
 
    g_D3DObject->m_pd3dxSprite->Begin(0);
    tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);

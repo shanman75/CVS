@@ -5,8 +5,8 @@
 cModel::cModel(void)
 {
 	m_xPos = 0;
-	m_yPos = -2;
-	m_zPos = 5;
+	m_yPos = 0;
+	m_zPos = 0;
 
 	LPD3DXBUFFER lpMat = NULL;
     LPD3DXBUFFER pAdjacencyBuffer = NULL;
@@ -78,10 +78,11 @@ void cModel::MakeWorldMatrix( int x )
     D3DXMATRIX MatTemp;  // Temp matrix for rotations.
     D3DXMATRIX MatRot;   // Final rotation matrix, applied to 
                          // pMatWorld.
+	D3DXMATRIX MatRotY, MatTrY;   // Rotation Matrix for turret
 
 	static dir = -1;
 	
-	m_zPos = m_zPos + (m_time.GetTime()/1200) * dir;
+	//m_zPos = m_zPos + (m_time.GetTime()/1200) * dir;
 
 	if ((m_zPos < -6) || (m_zPos > 50)) {
 		 dir = dir * -1;
@@ -94,16 +95,56 @@ void cModel::MakeWorldMatrix( int x )
 	float m_fYaw = 0;
 
 	m_fYaw  = 3.14 * (m_time2.PeekTime()/2000);
+	//m_fYaw = 3.14/2;
+	//m_fYaw = 0;
  
     // Using the left-to-right order of matrix concatenation,
     // apply the translation to the object's world position
     // before applying the rotations.
-    D3DXMatrixTranslation(pMatWorld, m_xPos, m_yPos, m_zPos);
+	
     D3DXMatrixIdentity(&MatRot);
+	D3DXMatrixIdentity(&MatRotY);
 
-    // Now, apply the orientation variables to the world matrix
-	if ((x == 0)
-		|| (x == 1) || (x == 2)) 
+    D3DXMatrixTranslation(pMatWorld, m_xPos, m_yPos, m_zPos);
+
+	if (x==4 || x==5) {
+			D3DXVECTOR3 VecAxisY (1,0,0);  // Axis of Rotation
+
+		float m_barrelHeight = fmod((D3DX_PI/2) * (m_time2.PeekTime()/12000),D3DX_PI/2);
+
+		char ch[255];
+		sprintf (ch,"Barrel Height = %f cos=%f\n", m_barrelHeight, cos(m_barrelHeight));
+		OutputDebugString (ch);
+		
+		//m_fRoll = 3.14/4;
+        //D3DXMatrixRotationX(&MatRotY, -m_barrelHeight);          // Roll
+
+        D3DXMatrixTranslation(&MatTrY, 0, 0, -0.769);
+		D3DXMatrixRotationAxis(&MatRotY,&VecAxisY,-m_barrelHeight);
+		D3DXMatrixMultiply(&MatRotY,&MatTrY,&MatRotY);
+        D3DXMatrixTranslation(&MatTrY, 0, 0, 0.739);
+		D3DXMatrixMultiply(&MatRotY,&MatRotY,&MatTrY);
+		
+
+		/*
+		MatRotY._11 = MatRotY._44  = 1;
+		MatRotY._12 = MatRotY._13 = MatRotY._14 = MatRotY._21 =
+			MatRotY._24 = MatRotY._31 = MatRotY._34 =
+			MatRotY._41 = MatRotY._42 = MatRotY._43 = 0;
+        MatRotY._22 = cos (m_barrelHeight);
+		MatRotY._23 = -sin(m_barrelHeight);
+		MatRotY._32 = sin (m_barrelHeight);
+		MatRotY._33 = cos (m_barrelHeight);
+		*/
+        //D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+
+		//pMatWorld->_41 += (5.0f) * sin(m_barrelHeight);
+		//pMatWorld->_42 += (0.4f) * (1-cos(m_barrelHeight));
+		//pMatWorld->_43 += (3.3f) * sin(m_barrelHeight);
+	}
+
+	// Now, apply the orientation variables to the world matrix
+	if ((x == 0) || (x==3) || (x==4) || (x==5)) 
 	{
     if(m_fPitch || m_fYaw || m_fRoll) {
         // Produce and combine the rotation matrices.
@@ -111,22 +152,16 @@ void cModel::MakeWorldMatrix( int x )
         D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
         D3DXMatrixRotationY(&MatTemp, m_fYaw);           // Yaw
         D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
-        D3DXMatrixRotationZ(&MatTemp, m_fRoll);          // Roll
-        D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+//        D3DXMatrixRotationZ(&MatTemp, m_fRoll);          // Roll
+//        D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
  
         // Apply the rotation matrices to complete the world matrix.
-        D3DXMatrixMultiply(pMatWorld, &MatRot, pMatWorld);
     }
 	}
 
-	if ((x==2) || (x==1)) {
-		m_fRoll = (3.14/2) * (m_time2.PeekTime()/19000);
-        D3DXMatrixRotationX(&MatTemp, m_fRoll);          // Roll
-        D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
-        // Apply the rotation matrices to complete the world matrix.
-        D3DXMatrixMultiply(pMatWorld, &MatRot, pMatWorld);
+	//D3DXMatrixMultiply(pMatWorld, &MatRot, pMatWorld);
+	D3DXMatrixMultiply(pMatWorld, &MatRotY, D3DXMatrixMultiply(&MatTemp,&MatRot,&MatWorld));
 
-	}
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, pMatWorld );
 	for (int x = 0; x++ ; x<1)
       g_D3DObject->m_d3ddevice9->SetTextureStageState(0,D3DTSS_CONSTANT ,0);
