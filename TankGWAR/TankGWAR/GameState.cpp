@@ -1,7 +1,11 @@
 #include "StdAfx.h"
 #include "gamestate.h"
 #include "MainWnd.h"
+#include "wavsound.h"
 #include <stdio.h>
+
+extern cwavsound *wav;
+
 cGameState *g_GameState;
 //LPDIRECT3DTEXTURE9 cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_statusbartex = NULL;
@@ -275,6 +279,7 @@ void cGameState::GetInput(void)
     case MAINSTATES::CREDITS:
       if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
          (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
+        wav->play(mnu_select);
         SAFE_DELETE(m_creditsBk);
         m_mainstate = MAINSTATES::MAINMENU;
         v_KEYUP_ESC = false;
@@ -283,12 +288,14 @@ void cGameState::GetInput(void)
       break;
     case MAINSTATES::MAINMENU:
       if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
-               SendMessage(g_hWnd,WM_QUIT,0,0);
-               return;
+         wav->play(mnu_select);
+         SendMessage(g_hWnd,WM_QUIT,0,0);
+         return;
       }
       if(g_D3DInput->MouseDown(0) && v_MOUSEUP_0) {
         switch (m_mainmenubutt) {
          case MAINMENUBUTT::MM_CREDITS:
+         wav->play(mnu_select);
            m_mainstate = MAINSTATES::CREDITS;
            m_creditsBk = new CTexture("resource\\pre-round\\credits.png");
            v_MOUSEUP_0 = false;

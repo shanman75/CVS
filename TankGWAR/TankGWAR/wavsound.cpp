@@ -20,13 +20,40 @@ cwavsound::cwavsound(HWND hwnd)
     }
 }
 
-void cwavsound::play(gamesound gs)
-{	soundbuffer[gs]->Play(0,0,0);
+void cwavsound::play(gamesound gs, BOOL looping)
+{	
+  if(gs<0||gs>=maxsounds)return; //bail if bad index
+  int copy=0; //current copy
+  DWORD status; //status of that copy
+
+  //get status of first copy
+  if(FAILED(soundbuffer[gs][copy]->GetStatus(&status)))
+    status=DSBSTATUS_PLAYING; //assume playing if failed
+  //find next unplayed copy, if any
+  while(copy<m_nCopyCount[gs]&&
+  (status&DSBSTATUS_PLAYING)){ //while current copy in use
+    if(++copy<m_nCopyCount[gs]) //go to next copy
+      if(FAILED(soundbuffer[gs][copy]->GetStatus(&status)))
+        status=DSBSTATUS_PLAYING; //assume playing if failed
+  }
+
+  //play copy
+  if(copy<m_nCopyCount[gs]){ //if unused copy found
+    soundbuffer[gs][copy]->
+      Play(0,0,looping?DSBPLAY_LOOPING:0); //play it
+    m_bStartedThisFrame[gs]=TRUE; //record fact that we started it
+  }
+
+//  soundbuffer[gs]->Play(0,0,0);
 }
 
 void cwavsound::stopsounds()
-{	for(int i=0;i<maxsounds;i++)
-	  soundbuffer[i]->Stop();
+{	
+  for(int index=0;index<maxsounds;index++)
+	  for(int j=0; j<m_nCopyCount[index]; j++){ //for each copy
+      soundbuffer[index][j]->Stop(); //stop playing
+      soundbuffer[index][j]->SetCurrentPosition(0); //rewind
+  }
 }
 
 cwavsound::~cwavsound()
@@ -110,11 +137,12 @@ void cwavsound::loadbuffers()
 	BYTE *sound=NULL; //temporary buffer to hold sound data
 	LPVOID w1,w2; //write pointer (use 2 for buffer wraparound)
 	DWORD l1,l2; //length of sound to be written to write pointers
+  LPDIRECTSOUNDBUFFER tmpbuff;
 //	FILE * logging;
 //	logging=fopen("test.txt","w");
 
 	//wave format descriptor
-    memset(&wavfile,0,sizeof(WAVEFORMATEX));
+  memset(&wavfile,0,sizeof(WAVEFORMATEX));
 	wavfile.wFormatTag=WAVE_FORMAT_PCM;
 	wavfile.nChannels=mono;
 	wavfile.nSamplesPerSec=frequency;
@@ -122,8 +150,8 @@ void cwavsound::loadbuffers()
 	wavfile.nBlockAlign=wavfile.nChannels*wavfile.wBitsPerSample/8;		
 	wavfile.nAvgBytesPerSec=wavfile.nBlockAlign*wavfile.nSamplesPerSec;
 	
-    //direct sound buffer descriptor
-    memset(&bufdes,0,sizeof(DSBUFFERDESC));
+  //direct sound buffer descriptor
+  memset(&bufdes,0,sizeof(DSBUFFERDESC));
 	bufdes.dwSize=sizeof(DSBUFFERDESC);
 	bufdes.dwFlags=DSBCAPS_STATIC;
 	bufdes.dwReserved=0;
@@ -131,79 +159,143 @@ void cwavsound::loadbuffers()
 	
 	int length=loadsound("resource\\sounds\\turret.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[tankmove]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[tankmove]),NULL)))
-	{	soundbuffer[tankmove]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[tankmove]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+  makecopies(tmpbuff,tankmove,1);
+  tmpbuff->Release();
 
 	length=loadsound("resource\\sounds\\shell.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[shell]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[shell]),NULL)))
-	{	soundbuffer[shell]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[shell]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,shell,4);
+  tmpbuff->Release();
 
 	length=loadsound("resource\\sounds\\abomb.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[abomb]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[abomb]),NULL)))
-	{	soundbuffer[abomb]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[abomb]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,abomb,4);
+  tmpbuff->Release();
 
 	length=loadsound("resource\\sounds\\scud.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[scud]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[scud]),NULL)))
-	{	soundbuffer[scud]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[scud]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,scud,4);
+  tmpbuff->Release();
 
 	length=loadsound("resource\\sounds\\amram.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[amram]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[amram]),NULL)))
-	{	soundbuffer[amram]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[amram]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,amram,4);
+  tmpbuff->Release();
 
-    length=loadsound("resource\\sounds\\fbomb.wav",&sound);
+  length=loadsound("resource\\sounds\\fbomb.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[fbomb]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[fbomb]),NULL)))
-	{	soundbuffer[fbomb]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[fbomb]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,fbomb,4);
+  tmpbuff->Release();
 
-	length=loadsound("resource\\sounds\\explosion.wav",&sound);
+  length=loadsound("resource\\sounds\\explosion.wav",&sound);
 	bufdes.dwBufferBytes=length;
-	soundbuffer[explosion]=NULL;
-	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[explosion]),NULL)))
-	{	soundbuffer[explosion]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
 			CopyMemory(w1,sound,l1);
 		if(w2!=NULL)
 			CopyMemory(w2,(sound+l1),l2); //load  second half
-		soundbuffer[explosion]->Unlock(w1,l1,w2,l2);
+		tmpbuff->Unlock(w1,l1,w2,l2);
 	}
+	makecopies(tmpbuff,explosion,4);
+  tmpbuff->Release();
+
+  // Changes to buffer format required for menu sounds...
+  wavfile.nSamplesPerSec=22050;
+	wavfile.wBitsPerSample=8;
+	wavfile.nBlockAlign=1*8/8;		
+	wavfile.nAvgBytesPerSec=wavfile.nBlockAlign*wavfile.nSamplesPerSec;
+
+  length=loadsound("resource\\sounds\\menumove.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		tmpbuff->Unlock(w1,l1,w2,l2);
+	}
+	makecopies(tmpbuff,mnu_move,4);
+  tmpbuff->Release();
+
+	length=loadsound("resource\\sounds\\menuselect.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	tmpbuff=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
+	{	tmpbuff->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		tmpbuff->Unlock(w1,l1,w2,l2);
+	}
+	makecopies(tmpbuff,mnu_select,4);
+  tmpbuff->Release();
+
+  
 //	fclose(logging);
+}
+
+BOOL cwavsound::makecopies(LPDIRECTSOUNDBUFFER buff, int index,int copies){ 
+//make copies of buffer
+  BOOL result=TRUE; //TRUE if everything went OK
+
+  soundbuffer[index]=new LPDIRECTSOUNDBUFFER[copies];
+  for(int i=0; i<copies; i++)soundbuffer[index][i]=NULL;
+
+  m_nCopyCount[index]=copies; //record number of copies
+  for(int i=0; i<copies; i++) //for each copy
+    result=result&& //copy the sound
+      SUCCEEDED(ds8->
+        DuplicateSoundBuffer(buff,
+        &(soundbuffer[index][i])));
+  return result;
 }
