@@ -73,7 +73,6 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
   m_d3dpp.Flags = 0;
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
-  //m_d3dpp.FullScreen_RefreshRateInHz =70;
 
 
   if (0) {  

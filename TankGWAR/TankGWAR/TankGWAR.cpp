@@ -92,7 +92,7 @@ void g_MainInit()
 }
 
 
-void MakeWorldMatrix( D3DXMATRIX* pMatWorld )
+void MakeWorldMatrix( D3DXMATRIX* pMatWorld, int x )
 {
     D3DXMATRIX MatTemp;  // Temp matrix for rotations.
     D3DXMATRIX MatRot;   // Final rotation matrix, applied to 
@@ -100,13 +100,15 @@ void MakeWorldMatrix( D3DXMATRIX* pMatWorld )
 
 	float m_xPos = 0;
 	float m_yPos = -2;
-	float m_zPos = 6;
-	
-	m_zPos -= (time2.PeekTime()/1200);
+	static float m_zPos = 5;
 
-	if (m_zPos < 1) {
-		 m_zPos = 6;
-		 time2.GetTime();
+	static dir = -1;
+	
+	m_zPos = m_zPos + (time.GetTime()/1200) * dir;
+
+	if ((m_zPos < -6) || (m_zPos > 50)) {
+		 dir = dir * -1;
+		 time.GetTime();
 	}
 
 	float m_fPitch = 0;
@@ -114,8 +116,7 @@ void MakeWorldMatrix( D3DXMATRIX* pMatWorld )
 	float m_fRoll = 0;
 	float m_fYaw = 0;
 
-	m_fYaw  = 3.14 * (time2.PeekTime()/6000);
-	m_fRoll = 3.14 * (time2.PeekTime()/6000);
+	m_fYaw  = 3.14 * (time2.PeekTime()/2000);
  
     // Using the left-to-right order of matrix concatenation,
     // apply the translation to the object's world position
@@ -124,6 +125,9 @@ void MakeWorldMatrix( D3DXMATRIX* pMatWorld )
     D3DXMatrixIdentity(&MatRot);
 
     // Now, apply the orientation variables to the world matrix
+	if ((x == 0)
+		|| (x == 1) || (x == 2)) 
+	{
     if(m_fPitch || m_fYaw || m_fRoll) {
         // Produce and combine the rotation matrices.
         D3DXMatrixRotationX(&MatTemp, m_fPitch);         // Pitch
@@ -136,6 +140,16 @@ void MakeWorldMatrix( D3DXMATRIX* pMatWorld )
         // Apply the rotation matrices to complete the world matrix.
         D3DXMatrixMultiply(pMatWorld, &MatRot, pMatWorld);
     }
+	}
+
+	if ((x==2) || (x==1)) {
+		m_fRoll = (3.14/2) * (time2.PeekTime()/19000);
+        D3DXMatrixRotationX(&MatTemp, m_fRoll);          // Roll
+        D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+        // Apply the rotation matrices to complete the world matrix.
+//        D3DXMatrixMultiply(pMatWorld, &MatRot, pMatWorld);
+
+	}
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, pMatWorld );
 	//for (int x = 0; x++ ; x<1)
 //   g_D3DObject->m_d3ddevice9->SetTextureStageState(0,D3DTSS_CONSTANT ,0);
@@ -149,9 +163,9 @@ void g_MainGameLoop()
 
    time.UpdateClock();
    if (--tm == 0) {
-     sprintf (debg,"FPS %.2f\n",1000/time.GetTime()*4);
+     sprintf (debg,"FPS %.2f\n",4000 / time.GetTime());
      OutputDebugString(debg);
-	 tm = 5;
+	 tm = 4;
    }
 
 
@@ -187,12 +201,13 @@ void g_MainGameLoop()
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
 
 	D3DXMATRIX matWorld;
-    MakeWorldMatrix(&matWorld);
 	
    for (int x = 0; x < nMat; x++)  {
 //	 g_D3DObject->m_d3ddevice9->SetMaterial( &tankmat[x] );
+     MakeWorldMatrix(&matWorld,x);
 	 g_D3DObject->m_d3ddevice9->SetTexture(0,tanktex[x]);
-     teapot->DrawSubset(x);
+     //if (x == 1 || x == 2)
+	 teapot->DrawSubset(x);
    }
 
 
