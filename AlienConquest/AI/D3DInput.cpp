@@ -57,6 +57,9 @@ void D3DInput::GetInput(CHero *hero)
 		hero->SetSpeed(0,0);
 		hero->SetAccel(0,0);
 	}
+
+	if (KEYDOWN(buffer, DIK_PAUSE))
+		OutputDebugString("Pause\n");
 } 
 
 D3DInput::~D3DInput(void)

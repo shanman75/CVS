@@ -10,6 +10,7 @@ public:
 	~CHero(void);
 private:
 	virtual void paint();
+	virtual void move();
 	void _LoadGraphics(void);
 	void _UnloadGraphics();
 

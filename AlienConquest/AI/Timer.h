@@ -1,5 +1,7 @@
 #pragma once
 
+#define TIMER_MAXDLTA 3000
+
 class CTimer
 {
 public:

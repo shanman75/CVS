@@ -44,3 +44,18 @@ void CHero::paint(void)
 			break;
 	};
 }
+
+void CHero::move(void)
+{
+	int X_SCALE = 1.6;
+	int Y_SCALE = 1.9;
+	CObj::move();
+	if (m_speed_x > X_SCALE) m_speed_x-=X_SCALE;
+	else if (m_speed_x < -X_SCALE) m_speed_x += X_SCALE;
+	else m_speed_x += m_speed_x > 0 ? -0.1: 0.1;
+
+	if (m_speed_y > Y_SCALE) m_speed_y-=Y_SCALE;
+	else if (m_speed_y < -Y_SCALE) m_speed_y += Y_SCALE;
+	else m_speed_y += m_speed_y > 0 ? -0.1: 0.1;
+
+}

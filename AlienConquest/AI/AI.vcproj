@@ -130,6 +130,9 @@
 				RelativePath="ObjEnemy2.cpp">
 			</File>
 			<File
+				RelativePath="ObjEnemyBullet.cpp">
+			</File>
+			<File
 				RelativePath="ObjMgr.cpp">
 			</File>
 			<File
@@ -177,6 +180,9 @@
 			</File>
 			<File
 				RelativePath="ObjEnemy2.h">
+			</File>
+			<File
+				RelativePath="ObjEnemyBullet.h">
 			</File>
 			<File
 				RelativePath="ObjMgr.h">
