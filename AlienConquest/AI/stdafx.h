@@ -21,5 +21,6 @@
 #include <stdio.h>
 
 extern HWND hwnd;
+extern HINSTANCE hInst;
 
 // TODO: reference additional headers your program requires here

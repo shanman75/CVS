@@ -27,6 +27,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 	char buff[250];
 
 	m_filename = strdup(filename);
+
 	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,(int)srect);
 	OutputDebugString(buff);
 	UpdateDeviceCaps();
@@ -44,8 +45,8 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 		srect,D3DX_FILTER_NONE,colorkey,NULL))) return;
 
 	char bff[255];
-	sprintf (bff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
-	OutputDebugString(bff);
+	//sprintf (bff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
+	//OutputDebugString(bff);
 	// Get the number of surfaces we will need
 	int nrow,ncol;
 	ncol = (m_width / m_maxw) + (m_width % m_maxw > 0);
@@ -54,10 +55,10 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 	m_ncol = ncol;
 	m_numtex = nrow*ncol;
 	
-	sprintf(buff,"CTexture - Image is (%i,%i) size\n",m_height,m_width);
-	OutputDebugString(buff);
-	sprintf(buff,"CTexture - Creating %i (%i,%i) buffers\n",m_numtex,nrow,ncol);
-	OutputDebugString(buff);
+	//sprintf(buff,"CTexture - Image is (%i,%i) size\n",m_height,m_width);
+	//OutputDebugString(buff);
+	//sprintf(buff,"CTexture - Creating %i (%i,%i) buffers\n",m_numtex,nrow,ncol);
+	//OutputDebugString(buff);
 
 	if (m_numtex > 0) {
 		m_textures = new IDirect3DTexture8 *[m_numtex];
@@ -101,12 +102,12 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 
 CTexture::~CTexture(void)
 {
-	OutputDebugString("CTexture Destroy - ");
-	OutputDebugString(m_filename);
-	OutputDebugString("\n");
+	//OutputDebugString("CTexture Destroy - ");
+	//OutputDebugString(m_filename);
+	//OutputDebugString("\n");
 	for (int x = 0; x < m_numtex; x++) 
 		SafeRelease(m_textures[x]);
-//	delete []m_textures;
+	delete []m_textures;
 }
 
 void CTexture::Paint(D3DXVECTOR2 *points)

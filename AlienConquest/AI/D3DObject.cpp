@@ -229,8 +229,6 @@ int D3DObject::Test (CTexture *tex[])
   mx += (mytime.GetTime() * SCALE);
   int m_x = (int)mx;
 
-//	OutputDebugString("Calling begin scene\n");
-
 	D3DXVECTOR2 trans(0,0);
 	RECT SrcRect, *pSrcRect = &SrcRect;
 
@@ -257,7 +255,7 @@ int D3DObject::Test (CTexture *tex[])
 	 trans.x = ((int)(m_x*hero)) % curmode.Width;
 //	 SetRect(&SrcRect,0,0,tex[3]->GetWidth(),tex[3]->GetHeight());
 //	 tex[3]->Paint(&SrcRect,&trans);
-	 tex[3]->Paint(&trans);
+//	 tex[3]->Paint(&trans);
 	}
 
 	static float newfps = 30;

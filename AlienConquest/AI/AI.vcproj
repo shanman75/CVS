@@ -112,6 +112,9 @@
 				RelativePath="AI.cpp">
 			</File>
 			<File
+				RelativePath="D3DInput.cpp">
+			</File>
+			<File
 				RelativePath="D3DObject.cpp">
 			</File>
 			<File
@@ -156,6 +159,9 @@
 			Filter="h;hpp;hxx;hm;inl;inc">
 			<File
 				RelativePath="AI.h">
+			</File>
+			<File
+				RelativePath="D3DInput.h">
 			</File>
 			<File
 				RelativePath="D3DObject.h">

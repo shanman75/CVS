@@ -25,19 +25,19 @@ void CObj::move(void)
 	double tm = (double)m_time.GetTime()/1000;
 
 	char buff[500];
-	sprintf(buff,"Moving tm=%f\n",tm);
-	OutputDebugString(buff);
-	sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,
-		m_accel_x,m_accel_y);
-	OutputDebugString(buff);
+	//sprintf(buff,"Moving tm=%f\n",tm);
+	//OutputDebugString(buff);
+	//sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,
+	//	m_accel_x,m_accel_y);
+	//OutputDebugString(buff);
 
 	// Calculate Distance
 	double dlt_x = m_speed_x*tm + 0.5*m_accel_x*tm*tm;
 	double dlt_y = m_speed_y*tm + 0.5*m_accel_x*tm*tm;
-	sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
-		m_dpos_x, m_dpos_y
-		);
-	OutputDebugString(buff);
+	//sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
+	//	m_dpos_x, m_dpos_y
+	//	);
+	//OutputDebugString(buff);
 
 	// Take into account acceleration
 	m_dpos_x += dlt_x;
@@ -46,8 +46,8 @@ void CObj::move(void)
 	if (m_dpos_y < 0) m_dpos_y = HEIGHT;
 	m_pos_x = (int) m_dpos_x % WIDTH;
 	m_pos_y = (int) m_dpos_y % HEIGHT;
-	sprintf(buff,"X,Y = %i,%i\n",m_pos_x, m_pos_y);
-	OutputDebugString(buff);
+	//sprintf(buff,"X,Y = %i,%i\n",m_pos_x, m_pos_y);
+	//OutputDebugString(buff);
 
 	// New speed
 	m_speed_x += m_accel_x*tm;

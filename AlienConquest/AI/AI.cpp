@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "AI.h"
 #include "D3DObject.h"
+#include "D3DInput.h"
 #include "Texture.h"
 #include "ObjMgr.h"
 #include "ObjEnemy.h"
@@ -58,7 +59,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	tex[0] = new CTexture("resource\\farsky.png",0xFFFF00FF);
 	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
 	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
-	tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
+	//tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
 #define NUM_ENEMY1 1
 #define NUM_ENEMY2 4
 	CObjEnemy  *enemy1[NUM_ENEMY1];
@@ -79,11 +80,11 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		enemy2[x]->SetSpeed((rand()%10)-5,(rand()%10)-5);
 		enemy2[x]->SetPosition(rand()%800,rand()%600);
 		enemy2[x]->SetAccel((rand()%5),(rand()%5));
-//		enemy2[x]->Fire();
 		g_ObjMgr.add(enemy2[x]);
 	}
 
 	hero = new CHero;
+	hero->SetAccel(rand()%50-25,rand()%30-15);
 	g_ObjMgr.add(hero);
 
 
@@ -100,6 +101,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
        }
 	   else if (ActiveApp) 
 	   {
+			g_D3DInput->GetInput(hero);
+			
 		    g_Time.UpdateClock();
 			g_ObjMgr.move();
 			if (g_FireClock.PeekTime() > 1200) { 
@@ -115,6 +118,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 														enemy2[rand()%NUM_ENEMY2]->Fire();
 														break;
 												}
+								//hero->accel(rand()%5-2.5,rand()%5-2.5);
 			}
 
 		    g_D3DObject->BeginPaint();
@@ -197,6 +201,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    UpdateWindow(hWnd);
    SetFocus(hWnd);
    g_D3DObject = new D3DObject;
+   g_D3DInput = new D3DInput;
 
    return TRUE;
 }
@@ -222,6 +227,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_ACTIVATEAPP: ActiveApp=(int)wParam; break; //iconize
 	case WM_DESTROY:
 		delete g_D3DObject;
+		delete g_D3DInput;
 		delete tex[0];
 		delete tex[1];
 		delete tex[2];
