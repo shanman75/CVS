@@ -2,7 +2,7 @@
 #include "d3dobject.h"
 #include "stdio.h"
 
-extern HWND hwnd;
+D3DObject *g_D3DObject;							// Main D3D Object
 
 D3DObject::D3DObject(void)
 : m_d3d8(NULL)
@@ -27,8 +27,6 @@ D3DObject::~D3DObject(void)
 int D3DObject::_InitD3D8(void)
 {
 //  HRESULT retval;
-#define WIDTH 1024
-#define HEIGHT 768
 
   if ((m_d3d8=Direct3DCreate8(D3D_SDK_VERSION)) ==NULL) return FALSE;
 
@@ -94,6 +92,11 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
   ShowCursor(FALSE);
   m_d3ddevice8->ShowCursor(FALSE);
 
+  D3DCAPS8 cps;
+  m_d3ddevice8->GetDeviceCaps(&cps);
+  char outstr[5000];
+  sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",cps.MaxTextureHeight,cps.MaxTextureWidth);
+  OutputDebugString(outstr);
   return TRUE;
 }
 
@@ -132,7 +135,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
   return D3D_OK;
 } //DeviceLost
 
-int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf)
+int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf, D3DCOLOR ckey)
 {
 	D3DXIMAGE_INFO info;
 	int retval;
@@ -142,7 +145,7 @@ int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf)
 	if (MakeScreenSurface(info.Width,info.Height,D3DFMT_UNKNOWN,surf) != D3D_OK) return FALSE;
 
 	retval = D3DXLoadSurfaceFromFile(*surf,NULL,NULL, //copy to surface
-      fname,NULL,D3DFMT_UNKNOWN,0xFFFF00FF,NULL); //using default settings
+      fname,NULL,D3DFMT_UNKNOWN,ckey,NULL); //using default settings
 	return D3D_OK;
 }
 
@@ -201,7 +204,7 @@ int D3DObject::Test (IDirect3DTexture8 **m_lpTexture, D3DXIMAGE_INFO text_desc[]
 {
 
   static CTimer mytime;
-  float SCALE = 0.015;
+  float SCALE = 0.023;
 
 //  for (int x = 1; x < 70; x++) {
   static float mx = 0;
@@ -216,17 +219,20 @@ int D3DObject::Test (IDirect3DTexture8 **m_lpTexture, D3DXIMAGE_INFO text_desc[]
 	RECT SrcRect, *pSrcRect = &SrcRect;
 
 	m_pd3dxSprite->Begin();
-
-	SetRect(&SrcRect,0+m_x,0,curmode.Width+m_x,50);
-	trans.y=curmode.Height-50;
 	trans.x=0;
-	m_pd3dxSprite->Draw( m_lpTexture[2], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
-	SetRect(&SrcRect,0+m_x,0,curmode.Width+m_x,600);
+
+	float sky = 0.12;
+	float groud = 0.65;
+	float below = 1.68;
+	SetRect(&SrcRect,0+m_x*sky,0,curmode.Width+m_x*sky,600);
 	trans.y = 0;
 	m_pd3dxSprite->Draw( m_lpTexture[0], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
-	SetRect(&SrcRect,0+m_x,0,curmode.Width+m_x,600);
-	trans.y=curmode.Height-50-600;
+	SetRect(&SrcRect,0+m_x*groud,0,curmode.Width+m_x*groud,600);
+	trans.y=0;
 	m_pd3dxSprite->Draw( m_lpTexture[1], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+	SetRect(&SrcRect,0+m_x*below,0,curmode.Width+m_x*below,50);
+	trans.y=curmode.Height-50;
+	m_pd3dxSprite->Draw( m_lpTexture[2], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
 	m_pd3dxSprite->End();
 
 	static float newfps = 50;

@@ -14,7 +14,6 @@ HINSTANCE hInst;								// current instance
 HWND hwnd;										// Handle to a Window
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
-D3DObject *g_D3DObject;							// Main D3D Object
 int ActiveApp=1;
 
 // Forward declarations of functions included in this code module:
@@ -63,14 +62,14 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	char *filename = "bg.bmp";
 
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\farsky.bmp",&background[0]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\middleground.bmp",&background[1]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\water.bmp",&background[2]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadSurfaceFromFile("resource\\farsky.png",&background[0]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadSurfaceFromFile("resource\\middleground.png",&background[1]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadSurfaceFromFile("resource\\water.png",&background[2]) != D3D_OK) return FALSE;
 	if (g_D3DObject->MakeScreenSurface(0,0,(D3DFORMAT)D3DFMT_UNKNOWN,&main_frame) != D3D_OK) return FALSE;
 
-	if (g_D3DObject->LoadTextureFromFile("resource\\farsky.bmp",&texture[0],0xFFFF00FF,&text_desc[0]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadTextureFromFile("resource\\middleground.bmp",&texture[1],0xFFFF00FF,&text_desc[1]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadTextureFromFile("resource\\water.jpg",&texture[2],0xFFFF00FF,&text_desc[2]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadTextureFromFile("resource\\farsky.png",&texture[0],0xFFFF00FF,&text_desc[0]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadTextureFromFile("resource\\middleground.png",&texture[1],0xFFFF00FF,&text_desc[1]) != D3D_OK) return FALSE;
+	if (g_D3DObject->LoadTextureFromFile("resource\\water.png",&texture[2],0xFFFF00FF,&text_desc[2]) != D3D_OK) return FALSE;
 
 	//g_D3DObject->CopySurfaceToTexture(background[1],texture[1]);
 	g_D3DObject->CopySurfaceToTexture(background[2],texture[2]);
@@ -103,12 +102,12 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 				cur_surf = background[xx];
 				cur_desc = background_desc[xx];
 				cur_cnt = background_cnt[xx];
-				background_cnt[xx] = background_cnt[xx]+main_desc.Width > background_desc[xx].Width ? 0 : background_cnt[xx]+ xx*1.5;
+				background_cnt[xx] = (int)(background_cnt[xx]+main_desc.Width > background_desc[xx].Width ? 0 : background_cnt[xx]+ xx*1.5);
 
 				pnt.y = 0;
 				if (xx == 1) pnt.y = main_desc.Height-background_desc[2].Height-cur_desc.Height;
 				if (xx == 2) pnt.y = main_desc.Height-cur_desc.Height;
-	//			SetRect(&rc,0+cur_cnt,0,(main_desc.Width+cur_cnt) % cur_desc.Width,cur_desc.Height);
+				SetRect(&rc,0+cur_cnt,0,(main_desc.Width+cur_cnt) % cur_desc.Width,cur_desc.Height);
 	//			g_D3DObject->CopyRects(cur_surf,&rc,1,main_frame,&pnt);
 				//g_D3DObject->CopyBackTexture(cur_surf,&rc,1,&pnt,xx);
 			}
@@ -211,7 +210,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
 //
 LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	int wmId;
+//	int wmId;
 //	PAINTSTRUCT ps;
 //	HDC hdc;
 

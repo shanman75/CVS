@@ -61,7 +61,7 @@ public:
 	// Paint a frame
 	int PaintFrame(IDirect3DSurface8* in_Frame);
 	int MakeScreenSurface(int, int, D3DFORMAT, IDirect3DSurface8 ** );
-	int LoadSurfaceFromFile(char *, IDirect3DSurface8 ** );
+	int LoadSurfaceFromFile(char *, IDirect3DSurface8 ** , D3DCOLOR ckey = 0xFFFF00FF);
 	int CopyRects(IDirect3DSurface8* pSourceSurface,CONST RECT* pSourceRectsArray,UINT cRects,
 				  IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray);
 	int CopyBackTexture(IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRectsArray, UINT cRects,
@@ -75,3 +75,5 @@ public:
               D3DCOLOR col,float z);
 	void CopySurfaceToTexture(IDirect3DSurface8 *, IDirect3DTexture8 *);
 };
+
+extern D3DObject *g_D3DObject;							// Main D3D Object
