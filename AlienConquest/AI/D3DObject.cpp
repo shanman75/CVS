@@ -16,12 +16,14 @@ D3DObject::D3DObject(void)
 
 D3DObject::~D3DObject(void)
 {
+  OutputDebugString("D3DObject - Delete\n");
+  SafeRelease(m_pd3dxSprite);
   m_d3ddevice8->ShowCursor(TRUE);
   ShowCursor(TRUE);
-  if(m_pBackgroundSurface != NULL )m_pBackgroundSurface->Release(); //release background
-  if(m_d3dbackbuffer8 != NULL)     m_d3dbackbuffer8->Release(); //release back buffer
-  if(m_d3ddevice8 != NULL)         m_d3ddevice8->Release(); //release device
-  if(m_d3d8 != NULL)			   m_d3d8->Release(); //release d3d object
+  SafeRelease(m_pBackgroundSurface);
+  SafeRelease(m_d3dbackbuffer8);
+  SafeRelease(m_d3ddevice8);
+  SafeRelease(m_d3d8);
 }
 
 int D3DObject::_InitD3D8(void)
@@ -67,8 +69,6 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 	  D3DCREATE_SOFTWARE_VERTEXPROCESSING ,&m_d3dpp,&m_d3ddevice8) != D3D_OK)
 	  return FALSE;
 
-  D3DXCreateSprite(m_d3ddevice8,&m_pd3dxSprite);
-
   m_d3ddevice8->SetRenderState ( D3DRS_CULLMODE, D3DCULL_NONE);
   m_d3ddevice8->SetRenderState ( D3DRS_LIGHTING, FALSE);
   m_d3ddevice8->SetRenderState ( D3DRS_ZENABLE, FALSE);
@@ -91,11 +91,12 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 
   ShowCursor(FALSE);
   m_d3ddevice8->ShowCursor(FALSE);
+  m_d3ddevice8->GetDeviceCaps(&m_d3dcps);
 
-  D3DCAPS8 cps;
-  m_d3ddevice8->GetDeviceCaps(&cps);
+  D3DXCreateSprite(m_d3ddevice8,&m_pd3dxSprite);
+
   char outstr[5000];
-  sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",cps.MaxTextureHeight,cps.MaxTextureWidth);
+  sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",m_d3dcps.MaxTextureHeight,m_d3dcps.MaxTextureWidth);
   OutputDebugString(outstr);
   return TRUE;
 }
@@ -124,6 +125,7 @@ int D3DObject::MakeScreenSurface(int width, int height, D3DFORMAT format, IDirec
 BOOL D3DObject::DeviceLost(){ //check for lost device
   if (m_d3ddevice8->TestCooperativeLevel()!=D3D_OK)
   {
+	OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
 	m_d3dbackbuffer8->Release();
 	m_d3dbackbuffer8=NULL;
 	if(m_d3ddevice8->Reset(&m_d3dpp)!=D3D_OK)
@@ -131,27 +133,42 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
 	//get new surfaces
 	if(m_d3ddevice8->GetBackBuffer(0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer8)!=D3D_OK)
 		return FALSE;
+	m_pd3dxSprite->OnLostDevice();
   }
   return D3D_OK;
 } //DeviceLost
 
-int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf, D3DCOLOR ckey)
+int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface8 **surf, D3DCOLOR ckey,D3DXIMAGE_INFO *SrcInfo, D3DFORMAT fmt)
 {
 	D3DXIMAGE_INFO info;
+
+	if (!SrcInfo) SrcInfo = &info;
+
 	int retval;
+	OutputDebugString("D3DObject::LoadSurfaceFromFile - ");
     OutputDebugString(fname);
 	OutputDebugString("\n");
-	if (D3DXGetImageInfoFromFile(fname,&info) != D3D_OK) return D3DERR_INVALIDCALL;
-	if (MakeScreenSurface(info.Width,info.Height,D3DFMT_UNKNOWN,surf) != D3D_OK) return FALSE;
+	if (!fmt) fmt = D3DFMT_UNKNOWN;
+	if (D3DXGetImageInfoFromFile(fname,SrcInfo) != D3D_OK) return D3DERR_INVALIDCALL;
+//	if (MakeScreenSurface(SrcInfo->Width,SrcInfo->Height,D3DFMT_UNKNOWN,surf) != D3D_OK) return FALSE;
+	if (MakeScreenSurface(SrcInfo->Width,SrcInfo->Height,fmt,surf) != D3D_OK) return FALSE;
 
+//	retval = D3DXLoadSurfaceFromFile(*surf,NULL,NULL, //copy to surface
+//      fname,NULL,D3DFMT_UNKNOWN,ckey,NULL); //using default settings
 	retval = D3DXLoadSurfaceFromFile(*surf,NULL,NULL, //copy to surface
-      fname,NULL,D3DFMT_UNKNOWN,ckey,NULL); //using default settings
+      fname,NULL,fmt,ckey,NULL); //using default settings
+	OutputDebugString("D3DObject::LoadSurfaceFromFile - OK\n");
 	return D3D_OK;
 }
 
 int D3DObject::CopyRects(IDirect3DSurface8* pSourceSurface,CONST RECT* pSourceRectsArray,UINT cRects,
 				  IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray)
 {
+	char buff[500];
+
+	sprintf(buff,"D3DObject::CopyRects- (%i,%i,%i,%i)\n",pSourceRectsArray[0].left,pSourceRectsArray[0].right,
+														pSourceRectsArray[0].top,pSourceRectsArray[0].bottom);
+	OutputDebugString(buff);
 	return m_d3ddevice8->CopyRects(pSourceSurface,pSourceRectsArray,cRects,
 				  pDestinationSurface, pDestPointsArray);
 }
@@ -200,17 +217,20 @@ int D3DObject::LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3D
 	return D3D_OK;
 }
 
-int D3DObject::Test (IDirect3DTexture8 **m_lpTexture, D3DXIMAGE_INFO text_desc[])
+int D3DObject::Test (CTexture *tex[])
 {
-
+  OutputDebugString("D3DObject::Test - begin\n");
   static CTimer mytime;
-  float SCALE = 0.023;
+  double SCALE = 0.085;
 
 //  for (int x = 1; x < 70; x++) {
+  if (FAILED(DeviceLost()))
+	  m_pd3dxSprite->OnLostDevice();
   static float mx = 0;
   mx += (mytime.UpdateGetTime() * SCALE);
-  int m_x = (int)mx % 1500;
+  int m_x = (int)mx;
 
+	OutputDebugString("Calling begin scene\n");
   m_d3ddevice8->BeginScene();
   m_d3ddevice8->Clear( 0, NULL, D3DCLEAR_TARGET, 
           D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
@@ -221,18 +241,31 @@ int D3DObject::Test (IDirect3DTexture8 **m_lpTexture, D3DXIMAGE_INFO text_desc[]
 	m_pd3dxSprite->Begin();
 	trans.x=0;
 
-	float sky = 0.12;
-	float groud = 0.65;
-	float below = 1.68;
+	double sky = 0.12;
+	double groud = 0.65;
+	double below = 1.68;
 	SetRect(&SrcRect,0+m_x*sky,0,curmode.Width+m_x*sky,600);
 	trans.y = 0;
-	m_pd3dxSprite->Draw( m_lpTexture[0], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+//	m_pd3dxSprite->Draw( m_lpTexture[0], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
 	SetRect(&SrcRect,0+m_x*groud,0,curmode.Width+m_x*groud,600);
 	trans.y=0;
-	m_pd3dxSprite->Draw( m_lpTexture[1], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+//	m_pd3dxSprite->Draw( m_lpTexture[1], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
 	SetRect(&SrcRect,0+m_x*below,0,curmode.Width+m_x*below,50);
 	trans.y=curmode.Height-50;
-	m_pd3dxSprite->Draw( m_lpTexture[2], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+//	m_pd3dxSprite->Draw( m_lpTexture[2], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+
+	//OutputDebugString("Calling texture paint\n");
+	if (tex != NULL) {
+	 trans.x = 0;
+	 trans.y = 0;
+	 SetRect(&SrcRect,m_x*sky,0,m_x*sky+curmode.Width,tex[0]->GetHeight());
+	 tex[0]->Paint(&SrcRect,&trans);
+	 SetRect(&SrcRect,m_x*groud,0,m_x*groud+curmode.Width,tex[1]->GetHeight());
+	 tex[1]->Paint(&SrcRect,&trans);
+	 SetRect(&SrcRect,m_x*below,0,m_x*below+curmode.Width,tex[2]->GetHeight());
+	 trans.y = curmode.Height-50;
+	 tex[2]->Paint(&SrcRect,&trans);
+	}
 	m_pd3dxSprite->End();
 
 	static float newfps = 50;
@@ -383,3 +416,20 @@ HRESULT D3DObject::RenderText()
     return S_OK;
 }
 
+void D3DObject::GetTextureParms(int *max_height, int *max_width )
+{
+	*max_height = m_d3dcps.MaxTextureHeight;
+	*max_width = m_d3dcps.MaxTextureWidth;
+}
+
+int D3DObject::CreateTexture(UINT Width,UINT Height,UINT  Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL Pool,IDirect3DTexture8** ppTexture)
+{
+	if (Format == 0) Format = curmode.Format;
+	return m_d3ddevice8->CreateTexture(Width,Height,Levels,Usage,Format,Pool,ppTexture);
+}
+
+int D3DObject::SpriteDraw( IDirect3DTexture8 *texture, RECT *rect, D3DXVECTOR2 *scale, D3DXVECTOR2 *rotate, float rotation,
+						  D3DXVECTOR2 *trans, D3DCOLOR color)
+{						  
+   return m_pd3dxSprite->Draw( texture, rect, scale, rotate, rotation, trans, color );
+}

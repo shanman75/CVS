@@ -4,6 +4,7 @@
 #include "stdafx.h"
 #include "AI.h"
 #include "D3DObject.h"
+#include "Texture.h"
 #include <stdio.h>
 
 
@@ -15,6 +16,7 @@ HWND hwnd;										// Handle to a Window
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
+	CTexture *tex[3];
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -44,40 +46,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
 
-	IDirect3DSurface8* background[3]; //surface for image
-	IDirect3DSurface8* main_frame;    // main_frame
-	IDirect3DTexture8* texture[3];	// textures
+	tex[0] = new CTexture("resource\\farsky.png",0xFFFF00FF);
+	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
+	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
 
-	D3DSURFACE_DESC background_desc[3]; // descriptions for surfaces
-	D3DSURFACE_DESC main_desc; // descriptions for main_frame
-	D3DXIMAGE_INFO text_desc[3];
-
-	int background_cnt[3];
-				background_cnt[0] = 0;
-			background_cnt[1] = 0;
-			background_cnt[2] = 0;
-
-
-    //get surface for frame 0, this line of code is from InitD3D8 in Setup.cpp of Demo 1
-
-	char *filename = "bg.bmp";
-
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\farsky.png",&background[0]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\middleground.png",&background[1]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadSurfaceFromFile("resource\\water.png",&background[2]) != D3D_OK) return FALSE;
-	if (g_D3DObject->MakeScreenSurface(0,0,(D3DFORMAT)D3DFMT_UNKNOWN,&main_frame) != D3D_OK) return FALSE;
-
-	if (g_D3DObject->LoadTextureFromFile("resource\\farsky.png",&texture[0],0xFFFF00FF,&text_desc[0]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadTextureFromFile("resource\\middleground.png",&texture[1],0xFFFF00FF,&text_desc[1]) != D3D_OK) return FALSE;
-	if (g_D3DObject->LoadTextureFromFile("resource\\water.png",&texture[2],0xFFFF00FF,&text_desc[2]) != D3D_OK) return FALSE;
-
-	//g_D3DObject->CopySurfaceToTexture(background[1],texture[1]);
-	g_D3DObject->CopySurfaceToTexture(background[2],texture[2]);
-
-	for (int x = 0; x < 3; x++) 
-		background[x]->GetDesc(&background_desc[x]);
-	main_frame->GetDesc(&main_desc);
-  
 	// Main message loop:
 	int m_cnt = 0;
     while(TRUE)
@@ -85,42 +57,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
         if(GetMessage(&msg,NULL,0,0)==0)return (int) msg.wParam; //get it
 		TranslateMessage(&msg); 
 		DispatchMessage(&msg); //translate it
-//		if (ActiveApp) g_D3DObject->PaintFrame(background);
        }
 	   else if (ActiveApp) 
 	   {
-		   	RECT rc;
-			POINT pnt;
-			IDirect3DSurface8* cur_surf;
-			D3DSURFACE_DESC cur_desc;
-			
-			int xx = 0;
-			int cur_cnt;
-			pnt.x = 0;
-
-			for (xx=0; xx <= 2; xx++) {
-				cur_surf = background[xx];
-				cur_desc = background_desc[xx];
-				cur_cnt = background_cnt[xx];
-				background_cnt[xx] = (int)(background_cnt[xx]+main_desc.Width > background_desc[xx].Width ? 0 : background_cnt[xx]+ xx*1.5);
-
-				pnt.y = 0;
-				if (xx == 1) pnt.y = main_desc.Height-background_desc[2].Height-cur_desc.Height;
-				if (xx == 2) pnt.y = main_desc.Height-cur_desc.Height;
-				SetRect(&rc,0+cur_cnt,0,(main_desc.Width+cur_cnt) % cur_desc.Width,cur_desc.Height);
-	//			g_D3DObject->CopyRects(cur_surf,&rc,1,main_frame,&pnt);
-				//g_D3DObject->CopyBackTexture(cur_surf,&rc,1,&pnt,xx);
-			}
-	//		g_D3DObject->PaintFrame(main_frame);
-//			for (int x = 1; x < 100; x++)
-			g_D3DObject->Test(texture,text_desc);
-			//g_D3DObject->DrawTextStr(500,500,0xFFFF00FF,"Hellloooo nurse");
+			g_D3DObject->Test(tex);
 	   }
 	   else WaitMessage();
 	 //WaitMessage(); //process frame
-
-	   for (int y = 0; y <= 2 ; y++)
-		   background[y]->Release();
 
 	return (int) msg.wParam;
 }
@@ -219,6 +162,9 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     case WM_ACTIVATEAPP: ActiveApp=(int)wParam; break; //iconize
 	case WM_DESTROY:
 		delete g_D3DObject;
+		delete tex[0];
+		delete tex[1];
+		delete tex[2];
 		PostQuitMessage(0);
 		break;
     case WM_KEYDOWN:

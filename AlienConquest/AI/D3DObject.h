@@ -1,9 +1,13 @@
 #pragma once
 
+#include "Timer.h"
+#include "Texture.h"
 #include <d3d8.h>
 #include <d3dx8.h>
-#include "Timer.h"
 
+class CTexture;
+
+#define SafeRelease(x) if (x) {x->Release(); x=NULL;}
 #define D3DFVF_TLVERTEX D3DFVF_XYZRHW|D3DFVF_DIFFUSE|D3DFVF_TEX1
 
 typedef struct _D3DTLVERTEX {
@@ -38,14 +42,11 @@ public:
 	~D3DObject(void);
 protected:
 	int m_cnt;
-	// D3D Object
 	IDirect3D8* m_d3d8;
-	// D3D Device
 	IDirect3DDevice8* m_d3ddevice8;
-	// Back Buffer
 	IDirect3DSurface8* m_d3dbackbuffer8;
-	// D3D Device Parameters
 	D3DPRESENT_PARAMETERS m_d3dpp;
+	D3DCAPS8 m_d3dcps;
 	int _InitD3D8(void);
 	IDirect3DSurface8* m_pBackgroundSurface;
 	IDirect3DTexture8* m_pVidmemTex1;
@@ -53,27 +54,32 @@ protected:
     ID3DXFont*              m_pD3DXFont;            // D3DX font    
 	int m_x;
 	LPD3DXSPRITE m_pd3dxSprite;
-
 	HRESULT RenderText();
 	CTimer m_timer;
+
 public:
 	BOOL D3DObject::DeviceLost();
 	// Paint a frame
 	int PaintFrame(IDirect3DSurface8* in_Frame);
 	int MakeScreenSurface(int, int, D3DFORMAT, IDirect3DSurface8 ** );
-	int LoadSurfaceFromFile(char *, IDirect3DSurface8 ** , D3DCOLOR ckey = 0xFFFF00FF);
+	int LoadSurfaceFromFile(char *, IDirect3DSurface8 ** , D3DCOLOR ckey = 0xFFFF00FF,D3DXIMAGE_INFO *SrcInfo=NULL, D3DFORMAT fmt=(D3DFORMAT)NULL);
 	int CopyRects(IDirect3DSurface8* pSourceSurface,CONST RECT* pSourceRectsArray,UINT cRects,
 				  IDirect3DSurface8* pDestinationSurface, CONST POINT* pDestPointsArray);
 	int CopyBackTexture(IDirect3DSurface8* pSourceSurface, CONST RECT* pSourceRectsArray, UINT cRects,
 				 CONST POINT*, int DEST);
 	int LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3DCOLOR colorkey=0,D3DXIMAGE_INFO *SrcInfo=NULL);
-	int Test (IDirect3DTexture8 **text, D3DXIMAGE_INFO []);
+	int CreateTexture(UINT Width,UINT Height,UINT  Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL Pool,IDirect3DTexture8** ppTexture);
+	int Test (CTexture *tex[]);
 	int DrawTextStr(int x, int y, DWORD color, const TCHAR * str);
 	void BlitRect(LPDIRECT3DTEXTURE8 lpSrc,
               float left, float top,
               float right, float bottom,
               D3DCOLOR col,float z);
 	void CopySurfaceToTexture(IDirect3DSurface8 *, IDirect3DTexture8 *);
+	void GetTextureParms(int *max_height, int *max_width);
+	int SpriteDraw( IDirect3DTexture8 *texture, RECT *rect, D3DXVECTOR2 *scale, D3DXVECTOR2 *rotate, float rotation,
+						  D3DXVECTOR2 *trans, D3DCOLOR color);
+
 };
 
 extern D3DObject *g_D3DObject;							// Main D3D Object
