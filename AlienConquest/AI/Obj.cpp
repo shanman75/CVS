@@ -6,8 +6,8 @@ const double CObj::ASCALE=0.0014;
 
 CObj::CObj(void)
 {
-	m_max_x=5;
-	m_max_y=2;
+	m_max_x=50.2;
+	m_max_y=45.5;
 	m_time.GetTime();
 }
 
@@ -22,36 +22,39 @@ void CObj::paint(void)
 
 void CObj::move(void)
 {
-	int tm = m_time.GetTime();
+	double tm = (double)m_time.GetTime()/1000;
 
 	char buff[500];
-	sprintf(buff,"Moving tm=%i\n",tm);
+	sprintf(buff,"Moving tm=%f\n",tm);
+	OutputDebugString(buff);
+	sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,
+		m_accel_x,m_accel_y);
 	OutputDebugString(buff);
 
-	sprintf(buff,"Old speed is x,y=%.2f,%.2f -  %.4f %.4f\n",m_speed_x,m_speed_y,m_accel_x,ASCALE);
+	// Calculate Distance
+	double dlt_x = m_speed_x*tm + 0.5*m_accel_x*tm*tm;
+	double dlt_y = m_speed_y*tm + 0.5*m_accel_x*tm*tm;
+	sprintf(buff,"Delta x,y=%.2f,%.2f - %.2f, %.2f\n",dlt_x,dlt_y,
+		m_dpos_x, m_dpos_y
+		);
 	OutputDebugString(buff);
+
 	// Take into account acceleration
-	m_speed_x += (m_accel_x*tm*ASCALE);
-	m_speed_y += (m_accel_y*tm*ASCALE);
-	if (abs(m_speed_x) > m_max_x) m_accel_x=0;
-	if (abs(m_speed_y) > m_max_y) m_accel_y=0;
-//	m_speed_x = m_speed_x > m_max_x ? m_max_x : m_speed_x;
-//	m_speed_x = m_speed_x < (0-m_max_x) ? 9-m_max_x : m_speed_x;
-//	m_speed_y = m_speed_y > m_max_y ? m_max_y : m_speed_y;
-//	m_speed_y = m_speed_y < (0-m_max_y) ? 0-m_max_y : m_speed_y;
-
-	//	sprintf(buff,"New speed is x,y=%.2f,%.2f\n",m_speed_x,m_speed_y);
-//	OutputDebugString(buff);
-
-	// Calculate next x,y value
-	m_dpos_x += m_speed_x*tm*SSCALE;
-	m_dpos_y += m_speed_y*tm*SSCALE;
-	m_dpos_x += m_dpos_x < 0 ? WIDTH : 0;
-	m_dpos_y += m_dpos_y < 0 ? HEIGHT : 0;
+	m_dpos_x += dlt_x;
+	m_dpos_y += dlt_y;
+	if (m_dpos_x < 0) m_dpos_x = WIDTH;
+	if (m_dpos_y < 0) m_dpos_y = HEIGHT;
 	m_pos_x = (int) m_dpos_x % WIDTH;
 	m_pos_y = (int) m_dpos_y % HEIGHT;
-//	m_pos_x = m_pos_x > WIDTH ? 0 : m_pos_x;
-//	m_pos_y = m_pos_y > HEIGHT ? 0 : m_pos_y;
+	sprintf(buff,"X,Y = %i,%i\n",m_pos_x, m_pos_y);
+	OutputDebugString(buff);
+
+	// New speed
+	m_speed_x += m_accel_x*tm;
+	m_speed_y += m_accel_y*tm;
+
+	if (abs(m_speed_x) > m_max_x) m_accel_x=0;
+	if (abs(m_speed_y) > m_max_y) m_accel_y=0;
 
 }
 
@@ -71,4 +74,10 @@ void CObj::SetPosition(double x, double y)
 {
 	m_dpos_x = x;
 	m_dpos_y = y;
+}
+
+void CObj::accel(double xdelta, double ydelta)
+{
+  m_accel_x+=xdelta;
+  m_accel_y+=ydelta;
 }

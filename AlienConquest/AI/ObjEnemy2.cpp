@@ -2,10 +2,15 @@
 #include "objenemy2.h"
 
 int CObjEnemy2::m_graph_init = 0;
+
 CTexture *CObjEnemy2::m_regular[1];
 CTexture *CObjEnemy2::m_firing[3];
 CTexture *CObjEnemy2::m_jetting[4];
 
+void CObjEnemy2::move(void)
+{
+	CObj::move();
+}
 
 CObjEnemy2::CObjEnemy2(void)
 {
@@ -13,8 +18,8 @@ CObjEnemy2::CObjEnemy2(void)
 	m_pos_x = 200;
 	m_pos_y = 200;
 	m_state = REGULAR;
-	m_max_x=5;
-	m_max_y=2;
+	m_max_x= m_org_max_x = 120;
+	m_max_y=50;
 	m_time.GetTime();
 }
 
@@ -55,8 +60,7 @@ void CObjEnemy2::Jet()
 		// Save the previous accel and speed for jettin!
 		m_jet_spd_x = m_speed_x;
 		m_jet_accel_x = m_accel_x;
-		m_accel_x = 10;
-
+		accel(-55,0);
 	}
 }
 void CObjEnemy2::Fire()

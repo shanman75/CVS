@@ -115,6 +115,9 @@
 				RelativePath="D3DObject.cpp">
 			</File>
 			<File
+				RelativePath="Hero.cpp">
+			</File>
+			<File
 				RelativePath="Obj.cpp">
 			</File>
 			<File
@@ -156,6 +159,9 @@
 			</File>
 			<File
 				RelativePath="D3DObject.h">
+			</File>
+			<File
+				RelativePath="Hero.h">
 			</File>
 			<File
 				RelativePath="Obj.h">

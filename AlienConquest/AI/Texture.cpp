@@ -26,6 +26,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 	D3DSURFACE_DESC tdesc;
 	char buff[250];
 
+	m_filename = strdup(filename);
 	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,(int)srect);
 	OutputDebugString(buff);
 	UpdateDeviceCaps();

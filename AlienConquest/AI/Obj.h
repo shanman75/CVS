@@ -13,9 +13,11 @@ public:
 	~CObj(void);
 	virtual void paint();
 	virtual void move();
+	virtual void accel(double xdelta, double ydelta);
 	void SetSpeed(double xspeed,double yspeed);
 	void SetAccel(double xaccel,double yaccel);
 	void SetPosition(double x, double y);
+
 	const static double SSCALE;
 	const static double ASCALE;
 protected:
