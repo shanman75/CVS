@@ -195,10 +195,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
   g_mp3_1=new cmp3stream(g_hWnd);
   g_mp3_1->CreateGraph(NULL);
 
-	CoInitialize(NULL);
-	g_mp3_1=new cmp3stream(g_hWnd);
-	g_mp3_1->CreateGraph(NULL);
-
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_TANKGWAR);
 

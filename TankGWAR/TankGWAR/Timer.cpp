@@ -37,7 +37,7 @@ float CTimer::GetHiTime(void)
 float CTimer::TimeDelta()
 {
 	 LONGLONG diff = m_gtime.QuadPart-m_ltime.QuadPart;
-  	 return (float) 1000 *diff / m_perfFreq;
+   return (float) 1000 *diff / m_perfFreq;
 }
 
 
@@ -96,9 +96,10 @@ void CTimer::Reset()
 	 }
 	 m_perfFreq = (float)m_largeInt.QuadPart;
 	}
-	QueryPerformanceCounter(&m_gtime);
-	m_ltime.LowPart = m_gtime.LowPart;
-	m_ltime.HighPart = m_gtime.HighPart;
+//	QueryPerformanceCounter(&m_gtime);
+//	m_ltime.LowPart = m_gtime.LowPart;
+//	m_ltime.HighPart = m_gtime.HighPart;
+  m_ltime = m_gtime;
 }
 
 void CTimer::Pause()
