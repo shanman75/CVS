@@ -5,6 +5,10 @@
 #include "AI.h"
 #include "D3DObject.h"
 #include "Texture.h"
+#include "ObjMgr.h"
+#include "ObjEnemy.h"
+
+#include "Timer.h"
 #include <stdio.h>
 
 
@@ -16,7 +20,10 @@ HWND hwnd;										// Handle to a Window
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
-	CTexture *tex[4];
+CTexture *tex[4];
+CObjMgr g_ObjMgr;
+CTimer g_Time;
+CTimer g_FireClock;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -50,9 +57,24 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
 	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
 	tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
+#define NUM_ENEMY1 10
+	CObjEnemy *enemy1[NUM_ENEMY1];
+
+	srand(5000);
+	for (int x= 0; x<NUM_ENEMY1;x++) {
+	enemy1[x] = new CObjEnemy;
+	enemy1[x]->SetSpeed((rand()%10)-5,(rand()%10)-5);
+	enemy1[x]->SetPosition(rand()%800,rand()%600);
+	enemy1[x]->SetAccel((rand()%5),(rand()%5));
+	enemy1[x]->Fire();
+	g_ObjMgr.add(enemy1[x]);
+	}
+
 
 	// Main message loop:
 	int m_cnt = 0;
+	int zf = 4;
+			
     while(TRUE)
        if(PeekMessage(&msg,NULL,0,0,PM_NOREMOVE)){ //if message waiting
         if(GetMessage(&msg,NULL,0,0)==0)return (int) msg.wParam; //get it
@@ -61,7 +83,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
        }
 	   else if (ActiveApp) 
 	   {
+		    g_Time.UpdateClock();
+			g_ObjMgr.move();
+			if (g_FireClock.PeekTime() > 200) { enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
+												enemy1[rand()%NUM_ENEMY1]->SetAccel((rand()%15)-7,(rand()%15)-7);
+			}
+
+		    g_D3DObject->BeginPaint();
 			g_D3DObject->Test(tex);
+			g_ObjMgr.paint();
+			g_D3DObject->EndPaint();
 	   }
 	   else WaitMessage();
 	 //WaitMessage(); //process frame

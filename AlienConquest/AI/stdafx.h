@@ -7,6 +7,8 @@
 
 #define WIDTH 800
 #define HEIGHT 600
+#define SafeDelete(x) if (x) {delete x; x=NULL;}
+
 
 #define WIN32_LEAN_AND_MEAN		// Exclude rarely-used stuff from Windows headers
 // Windows Header Files:
@@ -16,6 +18,7 @@
 #include <malloc.h>
 #include <memory.h>
 #include <tchar.h>
+#include <stdio.h>
 
 extern HWND hwnd;
 

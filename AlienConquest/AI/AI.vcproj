@@ -115,6 +115,15 @@
 				RelativePath="D3DObject.cpp">
 			</File>
 			<File
+				RelativePath="Obj.cpp">
+			</File>
+			<File
+				RelativePath="ObjEnemy.cpp">
+			</File>
+			<File
+				RelativePath="ObjMgr.cpp">
+			</File>
+			<File
 				RelativePath="Texture.cpp">
 			</File>
 			<File
@@ -144,6 +153,15 @@
 			</File>
 			<File
 				RelativePath="D3DObject.h">
+			</File>
+			<File
+				RelativePath="Obj.h">
+			</File>
+			<File
+				RelativePath="ObjEnemy.h">
+			</File>
+			<File
+				RelativePath="ObjMgr.h">
 			</File>
 			<File
 				RelativePath="Resource.h">

@@ -224,24 +224,19 @@ int D3DObject::Test (CTexture *tex[])
   double SCALE = 0.085;
 
 //  for (int x = 1; x < 70; x++) {
-  if (FAILED(DeviceLost()))
-	  m_pd3dxSprite->OnLostDevice();
+
   static float mx = 0;
-  mx += (mytime.UpdateGetTime() * SCALE);
+  mx += (mytime.GetTime() * SCALE);
   int m_x = (int)mx;
 
 //	OutputDebugString("Calling begin scene\n");
-  m_d3ddevice8->BeginScene();
-  m_d3ddevice8->Clear( 0, NULL, D3DCLEAR_TARGET, 
-          D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
 
 	D3DXVECTOR2 trans(0,0);
 	RECT SrcRect, *pSrcRect = &SrcRect;
 
-	m_pd3dxSprite->Begin();
 	trans.x=0;
 
-	double sky = 1.12;
+	double sky = 0.12;
 	double groud = 0.65;
 	double below = 1.68;
 	double hero = 1.12;
@@ -264,11 +259,10 @@ int D3DObject::Test (CTexture *tex[])
 //	 tex[3]->Paint(&SrcRect,&trans);
 	 tex[3]->Paint(&trans);
 	}
-	m_pd3dxSprite->End();
 
-	static float newfps = 50;
+	static float newfps = 30;
 	static float fps = 50;
-	if (m_timer.UpdatePeekTime() > 1000) 
+	if (m_timer.PeekTime() > 1000) 
 	{
 		fps=newfps;
 		newfps=0;
@@ -276,29 +270,11 @@ int D3DObject::Test (CTexture *tex[])
 	}
 	newfps++;
 
-	/*
-	D3DCAPS8 caps;
-	char *outstr = new char[500];
-	m_d3ddevice8->GetDeviceCaps(&caps);
-	sprintf(outstr,"Screen size is %i x %i - max text = %i x %i\n",curmode.Height,curmode.Width,	caps.MaxTextureHeight,caps.MaxTextureBlendStages);
-	DrawTextStr(150,100,0xff00ff00,outstr);
-	sprintf(outstr,"First texture is %i x %i\n",text_desc[0].Height,text_desc[0].Width);
-	DrawTextStr(150,150,0xff00ff00,outstr);
-	sprintf(outstr,"Second texture is %i x %i\n",text_desc[1].Height,text_desc[1].Width);
-	DrawTextStr(150,200,0xff00ff00,outstr);
-	sprintf(outstr,"Third texture is %i x %i\n",text_desc[2].Height,text_desc[2].Width);
-	DrawTextStr(150,250,0xff00ff00,outstr);
-	delete outstr;
-	*/
-
 	char *outstr2 = new char[500];
-	sprintf(outstr2,"M_X = %i and Timer = %f lft=%i\n",m_x,fps,lft);
+	sprintf(outstr2,"FPS = %f Timer=%i\n",fps,m_x);
 	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
 	delete outstr2;
 
-	m_d3ddevice8->EndScene();
-  
-	m_d3ddevice8->Present(NULL,NULL,NULL,NULL);
   //}
 return D3D_OK;
 }
@@ -430,4 +406,19 @@ int D3DObject::SpriteDraw( IDirect3DTexture8 *texture, RECT *rect, D3DXVECTOR2 *
 						  D3DXVECTOR2 *trans, D3DCOLOR color)
 {						  
    return m_pd3dxSprite->Draw( texture, rect, scale, rotate, rotation, trans, color );
+}
+
+void D3DObject::BeginPaint()
+{
+	DeviceLost();
+    m_d3ddevice8->BeginScene();
+    m_d3ddevice8->Clear( 0, NULL, D3DCLEAR_TARGET, 
+          D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
+	m_pd3dxSprite->Begin();
+}
+
+void D3DObject::EndPaint()
+{	m_pd3dxSprite->End();
+	m_d3ddevice8->EndScene();  
+	m_d3ddevice8->Present(NULL,NULL,NULL,NULL);
 }

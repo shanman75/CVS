@@ -20,46 +20,40 @@ void CTexture::UpdateDeviceCaps()
    if (h < m_maxh) m_maxh = h;
 }
 
-CTexture::CTexture(char *filename,D3DCOLOR colorkey)
+CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 {
 	IDirect3DSurface8 *surf;
 	D3DSURFACE_DESC tdesc;
+	char buff[250];
 
-	OutputDebugString("CTexture Create - "); OutputDebugString(filename); OutputDebugString("\n");
+	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,(int)srect);
+	OutputDebugString(buff);
 	UpdateDeviceCaps();
-
-	//if (FAILED(g_D3DObject->LoadTextureFromFile(filename,&ttext,colorkey,&m_texinfo))) return;
-	//ttext->GetLevelDesc(0,&tdesc);
-	//SafeRelease(ttext);
 
 	D3DXIMAGE_INFO info;
 	if (D3DXGetImageInfoFromFile(filename,&info) != D3D_OK) return;
 	tdesc.Format = (D3DFORMAT)21;
-	tdesc.Width = info.Width;
-	tdesc.Height = info.Height;
-	m_texinfo.Width = tdesc.Width;
-	m_texinfo.Height = tdesc.Height;
-	m_width = tdesc.Width;
-	m_height = tdesc.Height;
+	
+	m_width = srect == NULL ? info.Width : srect->right - srect->left;
+	m_height = srect == NULL ? info.Height : srect->bottom - srect->top;
+	
 
-
-	if (FAILED(g_D3DObject->MakeScreenSurface(tdesc.Width,tdesc.Height,tdesc.Format,&surf))) return;
+	if (FAILED(g_D3DObject->MakeScreenSurface(m_width,m_height,tdesc.Format,&surf))) return;
 	if (FAILED(D3DXLoadSurfaceFromFile(surf,NULL,NULL,filename,
-		NULL,D3DX_FILTER_NONE,colorkey,NULL))) return;
+		srect,D3DX_FILTER_NONE,colorkey,NULL))) return;
 
 	char bff[255];
 	sprintf (bff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
 	OutputDebugString(bff);
 	// Get the number of surfaces we will need
 	int nrow,ncol;
-	ncol = (m_texinfo.Width / m_maxw) + (m_texinfo.Width % m_maxw > 0);
-	nrow = (m_texinfo.Height / m_maxh) + (m_texinfo.Height % m_maxh > 0);
+	ncol = (m_width / m_maxw) + (m_width % m_maxw > 0);
+	nrow = (m_height / m_maxh) + (m_height % m_maxh > 0);
 	m_nrow = nrow;
 	m_ncol = ncol;
 	m_numtex = nrow*ncol;
 	
-	char buff[500];
-	sprintf(buff,"CTexture - Image is (%i,%i) size\n",m_texinfo.Height,m_texinfo.Width);
+	sprintf(buff,"CTexture - Image is (%i,%i) size\n",m_height,m_width);
 	OutputDebugString(buff);
 	sprintf(buff,"CTexture - Creating %i (%i,%i) buffers\n",m_numtex,nrow,ncol);
 	OutputDebugString(buff);
@@ -72,8 +66,9 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey)
 		  for (int j = 0; j < ncol; j++){
 			int cursurf = (i*ncol)+j;
 			char buff[500];
-			sprintf(buff,"CTexture - Adding texture number %i (i=%i j=%i)\n",cursurf,i,j);
-			OutputDebugString(buff);
+			
+			//sprintf(buff,"CTexture - Adding texture number %i (i=%i j=%i)\n",cursurf,i,j);
+			//OutputDebugString(buff);
 
 			if(FAILED(g_D3DObject->CreateTexture(m_maxw,m_maxh,1,0,tdesc.Format,
 												D3DPOOL_MANAGED,&m_textures[cursurf]))) return;
@@ -85,16 +80,13 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey)
 			src.right=(src.left + m_maxw) ;
 			src.top=i*m_maxh;
 			src.bottom=(src.top + m_maxh);
-			if (src.right > (int)m_texinfo.Width) src.right = m_texinfo.Width;
-			if (src.bottom > (int)m_texinfo.Height) src.bottom = m_texinfo.Height;
+			if (src.right > (int)m_width) src.right = m_width;
+			if (src.bottom > (int)m_height) src.bottom = m_height;
 
-			// get texture surface
-			// copy region to texture surface
-			//D3DXLoadSurfaceFromSurface(targSurf,NULL,NULL,tempSurf,NULL,&src,D3DX_FILTER_NONE,0);
-			//if (FAILED(g_D3DObject->CopyRects(surf,&src,1,tsurf,&pt))) OutputDebugString("CTexture Create - CopyRect Failed\n");
-			sprintf(buff,"CTexture - Copying surface to surface - rect = top,left,right,bottom (%i,%i,%i,%i)\n",
-				src.top,src.left,src.right,src.bottom);
-			OutputDebugString(buff);
+			//sprintf(buff,"CTexture - Copying surface to surface - rect = top,left,right,bottom (%i,%i,%i,%i)\n",
+			//	src.top,src.left,src.right,src.bottom);
+			//OutputDebugString(buff);
+			
 			IDirect3DSurface8 *tsurf;
 			
 			m_textures[cursurf]->GetSurfaceLevel(0,&tsurf);
@@ -103,12 +95,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey)
 		}
 	  }
 	}
-    OutputDebugString("CTexture - Releasing surfaces\n");
 	SafeRelease(surf);
-//	SafeRelease(tsurf);
-    OutputDebugString("CTexture - Duplicating Filename\n");
-	m_filename=strdup(filename);
-	OutputDebugString("CTexture - Returning\n");
 }
 
 CTexture::~CTexture(void)
@@ -153,15 +140,15 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 	char buff[500];
 //		OutputDebugString("CTex - Paint - Begin\n");
 	if (srcrect->left >= m_width) {
-		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
-		OutputDebugString(buff);
+//		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
+//		OutputDebugString(buff);
 		CopyRect(&rect,srcrect);
 		int mw = rect.right-rect.left;
 		int mt = rect.left%m_width;
 		SetRect(srcrect,mt,rect.top,mt+mw,rect.bottom);
 	}
-	sprintf(buff,"Painting srcrect->left now =%i\n",srcrect->left);
-	OutputDebugString(buff);
+//	sprintf(buff,"Painting srcrect->left now =%i\n",srcrect->left);
+//	OutputDebugString(buff);
 //	g_D3DObject->DrawTextStr(150,150,D3DCOLOR_XRGB(255,0,255),buff);
 
 	//Find first "X"
@@ -194,9 +181,9 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 		  my = (my+1)%m_nrow;
 		  ay=0;
 		}
-		  sprintf(buff,"Curx = %i, Cury = %i rect-(%i,%i,%i,%i) trans(%i,%i) spr=%i\n",curx,cury,
-			  rect.left,rect.top,rect.right,rect.bottom,trans.x,trans.y,0);
-		  OutputDebugString(buff);
+//		  sprintf(buff,"Curx = %i, Cury = %i rect-(%i,%i,%i,%i) trans(%i,%i) spr=%i\n",curx,cury,
+//			  rect.left,rect.top,rect.right,rect.bottom,trans.x,trans.y,0);
+//		  OutputDebugString(buff);
 		mx = (mx+1)%m_ncol;
 		trans.x += abs(rect.right - rect.left) ;
 	    curx    += abs(rect.right - rect.left)+ (rect.right == rect.left);

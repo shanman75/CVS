@@ -79,7 +79,8 @@ public:
 	void GetTextureParms(int *max_height, int *max_width);
 	int SpriteDraw( IDirect3DTexture8 *texture, RECT *rect, D3DXVECTOR2 *scale, D3DXVECTOR2 *rotate, float rotation,
 						  D3DXVECTOR2 *trans, D3DCOLOR color);
-
+	void BeginPaint();
+	void EndPaint();
 };
 
 extern D3DObject *g_D3DObject;							// Main D3D Object
