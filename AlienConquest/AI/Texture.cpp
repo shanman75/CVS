@@ -28,7 +28,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 
 	m_filename = strdup(filename);
 
-	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,(int)srect);
+	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
 	OutputDebugString(buff);
 	UpdateDeviceCaps();
 
@@ -44,7 +44,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 	if (FAILED(D3DXLoadSurfaceFromFile(surf,NULL,NULL,filename,
 		srect,D3DX_FILTER_NONE,colorkey,NULL))) return;
 
-	char bff[255];
+	//char bff[255];
 	//sprintf (bff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
 	//OutputDebugString(bff);
 	// Get the number of surfaces we will need
@@ -67,7 +67,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect)
 		for (int i = 0; i < nrow; i++) {
 		  for (int j = 0; j < ncol; j++){
 			int cursurf = (i*ncol)+j;
-			char buff[500];
+//			char buff[500];
 			
 			//sprintf(buff,"CTexture - Adding texture number %i (i=%i j=%i)\n",cursurf,i,j);
 			//OutputDebugString(buff);
@@ -139,7 +139,7 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
     float rotation = 0;
 	D3DXVECTOR2 rotate(0,0), scale(0,0), trans (0,0);
 	RECT rect;
-	char buff[500];
+//	char buff[500];
 //		OutputDebugString("CTex - Paint - Begin\n");
 	if (srcrect->left >= m_width) {
 //		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
@@ -177,7 +177,7 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 			g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
 		  }
 		  else {OutputDebugString("CTexture - Paint....sprite out of range error\n");}
-		  char buff[500];
+//		  char buff[500];
 		  cury += abs(rect.bottom - rect.top) + (rect.bottom == rect.top);
 		  trans.y += abs(rect.bottom - rect.top);
 		  my = (my+1)%m_nrow;

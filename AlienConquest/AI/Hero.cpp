@@ -6,7 +6,9 @@ CTexture *CHero::m_regular[1];
 
 CHero::CHero(void)
 {
+  CObj();
   if (!m_graph_init) _LoadGraphics();
+    m_speed_x=50;
 	m_state = REGULAR;
 	m_max_x= 180;
 	m_max_y= 170;
@@ -34,8 +36,8 @@ void CHero::_UnloadGraphics(void)
 void CHero::paint(void)
 {
 	D3DXVECTOR2 pnt;
-	pnt.x = (int)m_pos_x;
-	pnt.y = (int)m_pos_y;
+	pnt.x = m_dpos_x;
+	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case REGULAR:
 		default:
@@ -47,15 +49,16 @@ void CHero::paint(void)
 
 void CHero::move(void)
 {
-	int X_SCALE = 1.6;
-	int Y_SCALE = 1.9;
 	CObj::move();
+	return;
+
+	float X_SCALE = (float)1.6;
+	float Y_SCALE = (float)1.9;
 	if (m_speed_x > X_SCALE) m_speed_x-=X_SCALE;
 	else if (m_speed_x < -X_SCALE) m_speed_x += X_SCALE;
-	else m_speed_x += m_speed_x > 0 ? -0.1: 0.1;
+	else m_speed_x += m_speed_x > 0.0 ? (float)-0.1: (float)0.1;
 
 	if (m_speed_y > Y_SCALE) m_speed_y-=Y_SCALE;
 	else if (m_speed_y < -Y_SCALE) m_speed_y += Y_SCALE;
-	else m_speed_y += m_speed_y > 0 ? -0.1: 0.1;
-
+	else m_speed_y += m_speed_y > 0.0 ? (float)-0.1: (float)0.1;
 }

@@ -2,6 +2,8 @@
 
 #include "Timer.h"
 #include "Obj.h"
+#include "ObjEnemy.h"
+#include "ObjEnemy2.h"
 
 class CObjMgr
 {
@@ -11,6 +13,8 @@ public:
 	void move();
 	void paint();
 	void add(CObj *);
+	void del(CObj *);
+	static const int m_numz;
 
 	const static int MAX_OBJECTS = 500;
 	const static int MAX_ANIMATE = 10;
@@ -19,3 +23,5 @@ private:
 	int m_numobj;
 	CTimer m_time;
 };
+
+extern CObjMgr *g_ObjMgr;

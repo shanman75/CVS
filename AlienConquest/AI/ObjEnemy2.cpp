@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "objenemy2.h"
+#include "objenemyweapon2.h"
+#include "objmgr.h"
 
 int CObjEnemy2::m_graph_init = 0;
 
@@ -14,6 +16,7 @@ void CObjEnemy2::move(void)
 
 CObjEnemy2::CObjEnemy2(void)
 {
+	CObj();
 	if (!m_graph_init) _LoadGraphics();
 	m_pos_x = 200;
 	m_pos_y = 200;
@@ -31,8 +34,8 @@ CObjEnemy2::~CObjEnemy2(void)
 void CObjEnemy2::paint()
 {
 	D3DXVECTOR2 pnt;
-	pnt.x = (int)m_pos_x;
-	pnt.y = (int)m_pos_y;
+	pnt.x = m_dpos_x;
+	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case JETTING:
 			m_jetting[m_jet_seq%4]->Paint(&pnt);
@@ -42,7 +45,7 @@ void CObjEnemy2::paint()
 		case FIRING:
 			m_firing[m_fir_seq]->Paint(&pnt);
 			if (m_fir_seq >= 3) m_state = REGULAR;
-			if (m_ani_time.PeekTime() > 135) { m_fir_seq++; m_ani_time.Reset(); }
+			if (m_ani_time.PeekTime() > 95) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
 		default:
@@ -68,6 +71,11 @@ void CObjEnemy2::Fire()
 	if (m_state == REGULAR) {
 		m_state = FIRING;
 		m_fir_seq = 0;
+		CObjEnemyWeapon2 *bull = new CObjEnemyWeapon2;
+		bull->SetPosition(m_dpos_x-7,m_dpos_y+87);
+		bull->SetSpeed(-750,0);
+		bull->SetAccel(-50,0);
+		g_ObjMgr->add(bull);
 	}
 }
 

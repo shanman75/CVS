@@ -221,7 +221,7 @@ int D3DObject::Test (CTexture *tex[])
 {
 //  OutputDebugString("D3DObject::Test - begin\n");
   static CTimer mytime;
-  double SCALE = 0.085;
+  float SCALE = (float)0.085;
 
 //  for (int x = 1; x < 70; x++) {
 
@@ -234,10 +234,10 @@ int D3DObject::Test (CTexture *tex[])
 
 	trans.x=0;
 
-	double sky = 0.12;
-	double groud = 0.65;
-	double below = 1.68;
-	double hero = 1.12;
+	float sky = (float) 0.12;
+	float groud =(float) 0.65;
+	float below =(float) 1.68;
+	float hero = (float)1.12;
 	int lft=0;
 
 	if (tex != NULL) {
@@ -246,13 +246,13 @@ int D3DObject::Test (CTexture *tex[])
 	 lft = (((int)(m_x*sky))); //% tex[0]->GetWidth());
 	 SetRect(&SrcRect,lft,0,lft+curmode.Width,tex[0]->GetHeight());
 	 tex[0]->Paint(&SrcRect,&trans);
-	 SetRect(&SrcRect,m_x*groud,0,m_x*groud+curmode.Width,tex[1]->GetHeight());
+	 SetRect(&SrcRect,(int)(m_x*groud),0,(int)(m_x*groud+curmode.Width),tex[1]->GetHeight());
 	 tex[1]->Paint(&SrcRect,&trans);
-	 SetRect(&SrcRect,m_x*below,0,m_x*below+curmode.Width,tex[2]->GetHeight());
-	 trans.y = curmode.Height-50;
+	 SetRect(&SrcRect,(int)(m_x*below),0,(int)(m_x*below+curmode.Width),tex[2]->GetHeight());
+	 trans.y = (float)(curmode.Height-50);
 	 tex[2]->Paint(&SrcRect,&trans);
-	 trans.y = ((int)(0.5*m_x*hero)) % curmode.Height;
-	 trans.x = ((int)(m_x*hero)) % curmode.Width;
+	 trans.y = (float)((int)(0.5*m_x*hero) % curmode.Height);
+	 trans.x = (float)((int)(m_x*hero) % curmode.Width);
 //	 SetRect(&SrcRect,0,0,tex[3]->GetWidth(),tex[3]->GetHeight());
 //	 tex[3]->Paint(&SrcRect,&trans);
 //	 tex[3]->Paint(&trans);

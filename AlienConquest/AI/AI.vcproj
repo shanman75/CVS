@@ -112,6 +112,9 @@
 				RelativePath="AI.cpp">
 			</File>
 			<File
+				RelativePath="BkgMgr.cpp">
+			</File>
+			<File
 				RelativePath="D3DInput.cpp">
 			</File>
 			<File
@@ -130,7 +133,10 @@
 				RelativePath="ObjEnemy2.cpp">
 			</File>
 			<File
-				RelativePath="ObjEnemyBullet.cpp">
+				RelativePath="ObjEnemyWeapon.cpp">
+			</File>
+			<File
+				RelativePath="ObjEnemyWeapon2.cpp">
 			</File>
 			<File
 				RelativePath="ObjMgr.cpp">
@@ -164,6 +170,9 @@
 				RelativePath="AI.h">
 			</File>
 			<File
+				RelativePath="BkgMgr.h">
+			</File>
+			<File
 				RelativePath="D3DInput.h">
 			</File>
 			<File
@@ -182,7 +191,10 @@
 				RelativePath="ObjEnemy2.h">
 			</File>
 			<File
-				RelativePath="ObjEnemyBullet.h">
+				RelativePath="ObjEnemyWeapon.h">
+			</File>
+			<File
+				RelativePath="ObjEnemyWeapon2.h">
 			</File>
 			<File
 				RelativePath="ObjMgr.h">

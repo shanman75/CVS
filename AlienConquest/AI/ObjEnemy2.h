@@ -26,8 +26,8 @@ private:
 
 	int m_fir_seq;
 	int m_jet_seq;
-	double m_jet_spd_x;
-	double m_jet_accel_x;
-	double m_org_max_x;
+	float m_jet_spd_x;
+	float m_jet_accel_x;
+	float m_org_max_x;
 	CTimer m_ani_time;
 };

@@ -7,8 +7,6 @@
 #include "D3DInput.h"
 #include "Texture.h"
 #include "ObjMgr.h"
-#include "ObjEnemy.h"
-#include "ObjEnemy2.h"
 #include "Hero.h"
 
 #include "Timer.h"
@@ -24,7 +22,6 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
 CTexture *tex[4];
-CObjMgr g_ObjMgr;
 CTimer g_Time;
 CTimer g_FireClock;
 
@@ -60,8 +57,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
 	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
 	//tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
-#define NUM_ENEMY1 1
-#define NUM_ENEMY2 4
+#define NUM_ENEMY1 3
+#define NUM_ENEMY2 1
 	CObjEnemy  *enemy1[NUM_ENEMY1];
 	CObjEnemy2 *enemy2[NUM_ENEMY2];
 	CHero *hero;
@@ -70,22 +67,23 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	for (int x= 0; x<NUM_ENEMY1;x++) {
 	enemy1[x] = new CObjEnemy;
 	enemy1[x]->SetSpeed(3,4);
-	enemy1[x]->SetPosition(rand()%800,rand()%600);
-	enemy1[x]->SetAccel((rand()%5),(rand()%5));
+	enemy1[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
+	enemy1[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 	enemy1[x]->Fire();
-	g_ObjMgr.add(enemy1[x]);
+	g_ObjMgr->add(enemy1[x]);
 	}
 	for (int x= 0; x<NUM_ENEMY2;x++) {
 		enemy2[x] = new CObjEnemy2;
-		enemy2[x]->SetSpeed((rand()%10)-5,(rand()%10)-5);
-		enemy2[x]->SetPosition(rand()%800,rand()%600);
-		enemy2[x]->SetAccel((rand()%5),(rand()%5));
-		g_ObjMgr.add(enemy2[x]);
+		enemy2[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
+		enemy2[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
+		enemy2[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
+		g_ObjMgr->add(enemy2[x]);
 	}
 
 	hero = new CHero;
-	hero->SetAccel(rand()%50-25,rand()%30-15);
-	g_ObjMgr.add(hero);
+	hero->SetAccel((float)(rand()%50-25),(float)(rand()%30-15));
+	hero->SetSpeed(50.0,10);
+	g_ObjMgr->add(hero);
 
 
 
@@ -104,7 +102,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			g_D3DInput->GetInput(hero);
 			
 		    g_Time.UpdateClock();
-			g_ObjMgr.move();
+			g_ObjMgr->move();
 			if (g_FireClock.PeekTime() > 1200) { 
 					enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
 					//enemy1[rand()%NUM_ENEMY1]->accel((rand()%15)-7,(rand()%15)-7);
@@ -123,7 +121,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 		    g_D3DObject->BeginPaint();
 			g_D3DObject->Test(tex);
-			g_ObjMgr.paint();
+			g_ObjMgr->paint();
 			g_D3DObject->EndPaint();
 	   }
 	   else WaitMessage();
@@ -202,6 +200,7 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    SetFocus(hWnd);
    g_D3DObject = new D3DObject;
    g_D3DInput = new D3DInput;
+   g_ObjMgr = new CObjMgr;
 
    return TRUE;
 }
@@ -226,6 +225,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
     case WM_ACTIVATEAPP: ActiveApp=(int)wParam; break; //iconize
 	case WM_DESTROY:
+		delete g_ObjMgr;
 		delete g_D3DObject;
 		delete g_D3DInput;
 		delete tex[0];

@@ -1,5 +1,7 @@
 #include "StdAfx.h"
 #include "objenemy.h"
+#include "ObjEnemyWeapon.h"
+#include "objmgr.h"
 
 int CObjEnemy::m_graph_init = 0;
 CTexture *CObjEnemy::m_regular[1];
@@ -8,9 +10,8 @@ CTexture *CObjEnemy::m_firing[4];
 
 CObjEnemy::CObjEnemy(void)
 {
+	CObj();
 	if (!m_graph_init) _LoadGraphics();
-	m_pos_x = 200;
-	m_pos_y = 200;
 	m_max_x=5;
 	m_max_y=2;
 	m_time.GetTime();
@@ -24,8 +25,8 @@ CObjEnemy::~CObjEnemy(void)
 void CObjEnemy::paint()
 {
 	D3DXVECTOR2 pnt;
-	pnt.x = (int)m_pos_x;
-	pnt.y = (int)m_pos_y;
+	pnt.x = m_dpos_x;
+	pnt.y = m_dpos_y;
 	switch (m_state) {
 		case FIRING:
 			m_firing[m_fir_seq]->Paint(&pnt);
@@ -44,6 +45,11 @@ void CObjEnemy::Fire()
 	if (m_state != FIRING) {
 		m_state = FIRING;
 		m_fir_seq = 0;
+		CObjEnemyWeapon *bull = new CObjEnemyWeapon;
+		bull->SetPosition(m_dpos_x+32,m_dpos_y+92);
+		bull->SetSpeed(-250,0);
+		bull->SetAccel(0,0);
+		g_ObjMgr->add(bull);
 	}
 }
 
