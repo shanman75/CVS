@@ -19,14 +19,19 @@
 #include "Camera.h"
 #include "CameraBehindTank.h"
 #include "GameState.h"
+#include "minimap.h"
 
 CTimer g_time;
 CTimer time, time2;
 bool sh_FPS = false;
 
+extern LPD3DXSPRITE map;
+
+
 void g_MainDestroy()
 {
   SAFE_DELETE(g_GameState);
+  map->Release();
 }
 void g_MainInit()
 {
@@ -34,6 +39,8 @@ void g_MainInit()
    //g_GameState = NULL;
    g_ObjMgr->reset();
 //   g_GameState->AddPlayer();
+   D3DXCreateSprite(g_D3DObject->m_d3ddevice9,&map);
+   
 
 }
 
@@ -65,6 +72,7 @@ void g_MainGameLoop()
    
    g_ObjMgr->paint();
    g_GameState->paint();
+   drawmap();
  
    g_D3DObject->EndPaint();
 }

@@ -19,6 +19,9 @@ TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int g_ActiveApp=1;
 cmp3stream *g_mp3_1;							//first mp3 sound
 cwavsound *wav;
+LPD3DXSPRITE map=NULL;
+LPDIRECT3DTEXTURE9 maptex=NULL;
+
 
 //
 //  FUNCTION: MyRegisterClass()
