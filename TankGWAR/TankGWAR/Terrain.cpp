@@ -77,7 +77,7 @@ void cTerrain::_Init()
   LPDIRECT3DTEXTURE9 tempt;
 
   m_tertex = new LPDIRECT3DTEXTURE9 [1];
-  sprintf (texpath,"resource\\%s","texture0.bmp");
+  sprintf (texpath,"resource\\%s","texture2.bmp");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return;
   m_tertex[0] = tempt;
@@ -134,7 +134,7 @@ void cTerrain::RandomizeMesh(void)
 	  for (int j = 0; j < (TER_Y + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
 		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%65/10)-8;
+		  VertexPtr->y = (float) (rand()%65/10);
       //VertexPtr->y = -5;
 		  VertexPtr->nx = 0;
 		  VertexPtr->ny = 1;

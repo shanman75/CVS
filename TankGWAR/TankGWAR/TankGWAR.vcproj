@@ -153,6 +153,14 @@
 				RelativePath=".\ObjMgr.cpp">
 			</File>
 			<File
+				RelativePath=".\SkyBox.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"/>
+				</FileConfiguration>
+			</File>
+			<File
 				RelativePath=".\stdafx.cpp">
 				<FileConfiguration
 					Name="Debug|Win32">
@@ -225,6 +233,14 @@
 			</File>
 			<File
 				RelativePath=".\Resource.h">
+			</File>
+			<File
+				RelativePath=".\SkyBox.h">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCustomBuildTool"/>
+				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\stdafx.h">

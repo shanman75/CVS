@@ -68,7 +68,7 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=false; //full screen
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
-  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
+ // m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
 
   m_d3dpp.EnableAutoDepthStencil=true; //not needed
   m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
@@ -110,12 +110,12 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 	  return FALSE;
 
   m_d3ddevice9->SetRenderState ( D3DRS_ZENABLE, D3DZB_TRUE);
-  m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
+  //m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
   m_d3ddevice9->SetRenderState ( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 
-  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
-  m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
-  m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
+  //m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+  //m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
+  //m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
 //m_d3ddevice9->SetRenderState(D3DRS_FOGENABLE, 1);
 //m_d3ddevice9->SetRenderState(D3DRS_FOGCOLOR, D3DCOLOR_ARGB(50,250,250,250));
@@ -125,7 +125,7 @@ if (m_d3d8->CreateDevice(D3DADAPTER_DEFAULT,D3DDEVTYPE_HAL,hwnd,
 
   m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_XRGB(200,200,200));
 
-  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
+  //m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
   
 
@@ -490,9 +490,9 @@ int D3DObject::SpriteDraw( IDirect3DTexture9 *texture, RECT *rect, D3DXVECTOR2 *
 void D3DObject::BeginPaint()
 {
 	DeviceLost();
+  m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 
+          D3DCOLOR_XRGB(0,0,255), 1.0f, 0L );
 	m_d3ddevice9->BeginScene();
-    m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 
-          D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
 //	m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE|D3DXSPRITE_OBJECTSPACE);
 //	m_pd3dxSprite->Begin(0);
 }

@@ -51,9 +51,22 @@ void cGameState::AddPlayer(BOOL human)
 {
   c3DObject *tmpP = NULL;
   tmpP = new c3DObjectTank();
-  tmpP->pos(D3DXVECTOR3(0,0,4));
+  tmpP->pos(D3DXVECTOR3(0,7,4));
   m_PlayerState[m_numplayers].object = tmpP;
   m_currentplayer = 0;
   g_ObjMgr->add(m_PlayerState[m_numplayers].object);
   m_numplayers++;
+
+  tmpP = new c3DObjectTank();
+  tmpP->pos(D3DXVECTOR3(50,7,4));
+  m_PlayerState[m_numplayers].object = tmpP;
+  g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
+  m_numplayers++;
+
+  tmpP = new c3DObjectTank();
+  tmpP->pos(D3DXVECTOR3(-48,23,4));
+  m_PlayerState[m_numplayers].object = tmpP;
+  g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
+  m_numplayers++;
+
 }

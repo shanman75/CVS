@@ -19,8 +19,8 @@ void cCameraBehindTank::SetCamera()
 
     g_GameState->GetCurrentTankState(&tpos, &tor);
 
-    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( tpos.x - 5*sin(tor.x), tpos.y + 2, tpos.z -5*cos(tor.x) );
-    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( tpos.x, tpos.y+1.3f, tpos.z );
+    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( tpos.x - 8*sin(tor.x), tpos.y + 2, tpos.z -8*cos(tor.x) );
+    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( tpos.x, tpos.y+(tor.y)*3.6f, tpos.z );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );

@@ -86,8 +86,9 @@ void c3DObjectTank::MakeWorldMatrix( int x )
 
 void c3DObjectTank::paint()
 {	
+  //g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(250,250,250,0) );
    for (int x = 0; x < (int)m_nMat; x++)  {
-//	 g_D3DObject->m_d3ddevice9->SetMaterial( &tankmat[x] );
+  	 g_D3DObject->m_d3ddevice9->SetMaterial( &m_tankmat[x] );
      MakeWorldMatrix(x);
 	   g_D3DObject->m_d3ddevice9->SetTexture(0,m_tanktex[x]);
      //if (x == 1 || x == 2)
@@ -109,13 +110,13 @@ void c3DObjectTank::event(enum EVENT evnt)
   if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.1; break;
+      m_barrelHeight -= 0.01; break;
     case DOWN:
-      m_barrelHeight +=0.1; break;
+      m_barrelHeight +=0.01; break;
     case LEFT:
-      m_turretRotate-=0.1; break;
+      m_turretRotate-=0.01; break;
     case RIGHT:
-      m_turretRotate+=0.1; break;
+      m_turretRotate+=0.01; break;
     case PWRUP:
       m_firePower+=0.2f; break;
     case PWRDN:

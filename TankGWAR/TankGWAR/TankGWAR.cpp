@@ -19,16 +19,19 @@
 #include "Camera.h"
 #include "CameraBehindTank.h"
 #include "Terrain.h"
+#include "SkyBox.h"
 #include "GameState.h"
 
 CTimer g_time;
 CTimer time, time2;
 cTerrain *terrain;
+cSkyBox *skybox;
 cCamera cam;
 
 void g_MainDestroy()
 {
   delete terrain;
+  delete skybox;
   delete g_GameState;
 }
 void g_MainInit()
@@ -59,18 +62,19 @@ void g_MainInit()
    light2.Direction = D3DXVECTOR3(0.2,-1,0.2);
    light3.Direction = D3DXVECTOR3(-0.2,-1,-0.2);
 
-   g_D3DObject->m_d3ddevice9->SetLight(1,&light2);
-   g_D3DObject->m_d3ddevice9->LightEnable(1,true);
-   g_D3DObject->m_d3ddevice9->SetLight(2,&light3);
-   g_D3DObject->m_d3ddevice9->LightEnable(2,true);
+//   g_D3DObject->m_d3ddevice9->SetLight(1,&light2);
+//   g_D3DObject->m_d3ddevice9->LightEnable(1,true);
+//   g_D3DObject->m_d3ddevice9->SetLight(2,&light3);
+//   g_D3DObject->m_d3ddevice9->LightEnable(2,true);
 
 
-   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(250,250,250,0) );
+   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(180,180,180,255) );
    //float clip = 500.0f;
    //g_D3DObject->m_d3ddevice9->SetClipPlane(0,&clip);
    //g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_AMBIENT,     D3DCOLOR_RGBA(15,15,15,0) );
 
    terrain = new cTerrain();
+   skybox = new cSkyBox();
 }
 
 
@@ -91,12 +95,13 @@ void g_MainGameLoop()
    g_GameState->GetInput();
  
    g_ObjMgr->move();
+   g_GameState->GetCurrentCamera()->SetCamera();
 
  
    g_D3DObject->BeginPaint();
+   skybox->Paint();
    g_D3DObject->DrawTextStr(50,500,D3DCOLOR_XRGB(240,0,50),debg);
    
-   g_GameState->GetCurrentCamera()->SetCamera();
    g_ObjMgr->paint();
  
 /*

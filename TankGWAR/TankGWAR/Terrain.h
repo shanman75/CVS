@@ -3,8 +3,8 @@
 #include "stdafx.h"
 #include "D3DObject.h"
 
-#define TER_X 25
-#define TER_Y 25
+#define TER_X 200
+#define TER_Y 200
 #define TER_WIDTH 5.0f
 
 // DEFINES
