@@ -12,7 +12,7 @@ void CTexture::OnLostDevice()
 void CTexture::Paint(float x, float y)
 {
 	D3DXVECTOR2 pnt (x,y);
-	Paint(&pnt);
+	Paint(&pnt,0);
 }
 
 void CTexture::UpdateDeviceCaps()
@@ -127,21 +127,22 @@ CTexture::~CTexture(void)
 	delete []m_textures;
 }
 
-void CTexture::Paint(D3DXVECTOR2 *points)
+void CTexture::Paint(D3DXVECTOR2 *points, float x_rotate)
 {
 	D3DCOLOR color = 0xFFFFFFFF;
-    float rotation = 0;
+  float rotation = 0;
 	D3DXVECTOR2 rotate(0,0), scale(0,0), trans (0,0);
 	RECT rect;
 
-	trans.x=points->x;
+  trans.x=points->x;
+  rotate = D3DXVECTOR2(m_width/2,m_height/2);
 	for (int mx = 0; mx < m_ncol; mx++) {
 		trans.y=points->y;
 		for (int my = 0; my < m_nrow; my++) {
 		  SetRect(&rect,0,0,m_maxh,m_maxw);
 		  int spr = (my*m_ncol)+mx;
 		  if (spr < m_numtex) {
-			g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
+			g_D3DObject->SpriteDraw(m_textures[spr],&rect,&scale,&rotate,x_rotate,&trans,color);
 		  }
 		  else {OutputDebugString("CTexture - Paint....sprite out of range error\n");}
 		  trans.y+=m_maxh;
@@ -156,11 +157,11 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
     float rotation = 0;
 	D3DXVECTOR2 rotate(0,0), scale(0,0), trans (0,0);
 	RECT rect;
-	char buff[500];
+//	char buff[500];
 //		OutputDebugString("CTex - Paint - Begin\n");
 	if (srcrect->left >= m_width) {
-		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
-		OutputDebugString(buff);
+//		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
+//		OutputDebugString(buff);
 		CopyRect(&rect,srcrect);
 		int mw = rect.right-rect.left;
 		int mt = rect.left%m_width;
@@ -173,8 +174,8 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 	//Find first "X"
 	int curx = srcrect->left;
 	trans.x = points->x;
-	int mx = (int) (curx / m_maxw) % m_ncol;   // The "X" Coord of the Square
-	int ax = (int) (curx % m_maxw);	         // The "X" Coord of the point in the square (first time)
+	int mx = (int) (curx / m_maxw)%m_ncol;   // The "X" Coord of the Square
+	int ax = (int) (curx % m_maxw);	  // The "X" Coord of the point in the square (first time)
 	while (curx <= srcrect->right) {
 		int ar = (int) m_maxw;
 		//if ((srcrect->right - curx) < ar) ar = srcrect->right-curx;  // sub-rect at the end
@@ -191,7 +192,7 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 		  SetRect(&rect,ax,ay,ar,ab);
 		  int spr = (mx)+(my*m_ncol);
 		  if (spr < m_numtex) {
-			  g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
+			g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
 		  }
 		  else {OutputDebugString("CTexture - Paint....sprite out of range error\n");}
 //		  char buff[500];
@@ -200,16 +201,17 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 		  my = (my+1)%m_nrow;
 		  ay=0;
 		}
-    //char buff[500];
-		  //sprintf(buff,"Curx = %i, Cury = %i rect-(%i,%i,%i,%i) trans(%i,%i) spr=%i\n",curx,cury,
-			 // rect.left,rect.top,rect.right,rect.bottom,trans.x,trans.y,0);
-		  //OutputDebugString(buff);
+//		  sprintf(buff,"Curx = %i, Cury = %i rect-(%i,%i,%i,%i) trans(%i,%i) spr=%i\n",curx,cury,
+//			  rect.left,rect.top,rect.right,rect.bottom,trans.x,trans.y,0);
+//		  OutputDebugString(buff);
 		mx = (mx+1)%m_ncol;
 		trans.x += abs(rect.right - rect.left) ;
 	    curx    += abs(rect.right - rect.left)+ (rect.right == rect.left);
 		ax	    = 0;
 	}
 }
+
+
 
 int CTexture::GetHeight() {return m_height;}
 int CTexture::GetWidth() {return m_width;}

@@ -19,8 +19,25 @@
 
 enum LIVINGSTATE { ALIVE, DEAD, DYING };
 
+struct st_LevelState {
+  enum COMPUTER_AI { SEEKER, MEAN, NOVICE, EXPERT, RANDOM, AI_MAX };
+   int numHumans;   static const int maxHumans = 4;
+   int numComputers;   static const int maxComputers = 5;
+   int numHumansTMP;   int numComputersTMP;   
+
+   COMPUTER_AI aiComputers[maxComputers];
+   int curComputer;
+   long numHills;    static const long maxHills = 4;
+   long numDirt;    static const long maxDirt = 4;
+   int startingMoney;  static const int maxMoney = 19;
+   int windLevel;   static const int maxWind = 4;
+   int numLevels;   static const int maxLevels = 100;
+                    static const int minLevels = 1;
+};
+
 struct st_PlayerState {
    int numweapons[c3DObjectMissile::MSLNUM];
+   enum st_LevelState::COMPUTER_AI ai_type;
    char *name;
    c3DObjectTank *object;
    c3DObjectMissile *msl_object;
@@ -28,18 +45,31 @@ struct st_PlayerState {
    c3DObjectMissile::MSLTYPE msl_cur_type;
    float money;
    float health;
+   bool iscomputer;
+
    enum LIVINGSTATE livingstate;
    bool camabove;
    float camabovezoom;
 };
 
 
+char * strComputer_AI(st_LevelState::COMPUTER_AI ai_in);
+char * strLevel_WIND(int wind);
+char * strLevel_MONEY(int money);
+char * strLevel_HILLS(int hills);
+char * strLevel_DIRT(int dirt);
+
 class cGameState
 {
 public:
   enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
-  enum MAINSTATES { MAINMENU, CREDITS, HELP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
-  enum MAINMENUBUTT { MM_NEWGAME, MM_CREDITS, MM_QUIT, MM_NONE };
+  enum MAINSTATES { MAINMENU, CREDITS, HELP, GAMESETUP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
+  enum MAINMENUBUTT { MM_NEWGAME, MM_CREDITS, MM_QUIT, MM_HELP, MM_NONE };
+  enum GAMESETUPBUTT { GS_HUMANPL_UP, GS_HUMANPL_DN, GS_CMPPL_UP, GS_CMPPL_DN,
+                       GS_CMPAI_UP, GS_CMPAI_DN, GS_HILLS_UP, GS_HILLS_DN,
+                       GS_DIRT_UP, GS_DIRT_DN, GS_WIND_UP, GS_WIND_DN,
+                       GS_MONEY_UP, GS_MONEY_DN, GS_NLVL_UP, GS_NLVL_DN,
+                       GS_STARTGAME, GS_CANCEL, GS_NONE };
   cGameState(void);
   ~cGameState(void);
   void move(void);
@@ -49,12 +79,15 @@ public:
 
   void GetInput();
   void AddPlayer(BOOL human=false);
+  void AddPlayer_old(BOOL human=false);
   void GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale, float *radius);
   void GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient);
   void GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D3DXVECTOR3 *velocity);
   void GetCurrentCamAboveZoom(float *);
-  float GetTerrainHeight(float x, float z) { if (m_terrain) return m_terrain->GetHeight(x,z); 
-  else return 1.0f;}
+  inline float GetTerrainHeight(float x, float z) { 
+      if (m_terrain) return m_terrain->GetHeight(x,z); 
+      else return 1.0f;
+  }
 
   cCamera *GetCurrentCamera(void);
   void SetCurrentCamera(cCamera *cam) { if (cam !=NULL) m_curcamera =cam; }
@@ -66,8 +99,11 @@ private:
      cTerrain *m_terrain;
      //cTerrain *m_big_terrain;
      void NextWeapon(int t_dir = 1);
+     void _InitLevelState(void);
+     void _InitGame(void);
 
      st_PlayerState m_PlayerState[MAX_PLAYERS];
+     st_LevelState m_LevelState;
      int m_numplayers;
      int m_currentplayer;
      cCamera *m_curcamera;
@@ -98,7 +134,12 @@ private:
      static CTexture *m_creditsBk;
      static CTexture *m_helpBk;
 
+     static CTexture *m_spinner[3];
+     static CTexture *m_textfield[1];
+     CTimer m_tmSpinner;
+
      enum MAINMENUBUTT m_mainmenubutt;
+     enum GAMESETUPBUTT m_gamesetupbutt;
      
      c3DObjectMissile *m_tmissile;
 };

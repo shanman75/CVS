@@ -36,7 +36,9 @@ void cwavsound::play(gamesound gs, BOOL looping)
       if(FAILED(soundbuffer[gs][copy]->GetStatus(&status)))
         status=DSBSTATUS_PLAYING; //assume playing if failed
   }
-
+  char debg[255];
+  sprintf (debg, "Sound copy is %i\n",copy);
+  OutputDebugString(debg);
   //play copy
   if(copy<m_nCopyCount[gs]){ //if unused copy found
     soundbuffer[gs][copy]->
@@ -249,12 +251,15 @@ void cwavsound::loadbuffers()
   tmpbuff->Release();
 
   // Changes to buffer format required for menu sounds...
-  wavfile.nSamplesPerSec=22050;
-	wavfile.wBitsPerSample=8;
-	wavfile.nBlockAlign=1*8/8;		
+  memset(&wavfile,0,sizeof(WAVEFORMATEX));
+	wavfile.wFormatTag=WAVE_FORMAT_PCM;
+	wavfile.nChannels=mono;
+	wavfile.nSamplesPerSec=22050;
+	wavfile.wBitsPerSample=soundbitquality;
+	wavfile.nBlockAlign=wavfile.nChannels*wavfile.wBitsPerSample/8;		
 	wavfile.nAvgBytesPerSec=wavfile.nBlockAlign*wavfile.nSamplesPerSec;
 
-  length=loadsound("resource\\sounds\\menumove.wav",&sound);
+  length=loadsound("resource\\sounds\\clickerx.wav",&sound);
 	bufdes.dwBufferBytes=length;
 	tmpbuff=NULL;
 	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))
@@ -267,7 +272,12 @@ void cwavsound::loadbuffers()
 	makecopies(tmpbuff,mnu_move,4);
   tmpbuff->Release();
 
-	length=loadsound("resource\\sounds\\menuselect.wav",&sound);
+  wavfile.nSamplesPerSec=22050;
+	wavfile.wBitsPerSample=8;
+	wavfile.nBlockAlign=1*8/8;		
+	wavfile.nAvgBytesPerSec=wavfile.nBlockAlign*wavfile.nSamplesPerSec;
+
+  length=loadsound("resource\\sounds\\menuselect.wav",&sound);
 	bufdes.dwBufferBytes=length;
 	tmpbuff=NULL;
 	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&tmpbuff,NULL)))

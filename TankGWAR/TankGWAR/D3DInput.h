@@ -25,6 +25,7 @@ public:
   BOOL MouseAxis(D3DXVECTOR3 *mo_axis);
   BOOL MouseScreen(D3DXVECTOR2 *mo_screen);
   void SetMouseScreen(D3DXVECTOR2 mo_screen) { m_mousepos = mo_screen; }
+  void ResetMouseScreen(void) { m_mousepos = D3DXVECTOR2(WIDTH/2,HEIGHT/2); }
 
 private:
   BOOL UpdateMouse();

@@ -32,12 +32,20 @@ typedef struct _D3DTLVERTEX {
     }
 } D3DTLVERTEX, *LPD3DTLVERTEX;
 
+
 struct CVERTEX
 {
     FLOAT  x, y, z, rhw;		// The position.
     FLOAT  u, v;			    // The texture coordinates.
 };
 #define D3DFVF_CVERTEX (D3DFVF_XYZRHW | D3DFVF_TEX1)
+
+struct POINTVERTEX {
+   float x, y ,z, rhw;
+   DWORD color;
+};
+
+const DWORD POINTVERTEX_FVF = D3DFVF_XYZRHW|D3DFVF_DIFFUSE;
 
 class cGameState;
 
@@ -66,6 +74,7 @@ public:
 //  ID3DXFont*              m_pD3DXSmallFont;       // Smaller Font
 	int m_x;
 	LPD3DXSPRITE m_pd3dxSprite;
+
 
 protected:
 	HRESULT RenderText();
@@ -106,6 +115,8 @@ public:
 	void EndPaint();
 	int GetWidth(void) { return curmode.Width; }
 	int GetHeight(void) { return curmode.Height; }
+  void DrawPoint (float x, float y, DWORD color);
+  void DrawLine (float x1, float y1, float x2, float y2, DWORD color); 
 };
 
 extern D3DObject *g_D3DObject;							// Main D3D Object

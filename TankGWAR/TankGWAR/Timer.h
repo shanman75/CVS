@@ -13,6 +13,7 @@ public:
 	float GetTime();
 	float UpdateGetTime();
 	void  Reset();
+  void  ResetCmp();
 	float PeekTime();
 	float UpdatePeekTime();
 	static void TogglePause();

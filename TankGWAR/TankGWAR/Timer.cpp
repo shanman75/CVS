@@ -102,6 +102,11 @@ void CTimer::Reset()
   m_ltime = m_gtime;
 }
 
+void CTimer::ResetCmp()
+{
+  Reset();
+  m_ltime.QuadPart = m_gtime.QuadPart + (float)m_timeinterval;
+}
 void CTimer::Pause()
 {
    m_pause = TRUE;

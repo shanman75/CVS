@@ -72,8 +72,8 @@ BOOL D3DInput::MouseAxis(D3DXVECTOR3 *mo_axis)
   if (mo_axis == NULL) return false;
 
   UpdateMouse();
-    *mo_axis = D3DXVECTOR3((float)m_dims.lX,(float)m_dims.lY,(float)m_dims.lZ);
-    return true;
+  *mo_axis = D3DXVECTOR3((float)m_dims.lX,(float)m_dims.lY,(float)m_dims.lZ);
+  return true;
 }
 
 BOOL D3DInput::MouseScreen(D3DXVECTOR2 *mo_screen)
@@ -84,22 +84,22 @@ BOOL D3DInput::MouseScreen(D3DXVECTOR2 *mo_screen)
 
   UpdateMouse();
 
-    float xscale = (m_dims.lX == 0) ? 1 : log((float)abs(m_dims.lX));
-    float yscale = (m_dims.lY == 0) ? 1 : log((float)abs(m_dims.lY));
+  float xscale = (m_dims.lX == 0) ? 1 : exp((float)abs(m_dims.lX));
+  float yscale = (m_dims.lY == 0) ? 1 : exp((float)abs(m_dims.lY));
+  xscale = exp(abs(m_dims.lX) / 40.0f);
+  yscale = exp(abs(m_dims.lY) / 40.0f);
 
     //char debg[255];
     //sprintf(debg,"Mouse was %f,%f log,log = %f,%f  (%i,%i)\n",m_mousepos.x,m_mousepos.y,xscale,yscale,m_dims.lX,m_dims.lY
     //);
     //OutputDebugString(debg);
-    m_mousepos += D3DXVECTOR2(m_dims.lX *xscale * tm  * 3.8f, 
-                              m_dims.lY *yscale * tm  * 3.8f);
+  m_mousepos += D3DXVECTOR2(m_dims.lX *xscale * tm , 
+                            m_dims.lY *yscale * tm);
 
-
-    if (m_mousepos.x < 0) m_mousepos.x = 0;
-    if (m_mousepos.y < 0) m_mousepos.y = 0;
-
-    if (m_mousepos.x > WIDTH) m_mousepos.x = WIDTH;
-    if (m_mousepos.y > HEIGHT) m_mousepos.y = HEIGHT;
+  if (m_mousepos.x < 0) m_mousepos.x = 0;
+  if (m_mousepos.y < 0) m_mousepos.y = 0;
+  if (m_mousepos.x > WIDTH) m_mousepos.x = WIDTH;
+  if (m_mousepos.y > HEIGHT) m_mousepos.y = HEIGHT;
 
     *mo_screen = m_mousepos;
     return true;

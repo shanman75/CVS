@@ -632,3 +632,26 @@ void D3DObject::EndPaint()
 	m_d3ddevice9->EndScene();  
 	m_d3ddevice9->Present(NULL,NULL,NULL,NULL);
 }
+
+void D3DObject::DrawLine(float x1, float y1, float x2, float y2, DWORD color)
+{
+
+
+}
+
+void D3DObject::DrawPoint(float x, float y, DWORD color)
+{
+  POINTVERTEX points[2];
+  points[0].x = x;
+  points[0].y = y;
+  points[0].z = 1.0f;  points[0].rhw = 1.0f;
+  points[0].color = color;
+
+  points[1].x = x+2.1f;
+  points[1].y = y+2.1f;
+  points[1].z = 1.0f;  points[1].rhw = 1.0f;
+  points[1].color = color;
+
+  m_d3ddevice9->SetFVF(POINTVERTEX_FVF);
+  m_d3ddevice9->DrawPrimitiveUP(D3DPT_POINTLIST,2,points, sizeof(POINTVERTEX));  
+}

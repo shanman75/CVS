@@ -17,6 +17,10 @@ CTexture *cGameState::m_helpBk = NULL;
 
 CTexture *cGameState::m_creditsBk = NULL;
 
+// Window controls
+CTexture *cGameState::m_spinner[3];
+CTexture *cGameState::m_textfield[1];
+
 extern bool sh_FPS;
 
 void cGameState::move(void)
@@ -91,6 +95,26 @@ BOOL PointInRect(D3DXVECTOR2 *pnt, RECT *rct)
   return false;
 }
 
+int PointInSpinner(D3DXVECTOR2 *pnt, RECT *rct)
+{
+  RECT trect;
+  char debg[500];
+
+  SetRect(rct,rct->left+4,rct->top+3,rct->left+29,rct->top+31);  
+  if (PointInRect(pnt,rct)) {
+    SetRect(&trect,rct->left+4,rct->top+3,rct->left+29,rct->top+16);
+//    sprintf(debg,"UP - Checking (%.1f,%.1f) against (%i,%i,%i,%i)\n",pnt->x,pnt->y,
+//                                trect.top,trect.left,trect.bottom,trect.right); OutputDebugString(debg);
+    if (PointInRect(pnt,&trect)) return 1;   // Up
+    SetRect(&trect,rct->left+4,rct->top+19,rct->left+29,rct->top+31);
+//    sprintf(debg,"DN - Checking (%.1f,%.1f) against (%i,%i,%i,%i)\n",pnt->x,pnt->y,
+//                                trect.top,trect.left,trect.bottom,trect.right); OutputDebugString(debg);
+    if (PointInRect(pnt,&trect)) return 2;   // Down
+    return 0;
+  }
+  else return 0;
+}
+
 void cGameState::paintbg(void)
 {
   D3DXVECTOR2 mscreen;
@@ -125,7 +149,7 @@ void cGameState::paintbg(void)
     // Help button
     SetRect(&mrect,200,st_y+(41+30)*2,600,st_y+(41+30)*2+41);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
-    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_NONE;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::MM_HELP;
     m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41.0f+30.0f)*2));
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Help",-1,
       &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
@@ -152,6 +176,204 @@ void cGameState::paintbg(void)
   {
     g_D3DObject->m_pd3dxSprite->Begin(0);
     m_helpBk->Paint(0.0f,0.0f);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
+  else if (m_mainstate == MAINSTATES::GAMESETUP)
+  {
+    int st_y = 40;
+    D3DXVECTOR2 tp_scr;
+    int but_ng;
+    static char t_strbuff[255];
+
+    m_gamesetupbutt = GAMESETUPBUTT::GS_NONE;
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_preroundBk->Paint(0.0f,0.0f);
+    
+    // Heading
+    SetRect(&mrect,0,0,800,100);
+    g_D3DObject->pFont->DrawText(g_D3DObject->m_pd3dxSprite,"Game Setup",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+
+    // Human Spinner
+    tp_scr = D3DXVECTOR2(70.0f,150.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Humans",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_HUMANPL_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_HUMANPL_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    sprintf(t_strbuff,"%i",m_LevelState.numHumans);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+
+    // Number of Levels Spinner
+    tp_scr = D3DXVECTOR2(270.0f,150.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Levels",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_NLVL_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_NLVL_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    sprintf(t_strbuff,"%i",m_LevelState.numLevels);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+    // Hills Spinner
+    tp_scr = D3DXVECTOR2(70.0f,270.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Hilliness",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_HILLS_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_HILLS_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    sprintf(t_strbuff,"%i",m_LevelState.numHills);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,strLevel_HILLS(m_LevelState.numHills),-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+
+    // Crap Spinner
+    tp_scr = D3DXVECTOR2(270.0f,270.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Jaggedness",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_DIRT_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_DIRT_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,strLevel_DIRT(m_LevelState.numDirt),-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+
+    // Wind Level
+    tp_scr = D3DXVECTOR2(70.0f,400.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Wind Level",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_WIND_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_WIND_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,strLevel_WIND(m_LevelState.windLevel),-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+    // Starting Money
+    tp_scr = D3DXVECTOR2(270.0f,400.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Money",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_MONEY_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_MONEY_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,strLevel_MONEY(m_LevelState.startingMoney),-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+
+    // Computers Spinner
+    tp_scr = D3DXVECTOR2(480.0f,150.0f);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Computers",-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1) m_gamesetupbutt = GAMESETUPBUTT::GS_CMPPL_UP;           // Make next state HM_UP
+    else if (but_ng == 2) m_gamesetupbutt = GAMESETUPBUTT::GS_CMPPL_DN;      // Make next state HM_DN
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    sprintf(t_strbuff,"%i",m_LevelState.numComputers);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+
+
+    // Computer Types Spinner
+    for (int c = 0; c < m_LevelState.numComputers; c++) {
+    tp_scr = D3DXVECTOR2(620.0f,150.0f+70.0f*c);
+    // Heading
+    SetRect(&mrect,tp_scr.x,tp_scr.y-40,tp_scr.x+150,tp_scr.y+35-40);
+    sprintf (t_strbuff,"Computer %i",c+1);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+      &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    SetRect(&mrect,tp_scr.x+110,tp_scr.y,0,0); 
+    but_ng = PointInSpinner(&mscreen,&mrect);
+    if (but_ng == 1)    
+    { m_gamesetupbutt = GAMESETUPBUTT::GS_CMPAI_UP; m_LevelState.curComputer = c; }
+    else if (but_ng == 2) 
+    { m_gamesetupbutt = GAMESETUPBUTT::GS_CMPAI_DN; m_LevelState.curComputer = c; }
+    m_spinner[but_ng]->Paint(tp_scr.x+110,tp_scr.y);
+
+    m_textfield[0]->Paint(tp_scr.x,tp_scr.y);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+100,tp_scr.y+35);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,strComputer_AI(m_LevelState.aiComputers[c]),-1,
+      &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,(float)128/255,0.0f,1.0f));
+    }
+ 
+    // Buttons
+    // Cancel Button
+    tp_scr = D3DXVECTOR2(402.0f,500.0f);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+400,tp_scr.y+45);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_gamesetupbutt = GAMESETUPBUTT::GS_CANCEL;
+    m_preroundRegButton[but_ng]->Paint(&tp_scr);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Cancel",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    // Start Button
+    tp_scr = D3DXVECTOR2(2.0f,500.0f);
+    SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+400,tp_scr.y+45);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_gamesetupbutt = GAMESETUPBUTT::GS_STARTGAME;
+    m_preroundRegButton[but_ng]->Paint(&tp_scr);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Start",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+
+    m_preroundMousePtr->Paint(&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
   }
   else {
@@ -237,6 +459,7 @@ void cGameState::paint(void)
   }
 
 }
+
 void cGameState::GetInput(void)
 {
   D3DXVECTOR3 maxis;
@@ -246,6 +469,10 @@ void cGameState::GetInput(void)
   g_D3DInput->MouseScreen(&mscreen);
 
   c3DObjectTank *tmpP = NULL;
+  static bool v_KEYUP_DOWN = true;
+  static bool v_KEYUP_UP = true;
+  static bool v_KEYUP_ENTER = true;
+
   static bool v_KEYUP_ESC = true;
   static bool v_KEYUP_PGUP = true;
   static bool v_KEYUP_PGDN = true;
@@ -276,6 +503,149 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_mainstate) {
+    case MAINSTATES::GAMESETUP:
+      if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
+        wav->play(mnu_select);
+        g_D3DInput->ResetMouseScreen();
+        m_mainstate = MAINSTATES::MAINMENU;
+        v_KEYUP_ESC = false;
+      }
+      if (g_D3DInput->MouseDown(0) && v_MOUSEUP_0) {
+        switch (m_gamesetupbutt)
+        {
+        case GAMESETUPBUTT::GS_STARTGAME:
+           _InitGame();
+           break;
+        case GAMESETUPBUTT::GS_CANCEL:
+          // Goto Main Menu
+          wav->play(mnu_select);
+          g_D3DInput->ResetMouseScreen();
+          m_mainstate = MAINSTATES::MAINMENU;
+          v_MOUSEUP_0 = false;
+        break;
+        case GAMESETUPBUTT::GS_HUMANPL_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numHumans > 1))
+          { 
+            m_LevelState.numHumans--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_HUMANPL_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numHumans < m_LevelState.maxHumans)) {
+            m_LevelState.numHumans++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_CMPPL_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numComputers > 0)) {
+            m_LevelState.numComputers--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_CMPPL_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numComputers < m_LevelState.maxComputers)) {
+            m_LevelState.numComputers++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_MONEY_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.startingMoney > 0)) {
+            m_LevelState.startingMoney--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_MONEY_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.startingMoney < m_LevelState.maxMoney)) {
+            m_LevelState.startingMoney++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_HILLS_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numHills > 0)) {
+            m_LevelState.numHills--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_HILLS_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numHills < m_LevelState.maxHills)) {
+            m_LevelState.numHills++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_WIND_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.windLevel > 0)) {
+            m_LevelState.windLevel--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_WIND_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.windLevel < m_LevelState.maxWind)) {
+            m_LevelState.windLevel++;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_DIRT_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numDirt > 0)) {
+            m_LevelState.numDirt--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_DIRT_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numDirt < m_LevelState.maxDirt)) {
+            m_LevelState.numDirt++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_NLVL_DN:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numLevels > 1)) {
+            m_LevelState.numLevels--;
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_NLVL_UP:
+          if (m_tmSpinner.CmpTime() && (m_LevelState.numLevels < m_LevelState.maxLevels)) {
+            m_LevelState.numLevels++;
+            wav->play(mnu_move);
+          }
+          break;
+
+        case GAMESETUPBUTT::GS_CMPAI_UP:
+          if (m_tmSpinner.CmpTime()) {
+            m_LevelState.aiComputers[m_LevelState.curComputer] = (st_LevelState::COMPUTER_AI)
+              ((int)(m_LevelState.aiComputers[m_LevelState.curComputer] + 1) % (int)m_LevelState.AI_MAX);
+            wav->play(mnu_move);
+          }
+          break;
+        case GAMESETUPBUTT::GS_CMPAI_DN:
+          if (m_tmSpinner.CmpTime()) {            
+            m_LevelState.aiComputers[m_LevelState.curComputer] = (st_LevelState::COMPUTER_AI)
+              ((int)(m_LevelState.aiComputers[m_LevelState.curComputer] - 1) % (int)m_LevelState.AI_MAX);
+            if (m_LevelState.aiComputers[m_LevelState.curComputer] < 0)
+              m_LevelState.aiComputers[m_LevelState.curComputer] = (st_LevelState::COMPUTER_AI) 
+              ((int)m_LevelState.AI_MAX - 1);
+            wav->play(mnu_move);
+          }
+          break;
+        default: break;
+        }
+      }
+      break;
+    case MAINSTATES::HELP:
+      if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
+         (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
+        wav->play(mnu_select);
+        g_D3DInput->SetMouseScreen(D3DXVECTOR2(WIDTH/2,HEIGHT/2));
+        SAFE_DELETE(m_helpBk);
+        m_mainstate = MAINSTATES::MAINMENU;
+        v_KEYUP_ESC = false;
+        v_MOUSEUP_0 = false;
+      }
+      break;
     case MAINSTATES::CREDITS:
       if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
          (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
@@ -293,23 +663,26 @@ void cGameState::GetInput(void)
          SendMessage(g_hWnd,WM_QUIT,0,0);
          return;
       }
-      if(g_D3DInput->MouseDown(0) && v_MOUSEUP_0) {
+      if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0)) {
+           v_MOUSEUP_0 = false;
+           v_KEYUP_ESC = false;
         switch (m_mainmenubutt) {
+         case MAINMENUBUTT::MM_HELP:
+           wav->play(mnu_select);
+           m_mainstate = MAINSTATES::HELP;
+           m_helpBk = new CTexture("resource\\pre-round\\helpscreen.png");
+           break;
          case MAINMENUBUTT::MM_CREDITS:
          wav->play(mnu_select);
            m_mainstate = MAINSTATES::CREDITS;
            m_creditsBk = new CTexture("resource\\pre-round\\credits.png");
-           v_MOUSEUP_0 = false;
-           v_KEYUP_ESC = false;
            break;
           break;
          case MAINMENUBUTT::MM_NEWGAME:
           wav->play(mnu_select);
-          CTimer::Pause();
-          AddPlayer();
-          CTimer::UnPause();
-          m_mainstate = MAINSTATES::LEVEL;
-          m_gstate = STATES::TARGETING;
+          _InitLevelState();
+          m_mainstate = MAINSTATES::GAMESETUP;
+            //m_gstate = STATES::TARGETING;
           break;
          case MAINMENUBUTT::MM_QUIT:
            SendMessage(g_hWnd,WM_QUIT,0,0);
@@ -403,8 +776,10 @@ void cGameState::GetInput(void)
     default:
       break;
   }
-          if (!g_D3DInput->MouseDown(0))
-            v_MOUSEUP_0 = true;
+          
+  if (!g_D3DInput->MouseDown(0)) {
+    v_MOUSEUP_0 = true;
+  }
           if (!g_D3DInput->KeyDown(DIK_ESCAPE))
             v_KEYUP_ESC = true;
           if (!g_D3DInput->KeyDown(DIK_PGUP))
@@ -461,6 +836,7 @@ cGameState::cGameState(void)
   m_mainstate = MAINSTATES::MAINMENU;
   m_gstate = STATES::NOTHING;
   SetCurrentCamera(&m_camera);
+  m_tmSpinner.setInterval(400.0f);
   //m_terrain->RandomizeMesh();
   _Init();
 }
@@ -474,7 +850,7 @@ cGameState::~cGameState(void)
 }
 
 
-void cGameState::AddPlayer(BOOL human)
+void cGameState::AddPlayer_old(BOOL human)
 {
   c3DObject *tmpP = NULL;
   m_currentplayer = 0;
@@ -512,6 +888,49 @@ void cGameState::AddPlayer(BOOL human)
   SetCurrentCamera(&m_camBehindTank);
 }
 
+void cGameState::AddPlayer(BOOL human)
+{
+  c3DObject *tmpP = NULL;
+
+  float t_x, t_z, t_y;
+  tmpP = new c3DObjectTank();
+  // Choose a random position
+  t_x = (float)(rand()%300-150);
+  t_z = (float)(rand()%300-150);
+  m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*2.1f);
+  t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
+  tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
+
+  ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)(rand()%5));
+   m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
+   g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
+   m_PlayerState[m_numplayers].health = 100.0f;
+   m_PlayerState[m_numplayers].money = m_LevelState.startingMoney;   // Fix
+   m_PlayerState[m_numplayers].name = new char[50];
+   m_PlayerState[m_numplayers].livingstate = ALIVE;
+   m_PlayerState[m_numplayers].msl_cur_type = (c3DObjectMissile::MSLTYPE::SHELL);
+   m_PlayerState[m_numplayers].camabove = false;
+   m_PlayerState[m_numplayers].camabovezoom = 1.0f;
+   if (human) {
+     sprintf (m_PlayerState[m_numplayers].name,"%s%d","Human ",m_LevelState.numHumansTMP+1);
+     m_PlayerState[m_numplayers].iscomputer = false;
+     m_LevelState.numHumansTMP++;
+   }
+   else {
+     if (m_LevelState.aiComputers[m_LevelState.numComputersTMP] == st_LevelState::COMPUTER_AI::RANDOM)
+       m_PlayerState[m_numplayers].ai_type = (st_LevelState::COMPUTER_AI)(rand()%4);
+     else
+       m_PlayerState[m_numplayers].ai_type = m_LevelState.aiComputers[m_LevelState.numComputersTMP];
+     m_PlayerState[m_numplayers].iscomputer = true;
+     sprintf (m_PlayerState[m_numplayers].name,"Comp %d",m_LevelState.numComputersTMP+1);
+     m_LevelState.numComputersTMP++;
+   }
+  for (int k = 0; k < c3DObjectMissile::MSLNUM; k++)
+      m_PlayerState[m_numplayers].numweapons[k] = 0;
+  m_PlayerState[m_numplayers].numweapons[c3DObjectMissile::SHELL] = 99;
+  m_numplayers++;
+}
+
 cCamera * cGameState::GetCurrentCamera() { 
   return m_curcamera; 
 }
@@ -544,12 +963,22 @@ void cGameState::_Init(void)
     m_preroundMousePtr = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 
     SetRect(&imgrect,1,37,401,81);
-    m_preroundRegButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
-    SetRect(&imgrect,1,84,401,128);
     m_preroundRegButton[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+    SetRect(&imgrect,1,84,401,128);
+    m_preroundRegButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 
     SetRect(&imgrect,1,130,385,230);
     m_preroundLogo = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+
+    SetRect(&imgrect,37,1,71,35);
+    m_spinner[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+    SetRect(&imgrect,73,1,107,35);
+    m_spinner[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+    SetRect(&imgrect,109,1,143,35);
+    m_spinner[2] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+
+    SetRect(&imgrect,145,1,255,35);
+    m_textfield[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 }
 
 void cGameState::_Delete(void)
@@ -560,6 +989,12 @@ void cGameState::_Delete(void)
   SAFE_DELETE(m_preroundRegButton[0]);
   SAFE_DELETE(m_preroundRegButton[1]);
   SAFE_DELETE(m_preroundLogo);
+
+  SAFE_DELETE(m_spinner[0]);
+  SAFE_DELETE(m_spinner[1]);
+  SAFE_DELETE(m_spinner[2]);
+  SAFE_DELETE(m_textfield[0]);
+
 }
 
 void cGameState::OnLostDevice() {
@@ -635,4 +1070,106 @@ void cGameState::NextWeapon(int t_dir)
 void cGameState::GetCurrentCamAboveZoom(float *flt)
 {
   *flt = m_PlayerState[m_currentplayer].camabovezoom;
+}
+
+void cGameState::_InitLevelState(void)
+{
+   m_LevelState.numHumans = 1;
+   m_LevelState.numComputers = 1;
+   m_LevelState.numHills = 1;
+   m_LevelState.numDirt = 1;
+   m_LevelState.startingMoney = 5;
+   m_LevelState.windLevel = 1;
+   m_LevelState.numLevels = 10;
+
+   for (int x = 0 ; x < st_LevelState::maxComputers; x++)
+   {
+     m_LevelState.aiComputers[x] = st_LevelState::COMPUTER_AI::RANDOM;
+   }
+}
+
+char * strComputer_AI(enum st_LevelState::COMPUTER_AI ai_in)
+{
+   switch (ai_in)
+   {
+   case st_LevelState::COMPUTER_AI::SEEKER: return "Seeker"; break;
+   case st_LevelState::COMPUTER_AI::MEAN: return "Mean"; break;
+   case st_LevelState::COMPUTER_AI::NOVICE: return "Novice"; break;
+   case st_LevelState::COMPUTER_AI::EXPERT: return "Expert"; break;
+   case st_LevelState::COMPUTER_AI::RANDOM: return "Random"; break;
+   default: return "Unknown"; break;
+   }
+}
+
+char * strLevel_WIND(int wind)
+{
+   switch (wind)
+   {
+   case 0: return "Stale"; break;
+   case 1: return "Calm"; break;
+   case 2: return "Windy"; break;
+   case 3: return "Brisk"; break;
+   case 4: return "Tornado"; break;
+   default: return "Unknown"; break;
+   }
+}
+char * strLevel_MONEY(int money)
+{
+  float fmoney = money * 5.14f;
+  static char moneybuff[65];
+  sprintf(moneybuff,"%.2f M",fmoney);
+  return moneybuff;
+}
+
+char * strLevel_HILLS(int hills)
+{
+   switch (hills)
+   {
+   case 0: return "None"; break;
+   case 1: return "Few"; break;
+   case 2: return "Sparse"; break;
+   case 3: return "Many"; break;
+   case 4: return "Google"; break;
+   default: return "Unknown"; break;
+   }
+}
+char * strLevel_DIRT(int dirt)
+{
+   switch (dirt)
+   {
+   case 0: return "None"; break;
+   case 1: return "C'Mon!"; break;
+   case 2: return "Sparse"; break;
+   case 3: return "Spew"; break;
+   case 4: return "Chunks"; break;
+   default: return "Unknown"; break;
+   }
+}
+
+void cGameState::_InitGame(void)
+{
+  m_mainstate = MAINSTATES::LEVEL;
+  m_gstate = STATES::TARGETING;
+
+  int numHills = 4 + (m_LevelState.numHills*15) + rand()%6;
+  int numDirt = 1000 + (m_LevelState.numDirt*10000) + rand()%250;
+  m_terrain->RandomizeTerrain(numHills,numDirt);
+
+  m_LevelState.numHumansTMP = 0;
+  m_LevelState.numComputersTMP = 0;
+
+  m_numplayers = 0;
+  g_ObjMgr->reset();
+
+  while ((m_LevelState.numComputersTMP < m_LevelState.numComputers) || 
+    (m_LevelState.numHumansTMP < m_LevelState.numHumans))
+  {
+    int rndnum;
+    rndnum = rand() % 100;
+    if (rndnum > 50)  if ((m_LevelState.numComputersTMP < m_LevelState.numComputers)) AddPlayer(false);
+    if (rndnum < 30)  if ((m_LevelState.numHumansTMP < m_LevelState.numHumans))  AddPlayer(true);
+  }
+
+  m_currentplayer = rand() % m_numplayers;
+  SetCurrentCamera(&m_camBehindTank);
 }

@@ -292,7 +292,7 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
 
   objadd = new c3DObjectMissile(tpe);
   objadd->accel   (D3DXVECTOR3(0.0f,-9.8f,0.0f));
-  objadd->velocity(tVelocity * m_firePower/7);
+  objadd->velocity(tVelocity * m_firePower/16);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);

@@ -72,7 +72,7 @@ void g_MainGameLoop()
    
    g_ObjMgr->paint();
    g_GameState->paint();
-   drawmap();
+   //drawmap();
  
    g_D3DObject->EndPaint();
 }
