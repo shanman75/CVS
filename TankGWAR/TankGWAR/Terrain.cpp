@@ -44,7 +44,7 @@ void cTerrain::_Init()
 
 	m_Heights = new float[(TER_X + 1) * (TER_Y + 1)];
   for (int x = 0; x < (TER_X+1)*(TER_Y+1); x++)
-    m_Heights[x] = 1.0f;
+    m_Heights[x] = 999.0f;
   
 	LPDIRECT3DVERTEXBUFFER9 pTetVB = NULL; //Pointer to vertex buffer.
 
@@ -106,7 +106,7 @@ void cTerrain::RandomizeMesh(void)
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
-		  *t_Heights++ = VertexPtr->y;
+      SetHeight(VertexPtr->x,VertexPtr->z,VertexPtr->y);
 		  VertexPtr++;
 
 	}
@@ -148,4 +148,12 @@ float cTerrain::GetHeight(float x, float y)
  if (x > 0 && y > 0 && x < (TER_X + 1) && y < (TER_Y+1))
  return m_Heights[(int)x* (TER_Y + 1) + (int)y];
  else return 1.0f;
+}
+
+void cTerrain::SetHeight(float x, float z, float y)
+{
+ x = x/(TER_WIDTH+1) + (TER_X+1)/2;
+ z = z/(TER_WIDTH+1) + (TER_Y+1)/2;
+ if (x > 0 && z > 0 && x < (TER_X + 1) && z < (TER_Y+1))
+    m_Heights[(int)x* (TER_Y + 1) + (int)z] = y;
 }

@@ -29,6 +29,7 @@ public:
 	void RandomizeMesh(void);
 	void event(EVENT evnt);
 	float GetHeight(float x, float y);
+  void SetHeight(float x, float z, float y);
 
 private:
 	void _Init(void);

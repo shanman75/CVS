@@ -9,6 +9,7 @@
 #include "Camera.h"
 #include "CameraBehindTank.h"
 #include "CameraBehindMissile.h"
+#include "CameraAboveHit.h"
 #include "Skybox.h"
 #include "Terrain.h"
 
