@@ -70,10 +70,9 @@ void g_MainGameLoop()
    g_GameState->GetInput();
  
    g_ObjMgr->move();
-   g_GameState->GetCurrentCamera()->SetCamera();
 
- 
    g_D3DObject->BeginPaint();
+   g_GameState->GetCurrentCamera()->SetCamera();
    skybox->Paint();
    terrain->Paint();
    g_D3DObject->DrawTextStr(50,500,D3DCOLOR_XRGB(240,0,50),debg);

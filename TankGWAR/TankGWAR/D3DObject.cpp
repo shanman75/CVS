@@ -89,12 +89,12 @@ int D3DObject::_InitD3D9(void)
 			  NULL,
 			  0,
 			  0,
-			  700,
-			  500,
+			  640,
+			  480,
 			  SWP_NOZORDER | SWP_SHOWWINDOW
 		  );
-    m_d3dpp.BackBufferWidth=700; //width
-    m_d3dpp.BackBufferHeight=500; //height
+    m_d3dpp.BackBufferWidth=640; //width
+    m_d3dpp.BackBufferHeight=480; //height
   }
   if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
   			       D3DDEVTYPE_HAL,
@@ -141,10 +141,10 @@ int D3DObject::_InitD3D9(void)
 void D3DObject::DefaultRenderState()
 {
   m_d3ddevice9->SetRenderState ( D3DRS_ZENABLE, D3DZB_TRUE);
-  //m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
+  m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
   m_d3ddevice9->SetRenderState ( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 
-  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
+  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
   m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
   m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
@@ -158,13 +158,12 @@ void D3DObject::DefaultRenderState()
 
   //m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
-
+/*
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,  D3DTOP_SELECTARG1);
-
-  /*
+*/
     m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE );
     m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
       m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
@@ -173,8 +172,8 @@ void D3DObject::DefaultRenderState()
       m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
       m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
       m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-*/
-//  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
+
+      //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
 
 
   //if (m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9) != D3D_OK) {
