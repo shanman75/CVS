@@ -3,7 +3,7 @@
 #include <stdio.h>
 
 CObjMgr *g_ObjMgr;
-const int CObjMgr::m_numz=2;
+const int CObjMgr::m_numz=3;
 
 CObjMgr::CObjMgr(void)
 {

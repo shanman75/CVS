@@ -112,7 +112,10 @@
 				RelativePath="AI.cpp">
 			</File>
 			<File
-				RelativePath="BkgMgr.cpp">
+				RelativePath="BgMusic.cpp">
+			</File>
+			<File
+				RelativePath="BkGround.cpp">
 			</File>
 			<File
 				RelativePath="D3DInput.cpp">
@@ -133,10 +136,16 @@
 				RelativePath="ObjEnemy2.cpp">
 			</File>
 			<File
+				RelativePath="ObjEnemy3.cpp">
+			</File>
+			<File
 				RelativePath="ObjEnemyWeapon.cpp">
 			</File>
 			<File
 				RelativePath="ObjEnemyWeapon2.cpp">
+			</File>
+			<File
+				RelativePath="ObjEnemyWeapon3.cpp">
 			</File>
 			<File
 				RelativePath="ObjMgr.cpp">
@@ -146,6 +155,9 @@
 			</File>
 			<File
 				RelativePath="Timer.cpp">
+			</File>
+			<File
+				RelativePath="dmusic.cpp">
 			</File>
 			<File
 				RelativePath="stdafx.cpp">
@@ -170,7 +182,10 @@
 				RelativePath="AI.h">
 			</File>
 			<File
-				RelativePath="BkgMgr.h">
+				RelativePath="BgMusic.h">
+			</File>
+			<File
+				RelativePath="BkGround.h">
 			</File>
 			<File
 				RelativePath="D3DInput.h">
@@ -191,10 +206,16 @@
 				RelativePath="ObjEnemy2.h">
 			</File>
 			<File
+				RelativePath="ObjEnemy3.h">
+			</File>
+			<File
 				RelativePath="ObjEnemyWeapon.h">
 			</File>
 			<File
 				RelativePath="ObjEnemyWeapon2.h">
+			</File>
+			<File
+				RelativePath="ObjEnemyWeapon3.h">
 			</File>
 			<File
 				RelativePath="ObjMgr.h">
@@ -207,6 +228,9 @@
 			</File>
 			<File
 				RelativePath="Timer.h">
+			</File>
+			<File
+				RelativePath="dmusic.h">
 			</File>
 			<File
 				RelativePath="stdafx.h">

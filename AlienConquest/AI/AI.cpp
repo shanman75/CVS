@@ -7,7 +7,7 @@
 #include "D3DInput.h"
 #include "Texture.h"
 #include "ObjMgr.h"
-#include "Hero.h"
+#include "dmusic.h"
 
 #include "Timer.h"
 #include <stdio.h>
@@ -21,9 +21,9 @@ HWND hwnd;										// Handle to a Window
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
-CTexture *tex[4];
 CTimer g_Time;
 CTimer g_FireClock;
+CMidiMusic *g_Midi;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -53,15 +53,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
 
-	tex[0] = new CTexture("resource\\farsky.png",0xFFFF00FF);
-	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
-	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
-	//tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
-#define NUM_ENEMY1 3
-#define NUM_ENEMY2 1
+#define NUM_ENEMY1 2
+#define NUM_ENEMY2 2
+#define NUM_ENEMY3 2
+
 	CObjEnemy  *enemy1[NUM_ENEMY1];
 	CObjEnemy2 *enemy2[NUM_ENEMY2];
+	CObjEnemy3 *enemy3[NUM_ENEMY3];
 	CHero *hero;
+	CBkGround *bkg=new CBkGround;
+	g_ObjMgr->add(bkg);
 
 	srand(GetTickCount());
 	for (int x= 0; x<NUM_ENEMY1;x++) {
@@ -79,10 +80,17 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		enemy2[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 		g_ObjMgr->add(enemy2[x]);
 	}
+	for (int x= 0; x<NUM_ENEMY3;x++) {
+		enemy3[x] = new CObjEnemy3;
+		enemy3[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
+		enemy3[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
+		enemy3[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
+		g_ObjMgr->add(enemy3[x]);
+	}
 
 	hero = new CHero;
-	hero->SetAccel((float)(rand()%50-25),(float)(rand()%30-15));
-	hero->SetSpeed(50.0,10);
+//	hero->SetAccel((float)(rand()%50-25),(float)(rand()%30-15));
+//	hero->SetSpeed(50.0,10);
 	g_ObjMgr->add(hero);
 
 
@@ -90,6 +98,39 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	// Main message loop:
 	int m_cnt = 0;
 	int zf = 4;
+
+	g_Midi = new CMidiMusic;
+	g_Midi->Initialize(FALSE);
+	DWORD dwcount;
+	INFOPORT Info; // INFOPORT structure to store port information 
+	BOOL bSelected;
+
+	dwcount=0;
+	bSelected=FALSE;
+	
+	 // Port enumeration  phase 
+	 // It is necessary to supply a port counter 
+	while (g_Midi->PortEnumeration(dwcount,&Info)==S_OK)
+	{
+		// Ensure it is an output hardware device
+		if (Info.dwClass==DMUS_PC_OUTPUTCLASS) 
+		{
+			if (!((Info.dwFlags & DMUS_PC_SOFTWARESYNTH) || bSelected))
+			{
+				// Select the enumerated port 
+				g_Midi->SelectPort(&Info);
+				bSelected=TRUE;
+			}
+		}
+	
+	dwcount++;  // It is necessary
+	}
+
+	 // Read the file and specify if it is a mid file or not 
+	g_Midi->LoadMidiFromFile("c:/games/peanuts.midi",TRUE);
+	 // Play the file
+	g_Midi->Play();
+	while (FAILED(g_Midi->IsPlaying())) ;
 			
     while(TRUE)
        if(PeekMessage(&msg,NULL,0,0,PM_NOREMOVE)){ //if message waiting
@@ -104,6 +145,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 		    g_Time.UpdateClock();
 			g_ObjMgr->move();
 			if (g_FireClock.PeekTime() > 1200) { 
+				for (int x= 0; x < NUM_ENEMY1; x++) enemy1[x]->Fire();
 					enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
 					//enemy1[rand()%NUM_ENEMY1]->accel((rand()%15)-7,(rand()%15)-7);
 					//enemy2[rand()%NUM_ENEMY2]->accel((rand()%15)-7,(rand()%15)-7);
@@ -120,13 +162,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			}
 
 		    g_D3DObject->BeginPaint();
-			g_D3DObject->Test(tex);
 			g_ObjMgr->paint();
+			g_D3DObject->PaintText();
 			g_D3DObject->EndPaint();
 	   }
 	   else WaitMessage();
 	 //WaitMessage(); //process frame
 
+	 // Stop it
+	g_Midi->Stop();
 	return (int) msg.wParam;
 }
 
@@ -228,9 +272,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		delete g_ObjMgr;
 		delete g_D3DObject;
 		delete g_D3DInput;
-		delete tex[0];
-		delete tex[1];
-		delete tex[2];
+		delete g_Midi;
 		PostQuitMessage(0);
 		break;
     case WM_KEYDOWN:

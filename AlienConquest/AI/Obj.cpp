@@ -10,7 +10,7 @@ CObj::CObj(void)
 	m_max_x=(float)50.2;
 	m_max_y=(float)45.5;
 	m_time.GetTime();
-	m_z = 0;
+	m_z = 1;
 	m_curtexture = NULL;
 }
 

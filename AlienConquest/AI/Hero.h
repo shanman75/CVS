@@ -8,6 +8,8 @@ class CHero :
 public:
 	CHero(void);
 	~CHero(void);
+	enum EVENT { LEFT,RIGHT,UP,DOWN,FIRE };
+	void event(EVENT);
 private:
 	virtual void paint();
 	virtual void move();
@@ -16,4 +18,5 @@ private:
 
 	static int m_graph_init;
 	static CTexture *m_regular[1];
+	CTimer m_mov_x, m_mov_y;
 };

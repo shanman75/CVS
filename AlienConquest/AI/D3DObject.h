@@ -69,7 +69,7 @@ public:
 				 CONST POINT*, int DEST);
 	int LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3DCOLOR colorkey=0,D3DXIMAGE_INFO *SrcInfo=NULL);
 	int CreateTexture(UINT Width,UINT Height,UINT  Levels,DWORD Usage,D3DFORMAT Format,D3DPOOL Pool,IDirect3DTexture8** ppTexture);
-	int Test (CTexture *tex[]);
+	int PaintText ();
 	int DrawTextStr(int x, int y, DWORD color, const TCHAR * str);
 	void BlitRect(LPDIRECT3DTEXTURE8 lpSrc,
               float left, float top,
@@ -81,6 +81,8 @@ public:
 						  D3DXVECTOR2 *trans, D3DCOLOR color);
 	void BeginPaint();
 	void EndPaint();
+	int GetWidth(void) { return curmode.Width; }
+	int GetHeight(void) { return curmode.Height; }
 };
 
 extern D3DObject *g_D3DObject;							// Main D3D Object

@@ -45,21 +45,24 @@ void D3DInput::GetInput(CHero *hero)
     } 
  
     if (KEYDOWN(buffer, DIK_RIGHT))
-		hero->accel(5,0);
+		hero->event(CHero::RIGHT);
     else if(KEYDOWN(buffer, DIK_LEFT))
-		hero->accel(-5,0);
+		hero->event(CHero::LEFT);
  
     if (KEYDOWN(buffer, DIK_UP))
-		hero->accel(0,-5);
+		hero->event(CHero::UP);
     else if (KEYDOWN(buffer, DIK_DOWN))
-		hero->accel(0,5);
+		hero->event(CHero::DOWN);
 	if(KEYDOWN(buffer, DIK_S)){
-		hero->SetSpeed(0,0);
-		hero->SetAccel(0,0);
+//		hero->SetSpeed(0,0);
+//		hero->SetAccel(0,0);
 	}
 
-	if (KEYDOWN(buffer, DIK_PAUSE))
+	if (KEYDOWN(buffer, DIK_PAUSE)) {
 		OutputDebugString("Pause\n");
+//		CTimer t_time;
+//		t_time.ToggleTimer();
+	}
 } 
 
 D3DInput::~D3DInput(void)

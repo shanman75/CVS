@@ -2,8 +2,11 @@
 
 #include "Timer.h"
 #include "Obj.h"
+#include "Hero.h"
+#include "BkGround.h"
 #include "ObjEnemy.h"
 #include "ObjEnemy2.h"
+#include "ObjEnemy3.h"
 
 class CObjMgr
 {

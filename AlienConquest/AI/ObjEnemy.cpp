@@ -27,7 +27,7 @@ void CObjEnemy::paint()
 	switch (m_state) {
 		case FIRING:
 			m_curtexture = m_firing[m_fir_seq];
-			if (m_fir_seq >= 3) m_state = REGULAR;
+			if (m_fir_seq >= 4) m_state = REGULAR;
 			if (m_ani_time.PeekTime() > 135) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
@@ -44,9 +44,9 @@ void CObjEnemy::Fire()
 		m_state = FIRING;
 		m_fir_seq = 0;
 		CObjEnemyWeapon *bull = new CObjEnemyWeapon;
-		bull->SetPosition(m_dpos_x+32,m_dpos_y+92);
-		bull->SetSpeed(-250,0);
-		bull->SetAccel(0,0);
+		bull->SetPosition(m_dpos_x+32,m_dpos_y+47);
+		bull->SetSpeed(-350,0);
+		bull->SetAccel(-45,0);
 		g_ObjMgr->add(bull);
 	}
 }
@@ -54,14 +54,20 @@ void CObjEnemy::Fire()
 void CObjEnemy::_LoadGraphics()
 {
    RECT trect;
-   SetRect(&trect,1,1,156,118);
+   SetRect(&trect,1,1,130,96);
    OutputDebugString("Loading Cenemy graphics\n");
-   m_regular[0] = new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
-   SetRect(&trect,1,119,156,236);
+   m_regular[0] = new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
+   SetRect(&trect,1,97,130,193);
+   for (int x=0; x < 3; x++) {
+	   trect.left=x*130+1;
+	   trect.right = trect.left +130;
+	   //m_firing[x]=new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
+   }
+   SetRect(&trect,1,193,130,193+95);
    for (int x=0; x < 4; x++) {
-	   trect.left=x*156+1;
-	   trect.right = trect.left +155;
-	   m_firing[x]=new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
+	   trect.left=x*131+1;
+	   trect.right = trect.left +130;
+	   m_firing[x]=new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
    }
    m_graph_init = 1;
 }

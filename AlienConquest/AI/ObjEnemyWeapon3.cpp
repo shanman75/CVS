@@ -1,11 +1,11 @@
 #include "StdAfx.h"
-#include "objenemyweapon.h"
+#include "objenemyweapon3.h"
 #include "objmgr.h"
 
-int CObjEnemyWeapon::m_graph_init = 0;
-CTexture *CObjEnemyWeapon::m_regular[1];
+int CObjEnemyWeapon3::m_graph_init = 0;
+CTexture *CObjEnemyWeapon3::m_regular[1];
 
-void CObjEnemyWeapon::paint()
+void CObjEnemyWeapon3::paint()
 {
 	int anit = m_ani_time.GetTime();
 	m_age -= anit;
@@ -19,7 +19,7 @@ void CObjEnemyWeapon::paint()
 	CObj::paint();
 }
 
-CObjEnemyWeapon::CObjEnemyWeapon(void)
+CObjEnemyWeapon3::CObjEnemyWeapon3(void)
 {
 	CObj();
 	if (!m_graph_init) _LoadGraphics();
@@ -31,21 +31,21 @@ CObjEnemyWeapon::CObjEnemyWeapon(void)
 	m_z = 2;
 }
 
-CObjEnemyWeapon::~CObjEnemyWeapon(void)
+CObjEnemyWeapon3::~CObjEnemyWeapon3(void)
 {
 	_UnloadGraphics();
 }
 
-void CObjEnemyWeapon::_LoadGraphics()
+void CObjEnemyWeapon3::_LoadGraphics()
 {
    RECT trect;
-   SetRect(&trect,132,88,149,95);
+   SetRect(&trect,157,103,195,118);
    OutputDebugString("Loading Cenemy weapon graphics\n");
-   m_regular[0] = new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
+   m_regular[0] = new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
    m_graph_init = 1;
 }
 
-void CObjEnemyWeapon::_UnloadGraphics()
+void CObjEnemyWeapon3::_UnloadGraphics()
 {
 	delete m_regular[0];
 }
