@@ -3,7 +3,7 @@
 #include "Timer.h"
 
 typedef enum {
-	REGULAR,FIRING,DYING,DEAD
+	REGULAR,FIRING,DYING,DEAD,JETTING
 } EN_OBJ_STATE;
 
 class CObj

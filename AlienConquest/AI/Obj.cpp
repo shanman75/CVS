@@ -1,8 +1,8 @@
 #include "StdAfx.h"
 #include "obj.h"
 
-const double CObj::SSCALE=0.012;
-const double CObj::ASCALE=0.012;
+const double CObj::SSCALE=0.003;
+const double CObj::ASCALE=0.014;
 
 CObj::CObj(void)
 {
@@ -33,11 +33,14 @@ void CObj::move(void)
 	// Take into account acceleration
 	m_speed_x += (m_accel_x*tm*ASCALE);
 	m_speed_y += (m_accel_y*tm*ASCALE);
-	m_speed_x = m_speed_x > m_max_x ? m_max_x : m_speed_x;
-	m_speed_x = m_speed_x < (0-m_max_x) ? 9-m_max_x : m_speed_x;
-	m_speed_y = m_speed_y > m_max_y ? m_max_y : m_speed_y;
-	m_speed_y = m_speed_y < (0-m_max_y) ? 0-m_max_y : m_speed_y;
-//	sprintf(buff,"New speed is x,y=%.2f,%.2f\n",m_speed_x,m_speed_y);
+	if (abs(m_speed_x) > m_max_x) m_accel_x=0;
+	if (abs(m_speed_y) > m_max_y) m_accel_y=0;
+//	m_speed_x = m_speed_x > m_max_x ? m_max_x : m_speed_x;
+//	m_speed_x = m_speed_x < (0-m_max_x) ? 9-m_max_x : m_speed_x;
+//	m_speed_y = m_speed_y > m_max_y ? m_max_y : m_speed_y;
+//	m_speed_y = m_speed_y < (0-m_max_y) ? 0-m_max_y : m_speed_y;
+
+	//	sprintf(buff,"New speed is x,y=%.2f,%.2f\n",m_speed_x,m_speed_y);
 //	OutputDebugString(buff);
 
 	// Calculate next x,y value

@@ -7,6 +7,7 @@
 #include "Texture.h"
 #include "ObjMgr.h"
 #include "ObjEnemy.h"
+#include "ObjEnemy2.h"
 
 #include "Timer.h"
 #include <stdio.h>
@@ -57,8 +58,10 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
 	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
 	tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
-#define NUM_ENEMY1 10
+#define NUM_ENEMY1 5
+#define NUM_ENEMY2 5
 	CObjEnemy *enemy1[NUM_ENEMY1];
+	CObjEnemy2 *enemy2[NUM_ENEMY2];
 
 	srand(5000);
 	for (int x= 0; x<NUM_ENEMY1;x++) {
@@ -69,6 +72,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	enemy1[x]->Fire();
 	g_ObjMgr.add(enemy1[x]);
 	}
+	for (int x= 0; x<NUM_ENEMY2;x++) {
+		enemy2[x] = new CObjEnemy2;
+		enemy2[x]->SetSpeed((rand()%10)-5,(rand()%10)-5);
+		enemy2[x]->SetPosition(rand()%800,rand()%600);
+		enemy2[x]->SetAccel((rand()%5),(rand()%5));
+//		enemy2[x]->Fire();
+		g_ObjMgr.add(enemy2[x]);
+	}
+
 
 
 	// Main message loop:
@@ -87,6 +99,16 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			g_ObjMgr.move();
 			if (g_FireClock.PeekTime() > 200) { enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
 												enemy1[rand()%NUM_ENEMY1]->SetAccel((rand()%15)-7,(rand()%15)-7);
+												enemy2[rand()%NUM_ENEMY2]->SetAccel((rand()%15)-7,(rand()%15)-7);
+												switch (rand()%4) {
+													case 0:
+														enemy2[rand()%NUM_ENEMY2]->Jet();														
+														break;
+													case 1:
+													default:
+														enemy2[rand()%NUM_ENEMY2]->Fire();
+														break;
+												}
 			}
 
 		    g_D3DObject->BeginPaint();

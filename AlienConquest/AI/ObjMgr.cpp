@@ -27,5 +27,5 @@ void CObjMgr::paint()
 
 void CObjMgr::add(CObj *add)
 {
-	if (add) m_obj[m_numobj++] = add;
+	if (add!=NULL) m_obj[m_numobj++] = add;
 }

@@ -11,6 +11,9 @@ CObjEnemy::CObjEnemy(void)
 	if (!m_graph_init) _LoadGraphics();
 	m_pos_x = 200;
 	m_pos_y = 200;
+	m_max_x=5;
+	m_max_y=2;
+	m_time.GetTime();
 }
 
 CObjEnemy::~CObjEnemy(void)
@@ -49,13 +52,14 @@ void CObjEnemy::_LoadGraphics()
    RECT trect;
    SetRect(&trect,1,1,156,118);
    OutputDebugString("Loading Cenemy graphics\n");
-   m_regular[0] = new CTexture("resource/enemyhead3.png",0xFFFF00FF,&trect);
+   m_regular[0] = new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
    SetRect(&trect,1,119,156,236);
    for (int x=0; x < 4; x++) {
 	   trect.left=x*156+1;
 	   trect.right = trect.left +155;
-	   m_firing[x]=new CTexture("resource/enemyhead3.png",0xFFFF00FF,&trect);
+	   m_firing[x]=new CTexture("resource/enemyhead3.bmp",0xFFFF00FF,&trect);
    }
+   m_graph_init = 1;
 }
 
 void CObjEnemy::_UnloadGraphics()

@@ -121,6 +121,9 @@
 				RelativePath="ObjEnemy.cpp">
 			</File>
 			<File
+				RelativePath="ObjEnemy2.cpp">
+			</File>
+			<File
 				RelativePath="ObjMgr.cpp">
 			</File>
 			<File
@@ -159,6 +162,9 @@
 			</File>
 			<File
 				RelativePath="ObjEnemy.h">
+			</File>
+			<File
+				RelativePath="ObjEnemy2.h">
 			</File>
 			<File
 				RelativePath="ObjMgr.h">
