@@ -12,6 +12,7 @@ CTexture *cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_preroundBk = NULL;
 CTexture *cGameState::m_preroundMousePtr =NULL;
 CTexture *cGameState::m_preroundRegButton[2];
+CTexture *cGameState::m_preroundSmButton[2];
 CTexture *cGameState::m_preroundLogo = NULL;
 CTexture *cGameState::m_helpBk = NULL;
 
@@ -218,6 +219,21 @@ void cGameState::paintbg(void)
 //    m_preroundButtons->Paint(&mouserect,&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
   } 
+  else if (m_mainstate == MAINSTATES::ENDGAME)
+  {
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_preroundBk->Paint(0.0f,0.0f);
+
+    SetRect(&mrect,200,200,600,400);
+    g_D3DObject->pFont->DrawText(g_D3DObject->m_pd3dxSprite,randomwintxt(),-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+    SetRect(&mrect,200,400,600,600);
+    g_D3DObject->pFont->DrawText(g_D3DObject->m_pd3dxSprite,getwinnername(),-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+    
+    m_preroundMousePtr->Paint(&mscreen);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
   else if (m_mainstate == MAINSTATES::CREDITS)
   {
     g_D3DObject->m_pd3dxSprite->Begin(0);
@@ -529,12 +545,159 @@ void cGameState::paintbg(void)
     m_preroundMousePtr->Paint(&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
   }
+  else if (m_mainstate == MAINSTATES::PRELEVEL) {
+    static char t_strbuff[255];
+    int st_y = 50;
+    int spc_y = 20;
+    int spc_x = 20;
+    int ht_y = 31;
+    D3DXVECTOR2 tp_scr;
+    int but_ng;
+
+    m_prelevelbutt = PRELEVELBUTT::PL_NONE;
+    
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_preroundBk->Paint(0.0f,0.0f);
+
+    sprintf(t_strbuff,"Purchase Order for Level %i of %i",RoundNumber,m_LevelState.numLevels);
+    SetRect(&mrect,2,5,800,45);
+      g_D3DObject->pFont->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+
+    // Start Level Button
+      st_y = 543;
+      SetRect(&mrect,200,st_y+(41+30)*0,600,st_y+(41+30)*0+41);
+      but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+      if (but_ng == 0) m_prelevelbutt = PRELEVELBUTT::PL_STARTLEVEL;
+      m_preroundRegButton[but_ng]->Paint(200.0f,(float)(st_y+(41+30)*0));
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Start Level",-1,
+        &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+
+    for (int u=0; u < m_LevelState.numHumans; u++)
+    {
+        int humanid = 0;
+        spc_y = 180;
+        ht_y = 100;
+
+        humanid = GetHumanNumber(u);
+        tp_scr = D3DXVECTOR2(40.0f+spc_y*u,50.0f);
+        SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+400,tp_scr.y+45);
+        sprintf(t_strbuff,"%s",m_PlayerState[humanid].name);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"$%.1fM",m_PlayerState[humanid].money/1000000);
+        SetRect(&mrect,tp_scr.x,tp_scr.y+20,tp_scr.x+400,tp_scr.y+45+20);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        
+        // Scud Button
+        tp_scr = D3DXVECTOR2(40.0f+spc_y*u,50.0f+ht_y*1);
+        SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+129,tp_scr.y+45);
+        but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+        if (but_ng == 0) 
+        {m_prelevelbutt = PRELEVELBUTT::PL_WEAPONBUY;
+         m_prelevelplayer = humanid;
+         m_prelevelmsl = c3DObjectMissile::MSLTYPE::SCUD;
+        }
+        m_preroundSmButton[but_ng]->Paint(&tp_scr);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Scud",-1,
+          &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Own: %i",m_PlayerState[humanid].numweapons[c3DObjectMissile::MSLTYPE::SCUD]);
+        SetRect(&mrect,tp_scr.x,tp_scr.y-38,tp_scr.x+129,tp_scr.y+45-38);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Cost: $%.1fM",c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::SCUD)/1000000);
+        SetRect(&mrect,tp_scr.x,tp_scr.y+33,tp_scr.x+129,tp_scr.y+45+33);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+
+        // AMRAM Button
+        tp_scr = D3DXVECTOR2(40.0f+spc_y*u,50.0f+ht_y*2);
+        SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+129,tp_scr.y+45);
+        but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+        if (but_ng == 0) 
+        {m_prelevelbutt = PRELEVELBUTT::PL_WEAPONBUY;
+         m_prelevelplayer = humanid;
+         m_prelevelmsl = c3DObjectMissile::MSLTYPE::AMRAM;
+        }
+        m_preroundSmButton[but_ng]->Paint(&tp_scr);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"AM-RAM",-1,
+          &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Own: %i",m_PlayerState[humanid].numweapons[c3DObjectMissile::MSLTYPE::AMRAM]);
+        SetRect(&mrect,tp_scr.x,tp_scr.y-38,tp_scr.x+129,tp_scr.y+45-38);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Cost: $%.1fM",c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::AMRAM)/1000000);
+        SetRect(&mrect,tp_scr.x,tp_scr.y+33,tp_scr.x+129,tp_scr.y+45+33);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+        // Funkie Button
+        tp_scr = D3DXVECTOR2(40.0f+spc_y*u,50.0f+ht_y*3);
+        SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+129,tp_scr.y+45);
+        but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+        if (but_ng == 0) 
+        {m_prelevelbutt = PRELEVELBUTT::PL_WEAPONBUY;
+         m_prelevelplayer = humanid;
+         m_prelevelmsl = c3DObjectMissile::MSLTYPE::FUNKIEBOMB;
+        }
+        m_preroundSmButton[but_ng]->Paint(&tp_scr);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"F-Bomb",-1,
+          &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Own: %i",m_PlayerState[humanid].numweapons[c3DObjectMissile::MSLTYPE::FUNKIEBOMB]);
+        SetRect(&mrect,tp_scr.x,tp_scr.y-38,tp_scr.x+129,tp_scr.y+45-38);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Cost: $%.1fM",c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::FUNKIEBOMB)/1000000);
+        SetRect(&mrect,tp_scr.x,tp_scr.y+33,tp_scr.x+129,tp_scr.y+45+33);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+        // Atom Bomb Button
+        tp_scr = D3DXVECTOR2(40.0f+spc_y*u,50.0f+ht_y*4);
+        SetRect(&mrect,tp_scr.x,tp_scr.y,tp_scr.x+129,tp_scr.y+45);
+        but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+        if (but_ng == 0) 
+        {m_prelevelbutt = PRELEVELBUTT::PL_WEAPONBUY;
+         m_prelevelplayer = humanid;
+         m_prelevelmsl = c3DObjectMissile::MSLTYPE::ATOMBOMB;
+        }
+        m_preroundSmButton[but_ng]->Paint(&tp_scr);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"A-Bomb",-1,
+          &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Own: %i",m_PlayerState[humanid].numweapons[c3DObjectMissile::MSLTYPE::ATOMBOMB]);
+        SetRect(&mrect,tp_scr.x,tp_scr.y-38,tp_scr.x+129,tp_scr.y+45-38);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+        sprintf(t_strbuff,"Cost: $%.1fM",c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::ATOMBOMB)/1000000);
+        SetRect(&mrect,tp_scr.x,tp_scr.y+33,tp_scr.x+129,tp_scr.y+45+33);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER|DT_NOCLIP,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+
+    }
+    m_preroundMousePtr->Paint(&mscreen);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
   else if (m_mainstate == MAINSTATES::LEVEL) {
     m_skybox->Paint();
     m_terrain->Paint();
   }
 }
 
+int cGameState::GetHumanNumber(int human)
+{
+  int cnt = 0;
+  int ret = 0;
+
+  for (int x = 0; x < m_numplayers; x++)
+    if (!m_PlayerState[x].iscomputer)
+      if(cnt++ == human) return x;
+
+  return 0;
+}
 void cGameState::paint(void)
 {
   static char szPower[255];
@@ -657,14 +820,67 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_mainstate) {
+    case MAINSTATES::ENDGAME:
+     if ((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
+         (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
+        wav->play(mnu_select);
+        g_D3DInput->ResetMouseScreen();
+        m_mainstate = MAINSTATES::MAINMENU;
+        m_gstate = STATES::NOTHING;
+        v_KEYUP_ESC = false;
+        v_MOUSEUP_0 = false;
+        aistarted=false;
+        return;
+      }
+    case MAINSTATES::PRELEVEL:
+      if (!aistarted)
+      {
+        for (int x=0 ; x < m_numplayers; x++)
+          if (m_PlayerState[x].iscomputer)
+            AI_PickWeapons();
+        aistarted=true;
+      }
+      if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
+        wav->play(mnu_select);
+        g_D3DInput->ResetMouseScreen();
+        m_mainstate = MAINSTATES::MAINMENU;
+        m_gstate = STATES::NOTHING;
+        v_KEYUP_ESC = false;
+        aistarted=false;
+        return;
+      }
+     if (g_D3DInput->MouseDown(0) && v_MOUSEUP_0) {
+      switch(m_prelevelbutt) {
+       case PRELEVELBUTT::PL_WEAPONBUY:
+         if (m_tmSpinner.CmpTime() && CanBuy(m_prelevelplayer,m_prelevelmsl))
+          { 
+            m_PlayerState[m_prelevelplayer].numweapons[m_prelevelmsl]++;
+            m_PlayerState[m_prelevelplayer].money -= c3DObjectMissile::GetMissileCost(m_prelevelmsl);
+            v_KEYUP_ESC = false;
+            v_MOUSEUP_0 = false;
+            wav->play(mnu_move);
+          }
+          break;
+       case PRELEVELBUTT::PL_STARTLEVEL:
+        wav->play(mnu_select);
+        g_D3DObject->DefaultRenderState();
+        m_mainstate = MAINSTATES::LEVEL;
+        m_gstate = STATES::TARGETING;
+        v_KEYUP_ESC = false;
+        v_MOUSEUP_0 = false;
+        aistarted=false;
+        return;
+      }
+     }
+      break;
     case MAINSTATES::POSTLEVEL:
       if (g_D3DInput->MouseDown(0) || g_D3DInput->KeyDown(DIK_RETURN) || g_D3DInput->KeyDown(DIK_ESCAPE))
       {
         wav->play(mnu_select);
         g_D3DObject->DefaultRenderState();
-        NextLevel();
         v_KEYUP_ESC = false;
         v_MOUSEUP_0 = false;
+        NextLevel();
         return;
       }
       break;
@@ -945,18 +1161,20 @@ void cGameState::GetInput(void)
             tmpP->event(c3DObjectTank::PWRDN);
           else if (g_D3DInput->KeyDown(DIK_EQUALS))
             tmpP->event(c3DObjectTank::PWRUP);
-          if (g_D3DInput->KeyDown(DIK_SPACE) || g_D3DInput->MouseDown(0)) {
+          if (g_D3DInput->KeyDown(DIK_SPACE) || (g_D3DInput->MouseDown(0) && v_MOUSEUP_0)) {
             m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)tmpP->Fire(m_PlayerState[m_currentplayer].msl_cur_type);          
             SetCurrentCamera(&m_camBehindMissile);
+            v_MOUSEUP_0 = false;
             m_gstate = FIRING;
           }
           
           if (fabs(maxis.x) > 0.05)
-            tmpP->event(c3DObjectTank::EVENT::RIGHT,fabs(maxis.x/10) < 90 ? maxis.x/10 : maxis.x/-maxis.x*90 );
+
+            tmpP->event(c3DObjectTank::EVENT::RIGHT,fabs(maxis.x/10) < 80 ? maxis.x/10 : maxis.x/-maxis.x*80 );
           if (fabs(maxis.y) > 0.05)
-            tmpP->event(c3DObjectTank::EVENT::DOWN,fabs(maxis.y/10) < 90 ? maxis.y/10 : maxis.y/-maxis.y*90 );
+            tmpP->event(c3DObjectTank::EVENT::DOWN,fabs(maxis.y/10) < 80 ? maxis.y/10 : maxis.y/-maxis.y*80 );
           if (fabs(maxis.z) > 0.05)
-            tmpP->event(c3DObjectTank::EVENT::PWRDN,maxis.z/70);
+            tmpP->event(c3DObjectTank::EVENT::PWRDN,maxis.z/80);
 
           break;
       case FIRING:
@@ -1157,6 +1375,11 @@ void cGameState::_Init(void)
     m_preroundRegButton[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
     SetRect(&imgrect,1,84,401,128);
     m_preroundRegButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+
+    SetRect(&imgrect,1,232,130,277);
+    m_preroundSmButton[1] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
+    SetRect(&imgrect,1,279,130,323);
+    m_preroundSmButton[0] = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
 
     SetRect(&imgrect,1,130,385,230);
     m_preroundLogo = new CTexture("resource\\pre-round\\buttons.png",D3DXCOLOR(1.0f,0.0f,1.0f,1.0f),&imgrect);
@@ -1366,6 +1589,7 @@ void cGameState::_InitGame(void)
   srand(timeGetTime());
   RoundNumber = 0;
   m_numplayers = 0;
+  m_newwintext = true;
 
   m_LevelState.numHumansTMP = 0;
   m_LevelState.numComputersTMP = 0;
@@ -1384,8 +1608,8 @@ void cGameState::_InitGame(void)
 void cGameState::NextLevel(void)
 {
   if (RoundNumber++ >= m_LevelState.numLevels) {
-    g_ObjMgr->reset();
-    m_mainstate = MAINSTATES::MAINMENU;
+//    g_ObjMgr->reset();
+    m_mainstate = MAINSTATES::ENDGAME;
     m_gstate = STATES::NOTHING;
     return;
   }
@@ -1425,8 +1649,8 @@ void cGameState::NextLevel(void)
 
   m_currentplayer = rand() % m_numplayers;
   SetCurrentCamera(&m_camBehindTank);
-  m_mainstate = MAINSTATES::LEVEL;
-  m_gstate = STATES::TARGETING;
+  m_mainstate = MAINSTATES::PRELEVEL;
+  m_gstate = STATES::NOTHING;
   CTimer::UnPause();
 }
 
@@ -1449,21 +1673,43 @@ void cGameState::UpdateScores()
 
 void cGameState::AI_TakeShot()
 {
-  switch (m_PlayerState[m_currentplayer].ai_type)
+    float rot;
+    float turret;
+    float power;
+    D3DXVECTOR3 dist;
+ switch (m_PlayerState[m_currentplayer].ai_type)
   {
   case st_LevelState::COMPUTER_AI::SEEKER: 
   case st_LevelState::COMPUTER_AI::MEAN:
   case st_LevelState::COMPUTER_AI::EXPERT:
+    // Choose a target
+    for (int x = 0; x < rand()%50; x++)
+      NextWeapon(1);
+    int target;
+    target = -1;
+    while (target == -1)
+    {
+      int t = rand()%m_numplayers;
+      if ((t != m_currentplayer) && (m_PlayerState[t].livingstate == ALIVE))
+        target = t;
+    }
+
+    dist = m_PlayerState[m_currentplayer].object->m_position -
+                       m_PlayerState[target].object->m_position;
+    rot = dist.z == 0 ? 0 : atan(dist.x/dist.z);
+    rot += (rand()%20)/20-0.5f;
+    turret = D3DX_PI/16 + fmod (rand(),D3DX_PI/2 - D3DX_PI/8);
+    power = 100+rand()%900;
+    power += (rand()%1000)/50-100;
+    m_PlayerState[m_currentplayer].object->RotateTo(rot,turret,power);
+    break;
   case st_LevelState::COMPUTER_AI::RANDOM:
   case st_LevelState::COMPUTER_AI::NOVICE:
   default: 
     NextWeapon(1);
-    float rot = (rand()%(int)(D3DX_PI*2*1000))/1000;
-    float turret = D3DX_PI/16 + fmod (rand(),D3DX_PI/2 - D3DX_PI/8);
-    float power = (rand()%1900)/2+100;
-    char deb[500];
-    sprintf(deb, "rot - %.2f, turret-%.2f, power-%.2f\n",rot,turret,power);
-    OutputDebugString(deb);
+    rot = (rand()%(int)(D3DX_PI*2*1000))/1000;
+    turret = D3DX_PI/16 + fmod (rand(),D3DX_PI/2 - D3DX_PI/8);
+    power = (rand()%1900)/2+100;
     m_PlayerState[m_currentplayer].object->RotateTo(rot,turret,power);
     break;
   }
@@ -1562,4 +1808,37 @@ void cGameState::AI_PickWeapons()
     }
     break;
   }
+}
+
+BOOL cGameState::CanBuy(int plyr, c3DObjectMissile::MSLTYPE msl)
+{
+  if (m_PlayerState[plyr].money >= c3DObjectMissile::GetMissileCost(msl))
+    return true;
+  else
+    return false;
+}
+
+char *cGameState::randomwintxt(void)
+{
+  static int rndnum;
+  if (m_newwintext) {
+    rndnum = rand()%5;
+    m_newwintext = false;
+  }
+  switch (rndnum)
+  {
+  case 1: return "We have a weiner!"; break;
+  case 2: return "Congratulations!"; break;
+  case 3: return "Definitely not a loser!"; break;
+  case 4: return "Long live the king!"; break;
+  default: return "..And the winner is"; break;
+  }
+}
+char *cGameState::getwinnername(void)
+{
+  int winner = 0;
+  for (int x = 1; x < m_numplayers; x++)
+    if (m_PlayerState[x].score > m_PlayerState[winner].score)
+      winner = x;
+  return m_PlayerState[winner].name;
 }

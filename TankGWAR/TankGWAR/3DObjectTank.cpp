@@ -380,6 +380,17 @@ void c3DObjectTank::RotateTo( float t_turretRotate, float t_barrelHeight, float 
   m_turretRotateTo = t_turretRotate;
   m_barrelHeightTo = t_barrelHeight;
   m_firePowerTo = t_firePower;
+
+  if (m_barrelHeightTo < 0)         m_barrelHeightTo = 0;
+  if (m_barrelHeightTo > D3DX_PI/2) m_barrelHeightTo = D3DX_PI/2;
+
+  if (m_turretRotateTo < 0)         m_turretRotateTo += 2*D3DX_PI;
+
+  if (m_turretRotateTo > 2*D3DX_PI) m_turretRotateTo -= 2*D3DX_PI;
+
+  if (m_firePowerTo < 40.0f)         m_firePowerTo = 40.0f;
+  if (m_firePowerTo > 999.0f)          m_firePowerTo = 999;
+
   m_bRotateTo = true;
   m_tmrRotate.Reset();
 }

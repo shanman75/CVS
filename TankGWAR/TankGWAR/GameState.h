@@ -80,6 +80,9 @@ public:
                        GS_DIRT_UP, GS_DIRT_DN, GS_WIND_UP, GS_WIND_DN,
                        GS_MONEY_UP, GS_MONEY_DN, GS_NLVL_UP, GS_NLVL_DN,
                        GS_STARTGAME, GS_CANCEL, GS_NONE };
+  enum PRELEVELBUTT { PL_STARTLEVEL, PL_ATOMBOM_UP, PL_ATOMBOMB_DN,
+                      PL_SCUD_UP, PL_SCUD_DN, PL_AMRAM_UP, PL_AMRAM_DN,
+                      PL_FUNKIE_UP, PL_FUNKIE_DN, PL_WEAPONBUY, PL_NONE };
   cGameState(void);
   ~cGameState(void);
   void move(void);
@@ -149,6 +152,7 @@ private:
      static CTexture *m_preroundMousePtr;
      static CTexture *m_preroundLogo;
      static CTexture *m_preroundRegButton[2];
+     static CTexture *m_preroundSmButton[2];
 
      static CTexture *m_creditsBk;
      static CTexture *m_helpBk;
@@ -159,9 +163,20 @@ private:
 
      enum MAINMENUBUTT m_mainmenubutt;
      enum GAMESETUPBUTT m_gamesetupbutt;
+     enum PRELEVELBUTT m_prelevelbutt;
+     int m_prelevelplayer;
+     c3DObjectMissile::MSLTYPE m_prelevelmsl;
+     BOOL CanBuy(int plyr, c3DObjectMissile::MSLTYPE msl);
      
      c3DObjectMissile *m_tmissile;
      int m_savecurrentplayer;
+
+     int GetHumanNumber(int human);
+
+     BOOL m_newwintext;
+
+     char *randomwintxt(void);
+     char *getwinnername(void);
 
      BOOL aistarted;
 };

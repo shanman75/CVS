@@ -270,11 +270,11 @@ D3DCOLOR randcolor(cTerrain::ENVIRONMENT env)
     case cTerrain::SNOW:
 	   switch (rand()%3) {
 		   case 3:
-			   return D3DCOLOR_RGBA(228,264,240,255); break;
+			   return D3DCOLOR_RGBA(228,254,240,255); break;
 		   case 2:
 			   return D3DCOLOR_RGBA(213,255,230,255); break;
 		   case 1:
-			   return D3DCOLOR_RGBA(228,264,200,255); break;
+			   return D3DCOLOR_RGBA(228,254,200,255); break;
 		   default:
 			   return D3DCOLOR_RGBA(210,215,210,255); break;
 	   }
