@@ -3,11 +3,12 @@
 #include <d3dx9.h>
 #include <stdio.h>
 
-LPDIRECT3DTEXTURE9*	  cTerrain::m_tertex;
+LPDIRECT3DTEXTURE9	  cTerrain::m_tertex[2];
 
 cTerrain::cTerrain(float x,float z,float w)
 {
-  m_tertex = NULL;
+//  m_tertex = NULL;
+  m_env = ENVIRONMENT::ROCK;
 
   TER_X = x;  TER_Z = z; 
   TER_WIDTH = w;   // Ignored
@@ -23,6 +24,12 @@ cTerrain::cTerrain(float x,float z,float w)
 	_Init();
 }
 
+
+void cTerrain::RandomizeEnvironment(void)
+{
+  m_env = (cTerrain::ENVIRONMENT) ((int)rand()%2);
+  RandomizeMesh();
+}
 void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
 {
   // Number of hills 40 through 100
@@ -37,13 +44,15 @@ void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
     }
   }
 
+  float xsize = (TER_X_SMALL+1) * TER_WIDTH_SMALL;
+  float zsize = (TER_Z_SMALL+1) * TER_WIDTH_SMALL;
   for (long i =0; i < numHills; i++)
   {
      static char hilldebg[255];
      sprintf(hilldebg,"Generating hill %i of %i\n",i,numHills);
      OutputDebugString(hilldebg);
-      float tx = ((float)(rand() % 3000))/10 - 150.0f;
-      float tz = ((float)(rand() % 3000))/10 - 150.0f;
+      float tx = ((float)(rand() % (int)(xsize*10)))/10 - xsize/2;
+      float tz = ((float)(rand() % (int)(zsize*10)))/10 - zsize/2;
       float ty = (float)(rand()%4500+550);
 //      SetHeight(tx,tz,ty);
       for (int t=0; t< (int)ty; t++)
@@ -53,8 +62,11 @@ void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
         DripDrop(tx+dx,tz+dz,1.5f);
       }
   }
-  for (long i = 0; i < numDirtBalls; i++)
-    DripDrop((float)(rand() % 3000)/10-150.0f,(float)(rand() % 3000)/10-150.0f,((float)(rand()%100))/100);
+  for (long i = 0; i < numDirtBalls; i++) {
+    float tx = ((float)(rand() % (int)(xsize*10)))/10 - xsize/2;
+    float tz = ((float)(rand() % (int)(zsize*10)))/10 - zsize/2;
+    DripDrop(tx,tz,(0.3f+(float)(rand()%100))/100);
+  }
     //SetHeight((float)(rand() % 3000)/10-150.0f,(float)(rand() % 3000)/10-150.0f,((float)(rand()%100))/100);
   // Pass 1
   /*
@@ -138,7 +150,7 @@ void cTerrain::Paint()
 
   if (g_TerrainMesh != NULL)
   {   
-    g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
+    g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[(int)m_env]);
 //    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
     g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_WRAP0, D3DWRAPCOORD_0 | D3DWRAPCOORD_1 |D3DWRAPCOORD_2|D3DWRAPCOORD_3);
 	  g_TerrainMesh->DrawSubset(0);
@@ -179,7 +191,7 @@ void cTerrain::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
-  m_tertex = new LPDIRECT3DTEXTURE9 [1];
+  //m_tertex = new LPDIRECT3DTEXTURE9 [1];
   //sprintf (texpath,"resource\\%s","BUMP_Dents_bp.dds");
   sprintf (texpath,"resource\\%s","rock_bw.dds");
   
@@ -203,6 +215,28 @@ void cTerrain::_Init()
                                   exit(0);
   m_tertex[0] = tempt;
 
+  sprintf (texpath,"resource\\%s","grass_bw.dds");
+  
+//  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+//    return;
+  if (FAILED(D3DXCreateTextureFromFileEx(
+                                  g_D3DObject->m_d3ddevice9,    // Device
+                                  texpath,
+                                  D3DX_DEFAULT,D3DX_DEFAULT,    // Height/Width
+                                  D3DX_DEFAULT,                 // MIP Maps
+                                  0,                            // Usage
+                                  D3DFMT_A8R8G8B8,              // Format
+                                  D3DPOOL_DEFAULT,              // Pool
+                                  D3DX_DEFAULT,                 // Filter
+                                  D3DX_DEFAULT,                 // MIP Filter (Default = BOX)
+                                  0,                            // Color Key (0 = disabled)
+                                  NULL,                         // Ptr to SRCINFO
+                                  NULL,                         // Palette entry
+                                  &tempt                       // Ptr to Texture
+                                  )))
+                                  exit(0);
+  m_tertex[1] = tempt;
+
 	RandomizeMesh();
 }
 
@@ -219,6 +253,17 @@ D3DCOLOR randcolor(cTerrain::ENVIRONMENT env)
 			   return D3DCOLOR_RGBA(128,64,0,255); break;
 		   default:
 			   return D3DCOLOR_RGBA(170,85,0,255); break;
+	   }
+    case cTerrain::GRASS:
+	   switch (rand()%3) {
+		   case 3:
+			   return D3DCOLOR_RGBA(0,128,0,255); break;
+		   case 2:
+			   return D3DCOLOR_RGBA(84,138,2,255); break;
+		   case 1:
+			   return D3DCOLOR_RGBA(0,150,0,255); break;
+		   default:
+			   return D3DCOLOR_RGBA(100,255,0,255); break;
 	   }
     default:
 	   switch (rand()%3) {
@@ -260,7 +305,7 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
 		  VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
-      VertexPtr->diffuse = randcolor(cTerrain::ENVIRONMENT::ROCK);
+      VertexPtr->diffuse = randcolor(m_env);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -299,10 +344,11 @@ void cTerrain::RandomizeMesh(void)
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
       if (fabs(VertexPtr->x) > (TER_X_SMALL+1)/2*TER_WIDTH_SMALL ||
           fabs(VertexPtr->z) > (TER_Z_SMALL+1)/2*TER_WIDTH_SMALL)
-        VertexPtr->y = min(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
+        VertexPtr->y = max(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
       else 
         VertexPtr->y = -150.0f;
-      VertexPtr->diffuse = randcolor(cTerrain::ENVIRONMENT::ROCK);
+      VertexPtr->y = 1.0f;
+      VertexPtr->diffuse = randcolor(m_env);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -343,6 +389,7 @@ delete [] m_Heights;
 void cTerrain::OnLostDevice(void)
 {
   SAFE_RELEASE(m_tertex[0]);
+  SAFE_RELEASE(m_tertex[1]);
 	SAFE_RELEASE(g_TerrainMesh);
 	SAFE_RELEASE(g_TerrainMeshBig);
 }

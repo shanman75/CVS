@@ -7,12 +7,12 @@
 #define DEF_TER_Z 100
 #define DEF_TER_WIDTH 5.0f
 
-#define TER_X_BIG 14
-#define TER_Z_BIG 14
+#define TER_X_BIG 10
+#define TER_Z_BIG 10
 #define TER_WIDTH_BIG 800.0f
 
-#define TER_X_SMALL 70
-#define TER_Z_SMALL 70
+#define TER_X_SMALL 110
+#define TER_Z_SMALL 110
 #define TER_WIDTH_SMALL 3.5f
 
 // DEFINES
@@ -31,7 +31,7 @@ class cTerrain
 {
 public:
 	enum EVENT { RAND };
-  enum ENVIRONMENT { ROCK };
+  enum ENVIRONMENT { ROCK, GRASS };
 
 	cTerrain(float ter_x=DEF_TER_X, float ter_z=DEF_TER_Z, float ter_width=DEF_TER_WIDTH);
 	~cTerrain(void);
@@ -51,8 +51,11 @@ public:
 
   void DripDrop(float x, float z, float y);
   void RandomizeTerrain(long numHills = rand()%60+40, long numDirtBalls = 50000);
+  void RandomizeEnvironment(void);
 
 private:
+  ENVIRONMENT m_env;
+
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;
 	ID3DXMesh *g_TerrainMeshBig;
@@ -61,5 +64,5 @@ private:
   float TER_X, TER_Z;
   float TER_WIDTH;
 
-  static LPDIRECT3DTEXTURE9*	  m_tertex;
+  static LPDIRECT3DTEXTURE9 m_tertex[2];
 };

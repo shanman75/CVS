@@ -29,9 +29,12 @@ struct BILLBOARDVERTEX
 class cSkyBox
 {
 public:
+  static enum SKYTYPES { ANTARCTICA, DAWN, MORNING, SKY_MAX };
   cSkyBox(void);
   ~cSkyBox(void);
   void Paint(void);
+  void RandomizeSky(void);
+  void SetSky(SKYTYPES sky);
 
   void OnLostDevice(void);
   void OnResetDevice(void);
@@ -40,7 +43,7 @@ protected:
 	static ID3DXMesh *m_SkyMesh;
 	float *m_Heights;
 
-  static LPDIRECT3DTEXTURE9*	  m_tertex;
+  static LPDIRECT3DTEXTURE9  *m_tertex[SKY_MAX];
 
   static LPDIRECT3DVERTEXBUFFER9 m_sbback;
   static LPDIRECT3DVERTEXBUFFER9 m_sbfront;
@@ -48,6 +51,7 @@ protected:
   static LPDIRECT3DVERTEXBUFFER9 m_sbright;
   static LPDIRECT3DVERTEXBUFFER9 m_sbtop;
 
+  SKYTYPES m_skytype;
 
   static const DWORD m_FVF; //flexible vertex format
   float m_w,m_h; //width and height

@@ -35,8 +35,8 @@ void cGameState::move(void)
   case FIRING:
          msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
          if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y ||
-             fabs(msl_pos.x) > 600.0f ||
-             fabs(msl_pos.z) > 600.0f) {
+             fabs(msl_pos.x) > 150.0f ||
+             fabs(msl_pos.z) > 150.0f) {
            // Create New Explosion
            m_PlayerState[m_currentplayer].exp_object = 
              new c3DObjectExplosion(
@@ -45,7 +45,8 @@ void cGameState::move(void)
                     c3DObjectMissile::GetMissileExpColor(m_PlayerState[m_currentplayer].msl_cur_type)
                     );
            m_PlayerState[m_currentplayer].exp_object->pos(msl_pos);
-           m_PlayerState[m_currentplayer].exp_object->m_position.y = m_terrain->GetHeight(
+           if ( fabs(msl_pos.x) <= 150.0f && fabs(msl_pos.z) <= 150.0f)
+              m_PlayerState[m_currentplayer].exp_object->m_position.y = m_terrain->GetHeight(
                         m_PlayerState[m_currentplayer].exp_object->m_position.x,
                         m_PlayerState[m_currentplayer].exp_object->m_position.z );
            g_ObjMgr->del(m_PlayerState[m_currentplayer].msl_object);
@@ -53,7 +54,7 @@ void cGameState::move(void)
            m_PlayerState[m_currentplayer].msl_object = NULL;
            SetCurrentCamera(&m_camAboveExplosion);
            m_gstate = EXPLODING;
-           tmrState.setInterval(8000);
+           tmrState.setInterval(9000);
            tmrState.Reset();
          }
     break;
@@ -685,6 +686,7 @@ void cGameState::GetInput(void)
             //m_gstate = STATES::TARGETING;
           break;
          case MAINMENUBUTT::MM_QUIT:
+           wav->play(mnu_select);
            SendMessage(g_hWnd,WM_QUIT,0,0);
          default: break;
         }
@@ -710,6 +712,11 @@ void cGameState::GetInput(void)
           }
           if (g_D3DInput->KeyDown(DIK_PGDN) && v_KEYUP_PGDN) {
             NextWeapon(+1); v_KEYUP_PGDN = false; 
+          }
+          if (g_D3DInput->KeyDown(DIK_LMENU) && g_D3DInput->KeyDown(DIK_G))
+          {
+              for (int k = 0; k < c3DObjectMissile::MSLNUM; k++)
+                  m_PlayerState[m_currentplayer].numweapons[k] = 99;
           }
 
           if (g_D3DInput->KeyDown(DIK_F1) && v_KEYUP_F1) {
@@ -905,7 +912,7 @@ void cGameState::AddPlayer(BOOL human)
    m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
    g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
    m_PlayerState[m_numplayers].health = 100.0f;
-   m_PlayerState[m_numplayers].money = m_LevelState.startingMoney;   // Fix
+   m_PlayerState[m_numplayers].money = m_LevelState.startingMoney * 5.14f * 1000000;   // Fix
    m_PlayerState[m_numplayers].name = new char[50];
    m_PlayerState[m_numplayers].livingstate = ALIVE;
    m_PlayerState[m_numplayers].msl_cur_type = (c3DObjectMissile::MSLTYPE::SHELL);
@@ -1148,12 +1155,16 @@ char * strLevel_DIRT(int dirt)
 
 void cGameState::_InitGame(void)
 {
+  CTimer::Pause();
   m_mainstate = MAINSTATES::LEVEL;
   m_gstate = STATES::TARGETING;
 
+  srand(timeGetTime());
   int numHills = 4 + (m_LevelState.numHills*15) + rand()%6;
   int numDirt = 1000 + (m_LevelState.numDirt*10000) + rand()%250;
   m_terrain->RandomizeTerrain(numHills,numDirt);
+  m_terrain->RandomizeEnvironment();
+  m_skybox->RandomizeSky();
 
   m_LevelState.numHumansTMP = 0;
   m_LevelState.numComputersTMP = 0;
@@ -1172,4 +1183,5 @@ void cGameState::_InitGame(void)
 
   m_currentplayer = rand() % m_numplayers;
   SetCurrentCamera(&m_camBehindTank);
+  CTimer::UnPause();
 }

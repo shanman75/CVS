@@ -69,6 +69,8 @@ void c3DObject::MakeWorldMatrix( int x )
 
 void c3DObject::paint()
 {
+   D3DMATERIAL9 tmpMat;
+   g_D3DObject->m_d3ddevice9->GetMaterial(&tmpMat);
    for (int x = 0; x < (int)m_nMat; x++)  {
      MakeWorldMatrix(x);
      if (m_curtex)
@@ -76,6 +78,7 @@ void c3DObject::paint()
      g_D3DObject->m_d3ddevice9->SetMaterial(&m_curmat[x]);
 	   m_curmesh->DrawSubset(x);
    }
+   g_D3DObject->m_d3ddevice9->SetMaterial(&tmpMat);
 }
 
 void c3DObject::move()

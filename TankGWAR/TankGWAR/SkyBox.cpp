@@ -3,7 +3,7 @@
 #include "GameState.h"
 #include <stdio.h>
 
-LPDIRECT3DTEXTURE9*	  cSkyBox::m_tertex;
+LPDIRECT3DTEXTURE9	  *cSkyBox::m_tertex[SKY_MAX];
 ID3DXMesh *cSkyBox::m_SkyMesh;
 
 LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbback;
@@ -19,6 +19,7 @@ cSkyBox::cSkyBox(void)
 {
 	m_w = SKY_WIDTH;
 	m_h = SKY_HEIGHT;
+  SetSky(SKYTYPES::MORNING);
   if (!_Init())
     exit (1);
 }
@@ -60,23 +61,23 @@ void cSkyBox::Paint()
   {    
     g_D3DObject->m_d3ddevice9->SetFVF(m_FVF); 
 
-	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[0]);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[m_skytype][0]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbfront,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[1]);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[m_skytype][1]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbright,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[2]);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[m_skytype][2]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbback,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[3]);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[m_skytype][3]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbleft,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[4]);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[m_skytype][4]);
 	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbtop,0,sizeof(BILLBOARDVERTEX));
 	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
   }
@@ -230,11 +231,18 @@ BOOL cSkyBox::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
-  char *basedir = "worlds\\dawn";
+  for (int c=0; c< (int)SKY_MAX; c++)  {
+  char *basedir;
+  switch ((SKYTYPES)c) {
+    case ANTARCTICA: basedir = "worlds\\dawn"; break;
+    case DAWN:       basedir = "worlds\\dawn"; break;
+    case MORNING:    basedir = "worlds\\morning"; break;
+    default: exit(0);
+  }
   char *basefname = "newsky000";
 //  char *basedir = "attica";
 // char *basefname = "attica000";
-  m_tertex = new LPDIRECT3DTEXTURE9 [5];
+  m_tertex[c] = new LPDIRECT3DTEXTURE9 [5];
 
   sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"1");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
@@ -255,7 +263,7 @@ BOOL cSkyBox::_Init()
                                   &tempt                       // Ptr to Texture
                                   )))
                                   exit(1);
-  m_tertex[0] = tempt;
+  m_tertex[c][0] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"2");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
@@ -276,7 +284,7 @@ BOOL cSkyBox::_Init()
                                   &tempt                       // Ptr to Texture
                                   )))
                                   exit(1);
-  m_tertex[1] = tempt;
+  m_tertex[c][1] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"3");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
@@ -297,7 +305,7 @@ BOOL cSkyBox::_Init()
                                   &tempt                       // Ptr to Texture
                                   )))
                                   exit(1);
-  m_tertex[2] = tempt;
+  m_tertex[c][2] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"4");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
@@ -318,7 +326,7 @@ BOOL cSkyBox::_Init()
                                   &tempt                       // Ptr to Texture
                                   )))
                                   exit(1);
-  m_tertex[3] = tempt;
+  m_tertex[c][3] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.png",basedir,basefname,"5");
 //  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
@@ -339,7 +347,8 @@ BOOL cSkyBox::_Init()
                                   &tempt                       // Ptr to Texture
                                   )))
                                   exit(1);
-  m_tertex[4] = tempt;
+  m_tertex[c][4] = tempt;
+  }
 
   sSkyVertex *VertexPtr;
 	DWORD *IndexPtr;
@@ -408,11 +417,13 @@ BOOL cSkyBox::_Init()
 
 void cSkyBox::OnLostDevice(void)
 {
-  m_tertex[0]->Release();
-  m_tertex[1]->Release();
-  m_tertex[2]->Release();
-  m_tertex[3]->Release();
-  m_tertex[4]->Release();
+  for (int c = 0; c < (int) SKY_MAX; c++) {
+    SAFE_RELEASE(m_tertex[c][0]);
+    SAFE_RELEASE(m_tertex[c][1]);
+    SAFE_RELEASE(m_tertex[c][2]);
+    SAFE_RELEASE(m_tertex[c][3]);
+    SAFE_RELEASE(m_tertex[c][4]);
+  }
   if (m_SkyMesh) m_SkyMesh->Release();
   m_sbtop->Release();
   m_sbback->Release();
@@ -424,4 +435,14 @@ void cSkyBox::OnLostDevice(void)
 void cSkyBox::OnResetDevice()
 {
   _Init();
+}
+
+void cSkyBox::SetSky(SKYTYPES sky)
+{
+   m_skytype = sky;
+}
+
+void cSkyBox::RandomizeSky()
+{
+   SetSky ((SKYTYPES) (rand() % (int)SKY_MAX));
 }
