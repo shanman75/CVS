@@ -19,9 +19,12 @@ public:
 	BOOL CollisionDet(CObj *colwith);
 	virtual void Collision(CObj *colwith);
 	static BOOL TestRect(const RECT *x, const POINT, const RECT *y, const POINT);
+	virtual BOOL done(void);
 
-	enum STATE { REGULAR, FIRING, DYING, DEAD, JETTING, GHOST };
-	enum OTYPE { NOTHING, HERO, HEROWEAPON, HEROINVINCIBLE, ENEMY, ENEMYWEAPON };
+	enum STATE { REGULAR, FIRING, DYING, DEAD, JETTING, GHOST, HIT };
+	enum OTYPE { NOTHING, HERO, HEROWEAPON, HEROINVINCIBLE, HERODEAD, ENEMY, ENEMYWEAPON, O_POWERUP };
+
+	OTYPE GetType(void) { return m_type;}
 
 	BOOL CanCollide(OTYPE, OTYPE);
 
@@ -45,6 +48,7 @@ protected:
 	CWorld m_world;
 	BOOL m_stayonscr;				// Stay on the screen?
 	int m_playernum;
+	int m_done;
 
 	static LPRECT m_tr_x, m_tr_y;
 };

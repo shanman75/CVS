@@ -5,6 +5,7 @@
 #include "Text.h"
 #include "Obj.h"
 #include "Hero.h"
+#include "Hero2.h"
 #include "BkGround.h"
 #include "ObjEnemy.h"
 #include "ObjEnemy2.h"
@@ -14,7 +15,9 @@
 #include "ObjEnemyWeapon3.h"
 #include "ObjHeroWeaponMain.h"
 #include "ObjHeroWeaponMissile.h"
+#include "ObjHeroWeaponLaser.h"
 #include "ObjBmp.h"
+#include "ObjPowerUp.h"
 
 class CObjMgr
 {
@@ -31,6 +34,7 @@ public:
 	void reset(void);
 	static const int m_numz;
 	void Score(int numtoscore, int playernum);
+	void DrawText(const char *textstr, int x, int y);
 
 	int GetNumObj(void) { return m_numobj; }
 
@@ -52,6 +56,11 @@ private:
 
 	static char CObjMgr::m_scoreline[500];
 	CText m_D3DText;
+	void PaintDashBoards();
+
+	CTexture *m_scoreboard;
+	CTexture *m_scoremiddle;
+	CTexture *m_powerups[4];
 };
 
 extern CObjMgr *g_ObjMgr;

@@ -21,7 +21,15 @@ public:
 							else return in;
 						   }
 	BOOL IsWayLeft(D3DXVECTOR2 *p, D3DXVECTOR2 *t);
-	float GetCurXEdge(void) { return m_cur_x+m_scr_width; }
+	static BOOL IsOnScreen(D3DXVECTOR2 *p, D3DXVECTOR2 *t);
+	static BOOL IsOnScreen(int x, int y, int width, int height); 
+
+	static float GetCurXEdge(void) { return m_cur_x+m_scr_width; }
+	static float GetCurX(void) { return m_cur_x; }
+	static float GetCurY(void) { return m_cur_y; }
+	static float GetCurXSpeed(void) { return m_speed_x; }
+	static float GetCurYSpeed(void) { return m_speed_y; }
+	void reset();
 
 private:
 
@@ -33,8 +41,8 @@ private:
 	static int m_scr_height;
 	static int m_scr_width;
 
-	static int m_speed_x;
-	static int m_speed_y;
+	static float m_speed_x;
+	static float m_speed_y;
 
 	static int m_init;
 

@@ -3,11 +3,14 @@
 #include "objmgr.h"
 #include "Texture.h"
 
+
 class CObjHeroWeaponMain :
 	public CObj
 {
 public:
 	CObjHeroWeaponMain(void);
+	void SetHero(CHero *m);
+	void SetHero(CHero2 *m);
 	virtual ~CObjHeroWeaponMain(void);
 	virtual void Collision(CObj *colwith);
 protected:
@@ -22,4 +25,9 @@ protected:
 	int m_reg_seq;
 
 	CTimer m_ani_tim;
+
+	static RECT m_myboundrects[1];
+
+	CHero *m_Hero;
+	CHero2 *m_Hero2;
 };

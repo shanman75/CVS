@@ -18,8 +18,17 @@ CText::~CText(void)
 	}
 }
 
+void CText::DrawString(const char *str, int x, int y)
+{
+   D3DXVECTOR2 pnt;
+   pnt.x = x;
+   pnt.y = y;
+   DrawString(str,pnt);
+}
+
 void CText::DrawScore (int num, D3DXVECTOR2 endpnt)
 {
+   endpnt.x -= 32;
    // Special case of 0
    if (num==0) m_chars[28]->Paint(&endpnt);
    // point is actually the END here...
@@ -70,10 +79,11 @@ void CText::_InitGraphics()
    RECT rct;
 
    // Load the letters
-   SetRect(&rct,1,1,32,32);
+   SetRect(&rct,1,1,32,31);
    for (int x=0; x< NUM_CHARS; x++) {
 	    if ((x % 10)==0) {
-		   SetRect(&rct,1,32*x/10+1,31,32*x/10+31);
+		   SetRect(&rct,1,1,32,31);
+   		   OffsetRect(&rct,0,32*x/10);
 	    }
    		m_chars[x] = new CTexture((char *)TEXTFILE,0xFF000000,&rct,32,32);
 		OffsetRect(&rct,32,0);
@@ -85,4 +95,10 @@ void CText::_DeleteGraphics()
 	for (int x=0; x< NUM_CHARS; x++) {
 		SafeDelete(m_chars[x]);
 	}
+}
+
+void CText::DrawScore(int score, int x, int y)
+{
+	D3DXVECTOR2 pnt (x,y);
+	DrawScore(score,pnt);
 }

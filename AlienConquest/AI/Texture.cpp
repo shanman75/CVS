@@ -9,32 +9,51 @@ void CTexture::OnLostDevice()
 //  _InitTextures();
 }
 
+void CTexture::Paint(int x, int y)
+{
+	D3DXVECTOR2 pnt (x,y);
+	Paint(&pnt);
+}
+
 void CTexture::UpdateDeviceCaps()
 {
+	OutputDebugString("CTexture::UpdateDeviceCaps START\n");
    int h,w;
    g_D3DObject->GetTextureParms(&h,&w);
    if (w < m_maxw) m_maxw = w;
    if (h < m_maxh) m_maxh = h;
+	OutputDebugString("CTexture::UpdateDeviceCaps END\n");
 }
 
 CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int maxh)
 {
+	m_numtex = 0;
+
 	IDirect3DSurface8 *surf;
 	D3DSURFACE_DESC tdesc;
-	//char buff[250];
+	static char buff[250];
 
 	m_maxw = maxw;
 	m_maxh = maxh;
 
 	m_filename = strdup(filename);
 
-	//sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
-	//OutputDebugString(buff);
+	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
+	OutputDebugString(buff);
+	
 	UpdateDeviceCaps();
 
 	D3DXIMAGE_INFO info;
-	if (D3DXGetImageInfoFromFile(filename,&info) != D3D_OK) return;
+	OutputDebugString("Getting info from file\n");
+	if (D3DXGetImageInfoFromFile(filename,&info) != D3D_OK) {
+		OutputDebugString("Failure to get information from file\n");
+		return;
+	}
+	
 	tdesc.Format = (D3DFORMAT)21;
+
+	//sprintf (buff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
+	//OutputDebugString(buff);
 	
 	m_width = srect == NULL ? info.Width : srect->right - srect->left;
 	m_height = srect == NULL ? info.Height : srect->bottom - srect->top;
@@ -44,9 +63,6 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int m
 	if (FAILED(D3DXLoadSurfaceFromFile(surf,NULL,NULL,filename,
 		srect,D3DX_FILTER_NONE,colorkey,NULL))) return;
 
-	//char bff[255];
-	//sprintf (bff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
-	//OutputDebugString(bff);
 	// Get the number of surfaces we will need
 	int nrow,ncol;
 	ncol = (m_width / m_maxw) + (m_width % m_maxw > 0);
@@ -85,9 +101,9 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int m
 			if (src.right > (int)m_width) src.right = m_width;
 			if (src.bottom > (int)m_height) src.bottom = m_height;
 
-			//sprintf(buff,"CTexture - Copying surface to surface - rect = top,left,right,bottom (%i,%i,%i,%i)\n",
-			//	src.top,src.left,src.right,src.bottom);
-			//OutputDebugString(buff);
+//			sprintf(buff,"CTexture - Copying surface to surface - rect = top,left,right,bottom (%i,%i,%i,%i)\n",
+//				src.top,src.left,src.right,src.bottom);
+//			OutputDebugString(buff);
 			
 			IDirect3DSurface8 *tsurf;
 			
@@ -97,14 +113,15 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int m
 		}
 	  }
 	}
+//	OutputDebugString("CTexture constructor returning\n");
 	SafeRelease(surf);
 }
 
 CTexture::~CTexture(void)
 {
-	//OutputDebugString("CTexture Destroy - ");
-	//OutputDebugString(m_filename);
-	//OutputDebugString("\n");
+	OutputDebugString("CTexture Destroy - ");
+	OutputDebugString(m_filename);
+	OutputDebugString("\n");
 	for (int x = 0; x < m_numtex; x++) 
 		SafeRelease(m_textures[x]);
 	delete []m_textures;

@@ -54,17 +54,17 @@ int D3DObject::_InitD3D8(void)
   m_d3dpp.BackBufferWidth=curmode.Width; //width
   m_d3dpp.BackBufferHeight=curmode.Height; //height
   m_d3dpp.BackBufferFormat=curmode.Format; //color mode
-  m_d3dpp.BackBufferCount=2; //one back buffer
+  m_d3dpp.BackBufferCount=1; //one back buffer
   m_d3dpp.MultiSampleType=D3DMULTISAMPLE_NONE;
-//  m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
-  m_d3dpp.SwapEffect             = D3DSWAPEFFECT_DISCARD;
+  m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
+  m_d3dpp.SwapEffect             = D3DSWAPEFFECT_COPY_VSYNC;
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=FALSE; //full screen
   m_d3dpp.EnableAutoDepthStencil=FALSE; //not needed
   m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
   m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
-  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_IMMEDIATE ;
+//  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_IMMEDIATE ;
   m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_DEFAULT ;
 
 /*
@@ -239,15 +239,14 @@ int D3DObject::PaintText ()
 	}
 	newfps++;
 
-/*
+
 	static D3DXVECTOR2 pnt (150,300);
 
 	static char outstr2[500];
 	sprintf(outstr2,"FPS = %.2f NUM Objects=%i\n",fps,g_ObjMgr->GetNumObj());
-	m_text.DrawString(outstr2,pnt);
-	*/
+//	m_text.DrawString(outstr2,pnt);
 	//if (text) text->DrawScore(5000,pnt);
-//	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
+	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
 //	delete outstr2;
 
   //}

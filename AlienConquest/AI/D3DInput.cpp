@@ -30,6 +30,54 @@ D3DInput::D3DInput(void)
 
 }
 
+void D3DInput::GetInput(CObjMenu *mnu)
+{
+    char     buffer[256]; 
+    HRESULT  hr; 
+ 
+	static int keydwn = 0;
+
+    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
+    if FAILED(hr) 
+    { 
+		hr=m_DIKB->Acquire();
+		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
+		return;
+    } 
+
+	if (KEYDOWN(buffer, DIK_DOWN)) {
+		keydwn = DIK_DOWN;
+//		mnu->event(CObjMenu::DOWN);
+	}
+	else if (KEYDOWN(buffer, DIK_UP)) {
+		keydwn = DIK_UP;
+//		mnu->event(CObjMenu::UP);
+	}
+	else if (KEYDOWN(buffer, DIK_RETURN)) {
+		keydwn = DIK_RETURN;
+//		mnu->event(CObjMenu::UP);
+	}
+
+	if (KEYDOWN(buffer, DIK_ESCAPE)) {
+		mnu->event(CObjMenu::ESC);
+	}
+
+	if (!KEYDOWN(buffer, DIK_DOWN) && keydwn == DIK_DOWN) {
+		mnu->event(CObjMenu::DOWN);
+		keydwn = 0;
+	}
+	else if (!KEYDOWN(buffer, DIK_UP) && keydwn == DIK_UP) {
+		mnu->event(CObjMenu::UP);
+		keydwn = 0;
+	}
+	else if (!KEYDOWN(buffer, DIK_RETURN) && keydwn == DIK_RETURN) {
+		mnu->event(CObjMenu::ENTER);
+		keydwn = 0;
+	}
+
+}
+
+
 void D3DInput::GetInput(CObjBmp *bmp)
 {
     char     buffer[256]; 
@@ -43,9 +91,14 @@ void D3DInput::GetInput(CObjBmp *bmp)
 		return;
     } 
  
-	if (KEYDOWN(buffer, DIK_SPACE) || KEYDOWN(buffer,DIK_ESCAPE)) {
+	if (KEYDOWN(buffer,DIK_ESCAPE)) {
 		bmp->event(CObjBmp::FIRE);
 	}
+	else for (int x=1; x < 255; x++) 
+		if (KEYDOWN(buffer,x)) {
+			bmp->event(CObjBmp::ANY);
+			break;
+		}
 }
 
 void D3DInput::GetInput(CHero *hero) 
@@ -71,10 +124,13 @@ void D3DInput::GetInput(CHero *hero)
 		hero->event(CHero::UP);
     else if (KEYDOWN(buffer, DIK_DOWN))
 		hero->event(CHero::DOWN);
-	if(KEYDOWN(buffer, DIK_S)){
+//	if(KEYDOWN(buffer, DIK_S)){
 //		hero->SetSpeed(0,0);
 //		hero->SetAccel(0,0);
-	}
+//	}
+
+	if (KEYDOWN(buffer, DIK_0))
+		hero->event(CHero::GOD);
 
 	if (KEYDOWN(buffer, DIK_SPACE)) {
 		hero->event(CHero::FIRE);
@@ -93,7 +149,60 @@ void D3DInput::GetInput(CHero *hero)
 	}
 	else
 		pausek = 0;
+}
+
+void D3DInput::GetInput(CHero2 *hero) 
+{ 
+ 
+    char     buffer[256]; 
+    HRESULT  hr; 
+ 
+    hr = m_DIKB->GetDeviceState(sizeof(buffer),(LPVOID)&buffer); 
+    if FAILED(hr) 
+    { 
+		hr=m_DIKB->Acquire();
+		while(hr==DIERR_INPUTLOST)hr=m_DIKB->Acquire(); //try real hard
+		return;
+    } 
+ 
+    if (KEYDOWN(buffer, DIK_D))
+		hero->event(CHero2::RIGHT);
+    else if(KEYDOWN(buffer, DIK_S))
+		hero->event(CHero2::LEFT);
+ 
+    if (KEYDOWN(buffer, DIK_A))
+		hero->event(CHero2::UP);
+    else if (KEYDOWN(buffer, DIK_Z))
+		hero->event(CHero2::DOWN);
+//	if(KEYDOWN(buffer, DIK_X)){
+//		hero->SetSpeed(0,0);
+//		hero->SetAccel(0,0);
+//	}
+
+	if (KEYDOWN(buffer, DIK_1))
+		hero->event(CHero2::GOD);
+
+	if (KEYDOWN(buffer, DIK_F)) {
+		hero->event(CHero2::FIRE);
+	}
+
+/*
+static int pausek = 0;
+
+	if (KEYDOWN(buffer, DIK_PAUSE) || KEYDOWN(buffer, DIK_P)) {
+		OutputDebugString("Pause\n");
+		CTimer t_time;
+		if (!pausek)
+			t_time.TogglePause();
+//		CTimer t_time;
+//		t_time.ToggleTimer();
+		pausek = 1;
+	}
+	else
+		pausek = 0;
+		*/
 } 
+
 
 D3DInput::~D3DInput(void)
 {

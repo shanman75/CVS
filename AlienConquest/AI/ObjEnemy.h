@@ -19,6 +19,8 @@ private:
 
 	static int m_graph_init;
 
+	static RECT my_boundrects[4];
+
 	int m_fir_seq;
 	CTimer m_ani_time;
 	CTimer m_fire_time;

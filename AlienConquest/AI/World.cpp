@@ -5,8 +5,8 @@ int CWorld::m_height;
 int CWorld::m_scr_height;
 int CWorld::m_scr_width;
 int CWorld::m_width;
-int CWorld::m_speed_x;
-int CWorld::m_speed_y;
+float CWorld::m_speed_x;
+float CWorld::m_speed_y;
 int CWorld::m_init;
 float CWorld::m_cur_x;
 float CWorld::m_cur_y;
@@ -23,20 +23,27 @@ CWorld::~CWorld(void)
 
 BOOL CWorld::IsWayLeft(D3DXVECTOR2 *p, D3DXVECTOR2 *t)
 {
-  if (p->x+t->x < m_cur_x) return TRUE;
+  if (p->x+t->x < m_cur_x-10) return TRUE;
   else return FALSE;
+}
+
+BOOL CWorld::IsOnScreen(D3DXVECTOR2 *p, D3DXVECTOR2 *t)
+{
+  if (p->x+t->x < m_cur_x && p->x+t->x > m_cur_x+800) return FALSE;
+  else return TRUE;
+}
+
+BOOL CWorld::IsOnScreen(int x, int y, int width, int height)
+{
+	D3DXVECTOR2 t ((float)x,(float)y);
+	D3DXVECTOR2 p ((float)width,(float)height);
+	return IsOnScreen(&t,&p);
 }
 
 BOOL CWorld::ToScreen(D3DXVECTOR2 *p, D3DXVECTOR2 *t)
 {
    p->x -= m_cur_x;
    p->y -= m_cur_y;
-//   static int cx = 0;
-//   if (cx++ < 1000) {
-//   char buff[500];
-//   sprintf(buff,"Checking (x,y) to (curx,cury) : (%.2f,%.2f) (%.2f,%.2f) (%.2f,%.2f)\n",p->x,p->y,m_cur_x,m_cur_y,t->x,t->y);
-//   OutputDebugString(buff);
-//   }
    if ( (p->x > (0-t->x)) && (p->x < m_scr_width) )
 	   return TRUE;
    return FALSE;
@@ -59,9 +66,16 @@ void CWorld::_Init()
 	m_width = 400000;
 	m_height = 600;
 
-	m_speed_x = 10;
+	m_speed_x = 50;
 	m_speed_y = 0;
 
-	m_cur_x = 0;
-	m_cur_y = 0;
+	m_cur_x = 0.0f;
+	m_cur_y = 0.0f;
+
+	m_timer.Reset();
+}
+
+void CWorld::reset()
+{
+	_Init();
 }

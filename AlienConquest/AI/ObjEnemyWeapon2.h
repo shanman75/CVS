@@ -19,4 +19,6 @@ protected:
 
 	int m_fir_seq;
 	CTimer m_ani_time;
+
+	static RECT m_myboundrects[1];
 };

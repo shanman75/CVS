@@ -2,7 +2,7 @@
 
 #include "texture.h"
 
-#define TEXTFILE "resource/cuddly.bmp"
+#define TEXTFILE "resource/toolbar/font.png"
 
 class CText
 {
@@ -11,7 +11,9 @@ public:
 	~CText(void);
 	void Testdraw(void);
 	void DrawString(const char *str, D3DXVECTOR2 pnt);
+	void DrawString(const char *str, int x, int y);
 	void DrawScore(int, D3DXVECTOR2);
+	void DrawScore(int, int, int);
 
 protected:
 	const static int NUM_CHARS=45;

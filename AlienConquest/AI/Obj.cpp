@@ -20,6 +20,7 @@ CObj::CObj(void)
 	m_type = NOTHING;
 	m_stayonscr = FALSE;
 	m_playernum = 1;
+	m_done = FALSE;
 }
 
 CObj::~CObj(void)
@@ -34,8 +35,8 @@ void CObj::paint(void)
 	pnt.x = m_dpos_x;
 	pnt.y = m_dpos_y;
 
-	tex.x = m_curtexture->GetWidth();
-	tex.y = m_curtexture->GetHeight();
+	tex.x = (float)m_curtexture->GetWidth();
+	tex.y = (float)m_curtexture->GetHeight();
 
 	if (m_world.ToScreen(&pnt,&tex)) {
 		//OutputDebugString("Object is on the screen\n");
@@ -96,11 +97,11 @@ void CObj::move(void)
 	if (m_stayonscr) {
 		// Keep object on the screen
 		if (m_curtexture)
-		m_dpos_x = m_world.CullX(m_dpos_x,m_curtexture->GetWidth());
+		m_dpos_x = m_world.CullX(m_dpos_x,(float)m_curtexture->GetWidth());
 	}
 
 	if (m_curtexture)
-		m_dpos_y = m_world.CullY(m_dpos_y,m_curtexture->GetHeight());
+		m_dpos_y = m_world.CullY(m_dpos_y,(float)m_curtexture->GetHeight());
 }
 
 void CObj::SetSpeed(float xspeed,float yspeed)
@@ -171,9 +172,16 @@ BOOL CObj::CanCollide(OTYPE x, OTYPE y)
 {
   if ( (x == ENEMY && y == HEROWEAPON )
 	   || (x == HEROWEAPON && y == ENEMY) ) return TRUE;
-  if ( (x == HERO && y == ENEMYWEAPON) 
+  else if ( (x == HERO && y == ENEMYWEAPON) 
 	  || ( x == ENEMYWEAPON && y == HERO) ) return TRUE;
-  if ( (x == HERO && y == ENEMY) 
+  else if ( (x == HERO && y == ENEMY) 
 	  || (y == HERO && x == ENEMY)) return TRUE;
+  else if ( (x == HERO && y == O_POWERUP)
+	  || (y== O_POWERUP && x == HERO) ) return TRUE;
   return FALSE;
+}
+
+BOOL CObj::done(void)
+{
+	return m_done;
 }

@@ -22,4 +22,6 @@ protected:
 	CTimer m_ani_time;
 	//static CSound *m_regsnd;
 	//static int m_snd_played;
+
+	static RECT m_myboundrects[1];
 };

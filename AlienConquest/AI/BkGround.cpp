@@ -1,8 +1,12 @@
 #include "StdAfx.h"
 #include "bkground.h"
 
+extern int g_levelnum;
+
 int CBkGround::m_graph_init = 0;
-CTexture *CBkGround::m_regular[3];
+CTexture *CBkGround::m_top[3];
+CTexture *CBkGround::m_middle[3];
+CTexture *CBkGround::m_bottom[3];
 
 CBkGround::CBkGround(void)
 {
@@ -19,42 +23,51 @@ CBkGround::~CBkGround(void)
 void CBkGround::_LoadGraphics(void)
 {
    OutputDebugString("Loading Background graphics\n");
-   m_regular[0] = new CTexture("resource/backgound.bmp",0xFFFF00FF,NULL,256,256);
-   m_regular[1] = new CTexture("resource/midground.bmp",0xFFFF00FF,NULL,256,256);
-   m_regular[2] = new CTexture("resource/sea.bmp",0xFFFF00FF);
+   m_middle[0] = new CTexture("resource/backgrounds/midground.png",0xFFFF00FF,NULL,256,256);
+   m_bottom[0] = new CTexture("resource/backgrounds/sea.png",0xFFFF00FF,NULL,256,256);
+
+   char tpath[500];
+   sprintf (tpath,"resource/backgrounds/background%i.png",g_levelnum);
+   m_top[0] = new CTexture(tpath,0xFFFF00FF,NULL,256,256);
+  // m_top[1] = new CTexture("resource/backgrounds/background2.png",0xFFFF00FF,NULL,256,256);
+  // m_top[2] = new CTexture("resource/backgrounds/background3.png",0xFFFF00FF,NULL,256,256);
 }
 
 void CBkGround::_UnloadGraphics(void)
 {
-	delete m_regular[0];
-	delete m_regular[1];
-	delete m_regular[2];
+//	delete m_regular[0];
+//	delete m_regular[1];
+//	delete m_regular[2];
+
+	delete m_top[0];
+	//delete m_top[1];
+	//delete m_top[2];
+
+	delete m_bottom[0];
+	delete m_middle[0];
 }
 
 void CBkGround::paint(void)
 {
 	D3DXVECTOR2 trans(0,0);
-	RECT SrcRect, *pSrcRect = &SrcRect;
+	RECT SrcRect;
 
 	trans.x=0;
 
 	int w = g_D3DObject->GetWidth();
 	int h = g_D3DObject->GetHeight();
-	static int m_x = 0;
-	m_x += m_time_x.GetTime();
+	float m_x = m_world.GetCurX();
 
-	float sky = (float) 0.012;
-	float groud =(float) 0.065;
-	float below =(float) 0.168;
+	static float sky = (float) 1.0;
+	static float groud =(float) 2.0;
+	static float below =(float) 4.0;
 
-	int lft = (((int)(m_x*sky))); //% tex[0]->GetWidth());
 	trans.x = 0;
 	trans.y = 0;
-	SetRect(&SrcRect,lft,0,lft+w,m_regular[0]->GetHeight());
-	m_regular[0]->Paint(&SrcRect,&trans);
-	SetRect(&SrcRect,(int)(m_x*groud),0,(int)(m_x*groud+w),m_regular[1]->GetHeight());
-	m_regular[1]->Paint(&SrcRect,&trans);
-	SetRect(&SrcRect,(int)(m_x*below),0,(int)(m_x*below+w),m_regular[2]->GetHeight());
-//	trans.y = (float)(h-50);
-	m_regular[2]->Paint(&SrcRect,&trans);
+	SetRect(&SrcRect,(int)(m_x*sky),0,(int)(m_x*sky+w),600);
+	m_top[0]->Paint(&SrcRect,&trans);
+	SetRect(&SrcRect,(int)(m_x*groud),0,(int)(m_x*groud+w),600);
+	m_middle[0]->Paint(&SrcRect,&trans);
+	SetRect(&SrcRect,(int)(m_x*below),0,(int)(m_x*below+w),600);
+	m_bottom[0]->Paint(&SrcRect,&trans);
 }

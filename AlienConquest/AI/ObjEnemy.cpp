@@ -6,28 +6,23 @@
 int CObjEnemy::m_graph_init = 0;
 CTexture *CObjEnemy::m_regular[1];
 CTexture *CObjEnemy::m_firing[4];
-
+RECT CObjEnemy::my_boundrects[4];
 
 CObjEnemy::CObjEnemy(void)
 {
 	CObj();
 	if (!m_graph_init++) _LoadGraphics();
-	m_boundrectnum = 4;
-	m_boundrects = new RECT [m_boundrectnum];
-	SetRect((LPRECT)&m_boundrects[0],39,8,79,41);
-	SetRect((LPRECT)&m_boundrects[1],11,41,83,57);
-	SetRect((LPRECT)&m_boundrects[2],24,57,95,49);
-	SetRect((LPRECT)&m_boundrects[3],23,79,53,93);
 	m_max_x=5;
 	m_max_y=2;
 	m_time.GetTime();
 	m_type = ENEMY;
+   	m_boundrectnum = 4;
+	m_boundrects = my_boundrects;
 }
 
 CObjEnemy::~CObjEnemy(void)
 {
 	if (!--m_graph_init) _UnloadGraphics();
-	delete []m_boundrects;
 }
 
 void CObjEnemy::paint()
@@ -80,6 +75,13 @@ void CObjEnemy::_LoadGraphics()
 	   trect.right = trect.left +130;
 	   m_firing[x]=new CTexture("resource/enemyhead1.bmp",0xFFFF00FF,&trect);
    }
+
+   // Set bounding rects
+//	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&my_boundrects[0],39,8,79,41);
+	SetRect((LPRECT)&my_boundrects[1],11,41,83,57);
+	SetRect((LPRECT)&my_boundrects[2],24,57,95,49);
+	SetRect((LPRECT)&my_boundrects[3],23,79,53,93);
 }
 
 void CObjEnemy::_UnloadGraphics()

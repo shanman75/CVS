@@ -13,6 +13,7 @@ public:
 	~CTexture(void);
 	void Paint (RECT *,D3DXVECTOR2 *);
 	void Paint (D3DXVECTOR2 *);
+	void Paint (int,int);
 	void OnLostDevice();
 	int GetWidth();
 	int GetHeight();

@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include "timer.h"
+#include <Mmsystem.h>
 
 DWORD CTimer::m_gtime = GetTickCount();
 BOOL CTimer::m_pause = FALSE;
@@ -20,6 +21,7 @@ void CTimer::UpdateClock()
 	if (m_dltime>0) m_dltime--;
 	if (m_pause) return;
 	m_gtime = GetTickCount(); 
+	//m_gtime = timeGetTime();
 }
 
 DWORD CTimer::PeekTime()
@@ -70,4 +72,40 @@ BOOL CTimer::CmpTime(DWORD cmptm)
   BOOL rtval = (PeekTime() >= cmptm); 
   if (rtval) Reset(); 
   return rtval;
+}
+
+BOOL CTimer::CmpTime(void)
+{
+   return CmpTime(m_timeinterval);
+}
+
+void CTimer::setInterval(DWORD interval)
+{
+	m_timeinterval = interval;
+}
+
+void CTimer::UnPause(void)
+{
+	if (m_pause) m_dltime = 2;
+	m_pause = FALSE;
+}
+
+BOOL CTimer::Paused(void)
+{
+	return m_pause;
+}
+
+BOOL CTimer::CmpTimeRaw(DWORD cmptm)
+{
+  DWORD mytime = GetTickCount();
+  DWORD interval = abs((mytime-m_ltime)%TIMER_MAXDLTA);
+
+  BOOL rtval = (interval >= cmptm); 
+  if (rtval) m_ltime = mytime;
+  return rtval;
+}
+
+BOOL CTimer::CmpTimeRaw(void)
+{
+	return CmpTimeRaw(m_timeinterval);
 }
