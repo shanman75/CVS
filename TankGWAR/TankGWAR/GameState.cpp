@@ -16,7 +16,12 @@ void cGameState::move(void)
          msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
          if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y) {
            // Create New Explosion
-           m_PlayerState[m_currentplayer].exp_object = new c3DObjectExplosion();
+           m_PlayerState[m_currentplayer].exp_object = 
+             new c3DObjectExplosion(
+                    c3DObjectMissile::GetMissileExpRadius(m_PlayerState[m_currentplayer].msl_cur_type),
+                    4300.0f,
+                    c3DObjectMissile::GetMissileExpColor(m_PlayerState[m_currentplayer].msl_cur_type)
+                    );
            m_PlayerState[m_currentplayer].exp_object->pos(msl_pos);
            m_PlayerState[m_currentplayer].exp_object->m_position.y = m_terrain->GetHeight(
                         m_PlayerState[m_currentplayer].exp_object->m_position.x,
@@ -26,14 +31,19 @@ void cGameState::move(void)
            m_PlayerState[m_currentplayer].msl_object = NULL;
            SetCurrentCamera(&m_camAboveExplosion);
            m_gstate = EXPLODING;
-           tmrState.setInterval(6000);
+           tmrState.setInterval(8000);
            tmrState.Reset();
          }
     break;
   case EXPLODING:
     if (tmrState.CmpTime()) {
+          m_terrain->FlattenSphere(m_PlayerState[m_currentplayer].exp_object->m_position,
+            m_PlayerState[m_currentplayer].exp_object->m_radius);
+          AssignHits();
+          DropTanks();
+          KillDeadTanks();
           g_ObjMgr->del(m_PlayerState[m_currentplayer].exp_object);
-           SetCurrentCamera(&m_camBehindTank);
+          SetCurrentCamera(&m_camBehindTank);
           m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
           m_gstate = TARGETING;
     }
@@ -192,10 +202,11 @@ void cGameState::GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient)
     //= ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_orient;
 }
 
-void cGameState::GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale)
+void cGameState::GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale, float *radius)
 {
   *pos =    (m_PlayerState[m_currentplayer].exp_object)->m_position;
-  *scale = (m_PlayerState[m_currentplayer].exp_object)->m_scale;
+  *scale =  (m_PlayerState[m_currentplayer].exp_object)->m_scale;
+  *radius = (m_PlayerState[m_currentplayer].exp_object)->m_radius;
 //  orient->x = (m_PlayerState[m_currentplayer].object)->m_turretRotate;
 //  orient->y = (m_PlayerState[m_currentplayer].object)->m_barrelHeight;
 //  orient->z = (m_PlayerState[m_currentplayer].object)->m_firePower;
@@ -244,8 +255,8 @@ void cGameState::AddPlayer(BOOL human)
     tmpP = new c3DObjectTank();
     t_x = rand()%600-300;
     t_z = rand()%600-300;
-    m_terrain->FlattenSquare(t_x,t_z,14.0f);
-    t_y = m_terrain->GetHeight(t_x,t_z)+2.0f;
+    m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*4.0f);
+    t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
     tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
     ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)x);
     m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
@@ -301,4 +312,36 @@ void cGameState::OnResetDevice() {
   m_skybox->OnResetDevice();
   m_terrain->OnResetDevice();
   _Init();
+}
+
+void cGameState::AssignHits()
+{
+   for (int x = 0; x < m_numplayers; x++)
+   {
+     D3DXVECTOR3 dis = m_PlayerState[x].object->m_position - m_PlayerState[m_currentplayer].exp_object->m_position;
+     m_PlayerState[m_currentplayer].health -= max(0,m_PlayerState[m_currentplayer].exp_object->m_radius - D3DXVec3Length(&dis));
+   }
+}
+
+void cGameState::DropTanks()
+{
+   for (int x = 0; x < m_numplayers; x++)
+   {
+     float pl_x = m_PlayerState[x].object->m_position.x;
+     float pl_z = m_PlayerState[x].object->m_position.z;
+
+     if (m_terrain->GetHeight(pl_x,pl_z) < m_PlayerState[x].object->m_position.y - c3DObjectTank::tank_height)
+     {
+       m_terrain->FlattenSquare(pl_x,pl_z,c3DObjectTank::tank_width*3.0f);
+       // Assign Damage
+       m_PlayerState[x].health -= min((m_PlayerState[x].object->m_position.y - m_terrain->GetHeight(pl_x,pl_z)),10);
+       // Move tank down!!!
+       m_PlayerState[x].object->m_position.y = m_terrain->GetHeight(pl_x,pl_z) + c3DObjectTank::tank_height;
+     }
+   }   
+}
+
+void cGameState::KillDeadTanks()
+{
+
 }

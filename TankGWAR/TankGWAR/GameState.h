@@ -24,6 +24,7 @@ struct st_PlayerState {
    c3DObjectMissile::MSLTYPE msl_cur_type;
    float money;
    float health;
+   enum LIVINGSTATE livingstate;
 };
 
 
@@ -32,6 +33,7 @@ class cGameState
 public:
   enum STATES { TARGETING, FIRING, EXPLODING};
   enum MAINSTATES { MENU, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
+  enum LIVINGSTATE { ALIVE, DEAD, DYING };
   cGameState(void);
   ~cGameState(void);
   void move(void);
@@ -40,7 +42,7 @@ public:
 
   void GetInput();
   void AddPlayer(BOOL human=false);
-  void GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale);
+  void GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale, float *radius);
   void GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient);
   void GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D3DXVECTOR3 *velocity);
   float GetTerrainHeight(float x, float z) { if (m_terrain) return m_terrain->GetHeight(x,z); 
@@ -67,6 +69,11 @@ private:
 
      void _Init(void);
      void _Delete(void);
+
+
+     void AssignHits();
+     void DropTanks();
+     void KillDeadTanks();
 
      //static LPDIRECT3DTEXTURE9	  m_statusbartex;
      static CTexture *m_statusbartex;

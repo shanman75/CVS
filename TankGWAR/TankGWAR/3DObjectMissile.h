@@ -10,6 +10,8 @@ public:
 	virtual ~c3DObjectMissile(void);
   void move();
   static char *GetMissileStr (enum MSLTYPE m);
+  static D3DCOLORVALUE GetMissileExpColor(enum MSLTYPE m);
+  static float GetMissileExpRadius(enum MSLTYPE m);
 protected:
 	static LPD3DXMESH			m_missilemesh;
   static LPDIRECT3DTEXTURE9*	m_missiletex;

@@ -15,7 +15,7 @@ cTerrain::cTerrain(float x,float z,float w)
   for (int i = 0; i < (TER_X+1); i++) {
     m_Heights[i] = new float[(int)(TER_Z+1)];
 	for (int j = 0; j < (TER_Z+1); j++)
-       m_Heights[i][j] = (float)((rand()%900)/15);
+       m_Heights[i][j] = (float)((rand()%1000)/15);
   }
   
   // Pass 1
@@ -27,7 +27,7 @@ cTerrain::cTerrain(float x,float z,float w)
                      m_Heights[i][j+1] +0
                     )/3;
   // Pass 2
-  for (int t = 1; t < 4; t++)
+  for (int t = 1; t < 6; t++)
   for (int i = 1; i < TER_X-1; i++)
   for (int j = 1; j < TER_Z-1; j++)
     m_Heights[i][j] = 
@@ -302,24 +302,31 @@ void cTerrain::FlattenSquare(float x, float z, float sz)
   yval = yval / cntr;
   for (float i = (x-sz); i < (x+sz); i++)
     for (float j = (z-sz); j < (z+sz); j++)
-      SetHeight(i,j,yval);
+      SetHeight(i,j,max(yval,1.0f));
 
-  RandomizeMesh();
+  UpdateMeshHeights();
 }
 
-void cTerrain::FlattenSphere(float x, float z, float radius)
+void cTerrain::FlattenSphere(D3DXVECTOR3 pos, float radius)
 {
   int cntr = 0;
   float yval = 0;
-  for (int i = x-radius; i < x+radius; i++)
-    for (int j = z-radius; j < z+radius; j++)
+  for (float i = pos.x-radius; i < pos.x+radius; i++)
+    for (float j = pos.z-radius; j < pos.z+radius; j++)
     {
-      yval = GetHeight(i,j);
-      if (sqrt((x-i)*(x-i)-(z-j)*(z-j)) < radius) 
+      D3DXVECTOR3 tvec = D3DXVECTOR3(pos.x-i,pos.y-GetHeight(i,j),pos.z-j);
+      if (D3DXVec3Length(&tvec) < radius) 
       {
-        yval -= radius - sqrt((x-i)*(x-i)-(z-j)*(z-j));
+        yval = max(GetHeight(i,j) - radius + D3DXVec3Length(&tvec),1.0f);
         SetHeight(i,j,yval);
       }
     }
+  UpdateMeshHeights();
+}
+
+
+void cTerrain::UpdateMeshHeights()
+{
+
   RandomizeMesh();
 }

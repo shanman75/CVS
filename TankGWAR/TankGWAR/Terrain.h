@@ -41,10 +41,12 @@ public:
   void SetHeight(float x, float z, float y);
 
   void FlattenSquare(float x, float z, float sz);
-  void FlattenSphere(float x, float z, float radius);
+  void FlattenSphere(D3DXVECTOR3 pos, float radius);
 
   void OnLostDevice(void);
   void OnResetDevice(void);
+
+  void UpdateMeshHeights();
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;

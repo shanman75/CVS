@@ -12,6 +12,9 @@ LPDIRECT3DTEXTURE9*	c3DObjectTank::m_tanktex = NULL;
 LPDIRECT3DTEXTURE9* c3DObjectTank::m_skintex = NULL;
 D3DMATERIAL9*		    c3DObjectTank::m_tankmat = NULL;
 
+const float c3DObjectTank::tank_width  = 3.6f;
+const float c3DObjectTank::tank_height = 1.7f;
+
 
 c3DObjectTank::c3DObjectTank()
 {

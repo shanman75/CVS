@@ -25,6 +25,9 @@ public:
   void event(enum EVENT);
   void skin(enum SKINS sk) { m_skin = sk; }
 
+  static const float tank_width;
+  static const float tank_height;
+
 protected:
   void MakeWorldMatrix(int x);
 	void _LoadGraphics(void);

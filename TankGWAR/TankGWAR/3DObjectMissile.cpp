@@ -141,3 +141,41 @@ char *c3DObjectMissile::GetMissileStr(enum MSLTYPE m)
     return "NONE"; break;
   }
 }
+
+D3DCOLORVALUE c3DObjectMissile::GetMissileExpColor(enum MSLTYPE m)
+{
+    switch (m)
+  {
+  case FUNKIEBOMB:
+    return D3DXCOLOR(140.0f,140.0f,10.0f,0.9f); break;
+  case AMRAM:
+    return D3DXCOLOR(40.0f,255.0f,10.0f,0.75f); break;
+  case ATOMBOMB:
+    return D3DXCOLOR(255.0f,40.0f,90.0f,0.9f); break;
+  case SHELL:
+    return D3DXCOLOR(140.0f,140.0f,255.0f,0.7f); break;
+  case SCUD:
+    return D3DXCOLOR(40.0f,255.0f,30.0f,0.9f); break;
+  default:
+    return D3DXCOLOR(140.0f,140.0f,10.0f,1.0f); break;
+  }
+}
+
+float c3DObjectMissile::GetMissileExpRadius(enum MSLTYPE m)
+{
+    switch (m)
+  {
+  case FUNKIEBOMB:
+    return 25.0f; break;
+  case AMRAM:
+    return 30.0f; break;
+  case ATOMBOMB:
+    return 60.0f; break;
+  case SHELL:
+    return 5.0f; break;
+  case SCUD:
+    return 29.0f; break;
+  default:
+    return 15.0f; break;
+  }
+}

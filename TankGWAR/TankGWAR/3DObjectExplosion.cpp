@@ -9,7 +9,7 @@ D3DMATERIAL9*		c3DObjectExplosion::m_expmat;
 DWORD				    c3DObjectExplosion::m_expNmat;
 
 
-c3DObjectExplosion::c3DObjectExplosion(void)
+c3DObjectExplosion::c3DObjectExplosion(float radius,float exp_dur, D3DCOLORVALUE col)
 {
 	if (!m_graph_init++) _LoadGraphics();
 
@@ -18,6 +18,10 @@ c3DObjectExplosion::c3DObjectExplosion(void)
   m_curtex = m_exptex;
   m_curmat = m_expmat;
   m_exptime.Reset();
+
+  m_expdur = exp_dur;
+  m_radius = radius;
+  m_expcolor =col;
 }
 
 c3DObjectExplosion::~c3DObjectExplosion(void)
@@ -42,7 +46,7 @@ void c3DObjectExplosion::_LoadGraphics(void)
 
   if (FAILED(D3DXCreateSphere(
      g_D3DObject->m_d3ddevice9,
-     10.0f,         // Radius
+     1.0f,         // Radius
      30,         // Slices
      30,         // Stacks
      &m_expmesh,
@@ -62,8 +66,8 @@ void c3DObjectExplosion::_LoadGraphics(void)
    m_exptex = new LPDIRECT3DTEXTURE9 [m_expNmat];
    m_expmat = new D3DMATERIAL9 [m_expNmat];
 
-   m_expmat[0].Ambient = D3DXCOLOR(0.0f,0.0f,0.0f,0.2f);
-   m_expmat[0].Diffuse = D3DXCOLOR(1.0f,0.0f,0.1f,0.8f);
+   m_expmat[0].Ambient = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
+   m_expmat[0].Diffuse = m_expcolor;
    m_expmat[0].Specular = D3DXCOLOR(1.0f,1.0f,1.0f,0.5f);
    m_expmat[0].Emissive = D3DXCOLOR(0.0f,0.0f,0.0f,0.0f);
    m_expmat[0].Power = 1.0f;
@@ -71,18 +75,28 @@ void c3DObjectExplosion::_LoadGraphics(void)
    m_exptex[0] =NULL;
 }
 
+float cutone (float m)
+{
+  if (m > 1)
+    return 1;
+  return m;
+}
 void c3DObjectExplosion::paint(void)
 {
-  m_scale = D3DXVECTOR3(1,1,1) * m_exptime.PeekTime()/6000;
-  char debg[255];
-  sprintf (debg,"%.5f",m_exptime.PeekTime()/1000);
-  g_D3DObject->DrawTextStr(150,150,D3DCOLOR_XRGB(255,240,230),debg);
+  m_scale = D3DXVECTOR3(1,1,1) * m_radius * cutone(m_exptime.PeekTime()/m_expdur);
+//  char debg[255];
+//  sprintf (debg,"%.5f",m_exptime.PeekTime()/1000);
+//  g_D3DObject->DrawTextStr(150,150,D3DCOLOR_XRGB(255,240,230),debg);
 
+//  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,FALSE);
    for (int x = 0; x < (int)m_nMat; x++)  {
      MakeWorldMatrix(x);
      if (m_curtex)
-     g_D3DObject->m_d3ddevice9->SetTexture(0,m_curtex[x]);
+       g_D3DObject->m_d3ddevice9->SetTexture(0,m_curtex[x]);
+ //    m_expmat[x].Ambient = m_expcolor;
+     m_expmat[x].Diffuse = m_expcolor;
      g_D3DObject->m_d3ddevice9->SetMaterial(&m_curmat[x]);
      m_curmesh->DrawSubset(0);
    }
+//  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,TRUE);
 }
