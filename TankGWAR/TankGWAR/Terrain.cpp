@@ -1,7 +1,14 @@
 #include "StdAfx.h"
 #include "terrain.h"
 #include <d3dx9.h>
+#include <stdlib.h>
 #include <stdio.h>
+#include <io.h>
+#include <sys/types.h>
+#include <fcntl.h>
+#include "GameState.h"
+
+
 
 LPDIRECT3DTEXTURE9	  cTerrain::m_tertex[4];
 
@@ -32,15 +39,51 @@ void cTerrain::RandomizeEnvironment(void)
 }
 void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
 {
+  BYTE c;
+  BYTE d[1024];
+  int iC;
+  int fTerrain;
+  char path[1024];
+  sprintf (path,"resource\\terrains\\terrain%i.hmp",rand()%17);
+  fTerrain = open(path,_O_BINARY|_O_RDONLY);
+
+  if (fTerrain > 0) {
+  for (int x = 0; x < 100; x++)
+	  read(fTerrain,&c,1);
   // Number of hills 40 through 100
 //  int numHills = rand()%60 + 10;
 //  numHills = 0;
 //  numHills = 10;
+  //m_Heights = new float*[(int)(TER_X+1)];
+  //float squash = 4 - numHills/102*4;
+  float squash = 7 / (g_GameState->GetNumHills() + 1);
+  for (int i = 0; i < TER_X; i++) {
+    //m_Heights[i] = new float[(int)(TER_Z+1)];
+    if (int g = _read (fTerrain,&d,1024) <= 0)
+		exit(g);
+	else {
+		char deb[255];
+		sprintf (deb,"Read %i bytes\n",g);
+		OutputDebugString(deb);
+	}
+    for (int j = 0; j < TER_Z; j++) {
+//       m_Heights[i][j] = (float)((rand()%500)/15);	   		   
+       m_Heights[i][j] = (float) ((unsigned int) d[j])/squash + 44.0f;
+       //m_Heights[i][j] = m_Heights[i][j];
+       //read (fTerrain,&m_Heights[i][j],1);
+    }
+	//m_Heights[i][(int)floor(TER_Z)+1] = (float) ((unsigned int) d[j])/3 + 44.0f;
+  }
+ close(fTerrain);
+ UpdateMeshHeights();
+ return;
+ }
+
   for (int i = 0; i < (TER_X+1); i++) {
     m_Heights[i] = new float[(int)(TER_Z+1)];
     for (int j = 0; j < (TER_Z+1); j++) {
 //       m_Heights[i][j] = (float)((rand()%500)/15);
-       m_Heights[i][j] = 44.0f;
+       m_Heights[i][j] = 88.0f;
     }
   }
 
@@ -134,7 +177,7 @@ BreakIt:
 
 void cTerrain::Paint()
 {
-	D3DXMATRIXA16 matwrld;
+  D3DXMATRIXA16 matwrld;
   D3DMATERIAL9 mtrl;
   ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
   mtrl.Ambient = D3DXCOLOR(1.0f,1.0f,1.0f,1.0f);
@@ -151,7 +194,7 @@ void cTerrain::Paint()
   if (g_TerrainMesh != NULL)
   {   
     g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[(int)m_env]);
-//    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+    //g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
     g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_WRAP0, D3DWRAPCOORD_0 | D3DWRAPCOORD_1 |D3DWRAPCOORD_2|D3DWRAPCOORD_3);
 	  g_TerrainMesh->DrawSubset(0);
     g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_WRAP0, 0);
@@ -325,8 +368,8 @@ void cTerrain::RandomizeMesh(void)
     return;
   for (int i = 0; i < TER_X_SMALL+1; i++)
 	  for (int j = 0; j < TER_Z_SMALL+1; j++) {
-		  VertexPtr->x = (i - (TER_X_SMALL-1)/2) * TER_WIDTH_SMALL;
-		  VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
+	    VertexPtr->x = (i - (TER_X_SMALL-1)/2) * TER_WIDTH_SMALL;
+	    VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
 		  VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
       VertexPtr->diffuse = randcolor(m_env);
@@ -335,7 +378,7 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->v = (float)(j%2);
  		  VertexPtr->u = (float)(i%5)/6;
 		  VertexPtr->v = (float)(j%5)/6;
-//      SetHeight(VertexPtr->x,VertexPtr->z,VertexPtr->y);
+
 		  VertexPtr++;
 	}
     for (int i = 0; i < (TER_X_SMALL); i++)
@@ -363,15 +406,32 @@ void cTerrain::RandomizeMesh(void)
     return;
   for (int i = 0; i < (TER_X_BIG+1); i++)
 	  for (int j = 0; j < (TER_Z_BIG+1); j++) {
+      const float out_pt = 500.0f;
 		  VertexPtr->x = (i - (TER_X_BIG-1)/2) * TER_WIDTH_BIG;
 		  VertexPtr->z = (j - (TER_Z_BIG-1)/2) * TER_WIDTH_BIG;
+
+      float dx_big = (out_pt - ((TER_X_SMALL-1)/2*TER_WIDTH_SMALL))/5;
+      float dz_big = (out_pt - ((TER_Z_SMALL-1)/2*TER_WIDTH_SMALL))/5;
+
+      if ( i < (TER_X_BIG-1)/2) {
+         //VertexPtr->x = -out_pt + dx_big;
+      }
+      else {
+         //VertexPtr->x = (out_pt - dx_big)-(TER_X_BIG-1)/2 + dx_big;
+      }
+      if ( j < (TER_Z_BIG-1)/2) {
+         //VertexPtr->x = -out_pt + dz_big;
+      }
+      else {
+         //VertexPtr->x = out_pt - dz_big-(TER_Z_BIG-1)/2 + dz_big;
+      }
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
-      if (fabs(VertexPtr->x) > (TER_X_SMALL+1)/2*TER_WIDTH_SMALL ||
-          fabs(VertexPtr->z) > (TER_Z_SMALL+1)/2*TER_WIDTH_SMALL)
+      if ((fabs(VertexPtr->x) >= (TER_X_SMALL+1)/2*TER_WIDTH_SMALL) ||
+          (fabs(VertexPtr->z) >= (TER_Z_SMALL+1)/2*TER_WIDTH_SMALL))
         VertexPtr->y = max(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
       else 
         VertexPtr->y = -150.0f;
-      VertexPtr->y = -5.0f;
+      VertexPtr->y = -1.0f;
       VertexPtr->diffuse = randcolor(m_env);
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
 //      VertexPtr->diffuse = D3DXCOLOR(0.0f,0.0f,0.0f,1.0f);
@@ -431,8 +491,8 @@ float cTerrain::GetHeight(float x, float z)
   //return 1;
  x = x + (TER_X+1)/2;
  z = z + (TER_Z+1)/2;
- if (!(x >= 0 && z >= 0 && x < (TER_X) && z < (TER_Z)))
-    return 25999.0f;   // Default Value
+ if (!(x >= 0 && z >= 0 && x < (TER_X+1) && z < (TER_Z+1)))
+    return 5.0f;   // Default Value
 
  // Find triangle face
  D3DXVECTOR3 pt1, pt2, pt3;
@@ -466,7 +526,7 @@ void cTerrain::SetHeight(float x, float z, float y)
  x = x + (TER_X+1)/2;
  z = z + (TER_Z+1)/2;
 
- y = max(2.0f,y);
+ y = max(3.0f,y);
 
  if (x >= 0 && z >= 0 && x < (TER_X) && z < (TER_Z))
     m_Heights[(int)(floor(x))][(int)(floor(z))] = y;

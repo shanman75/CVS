@@ -9,11 +9,11 @@
 
 #define TER_X_BIG 10
 #define TER_Z_BIG 10
-#define TER_WIDTH_BIG 600.0f
+#define TER_WIDTH_BIG 700.0f
 
-#define TER_X_SMALL 240
-#define TER_Z_SMALL 240
-#define TER_WIDTH_SMALL 2.4f
+#define TER_X_SMALL 170
+#define TER_Z_SMALL 170
+#define TER_WIDTH_SMALL 3.4f
 
 // DEFINES
 //#define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
@@ -59,6 +59,7 @@ private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;
 	ID3DXMesh *g_TerrainMeshBig;
+	//float **m_Heights;
 	float **m_Heights;
 
   float TER_X, TER_Z;

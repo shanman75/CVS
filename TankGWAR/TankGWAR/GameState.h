@@ -90,6 +90,7 @@ public:
   void paint(void);
   void NextPlayer(void);
   void NextLevel(void);
+  int GetNumHills(void) { return m_LevelState.numHills; }
 
   void GetInput();
   void AddPlayer(BOOL human=false);
@@ -159,6 +160,13 @@ private:
 
      static CTexture *m_spinner[3];
      static CTexture *m_textfield[1];
+
+	 static CTexture *m_radarMAIN;
+	 static CTexture *m_radarENEMY;
+	 static CTexture *m_radarCURPLAYER;
+	 static CTexture *m_radarANGLE;
+	 BOOL m_radarenabled;
+
      CTimer m_tmSpinner;
 
      enum MAINMENUBUTT m_mainmenubutt;
@@ -177,6 +185,10 @@ private:
 
      char *randomwintxt(void);
      char *getwinnername(void);
+
+	 int tankColors[c3DObjectTank::NUM_SKINS];
+	 c3DObjectTank::SKINS GetNextSkin();
+	 void ResetSkins();
 
      BOOL aistarted;
 };

@@ -14,6 +14,7 @@ cCameraBehindMissile::~cCameraBehindMissile(void)
 void cCameraBehindMissile::SetCamera()
 {
     D3DXMATRIXA16 matView;
+    float ht;
 
     D3DXVECTOR3 tpos, tor, tvel;
 
@@ -41,7 +42,7 @@ void cCameraBehindMissile::SetCamera()
                             );
     vFromPt   = tpos - *D3DXVec3Normalize(&vTemp,&tvel)*5.6f;
     vFromPt.y += 7.0f;
-    if (float ht = (g_GameState->GetTerrainHeight(vFromPt.x,vFromPt.z)+0.5f) > vFromPt.y)
+    if ((ht = (g_GameState->GetTerrainHeight(vFromPt.x,vFromPt.z)+0.5f)) > vFromPt.y)
       vFromPt.y = ht+0.5f;
     vLookatPt = D3DXVECTOR3( tpos.x-0.1f, tpos.y-0.1f, tpos.z-0.1f );
 

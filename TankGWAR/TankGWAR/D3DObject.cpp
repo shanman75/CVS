@@ -192,11 +192,12 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
 
-  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_DISABLE );
+  //m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_DISABLE );
+  //m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP, D3DTOP_BLENDTEXTUREALPHA);
 
-//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
-//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
-//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
   m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
   m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
   
@@ -620,7 +621,7 @@ void D3DObject::BeginPaint()
 {
 	DeviceLost();
   m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET|D3DCLEAR_ZBUFFER, 
-          D3DCOLOR_XRGB(0,0,255), 1.0f, 0L );
+          D3DCOLOR_XRGB(0,0,0), 1.0f, 0L );
 	m_d3ddevice9->BeginScene();
 //	m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE|D3DXSPRITE_OBJECTSPACE);
 //	m_pd3dxSprite->Begin(0);

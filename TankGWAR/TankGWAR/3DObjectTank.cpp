@@ -78,15 +78,15 @@ void c3DObjectTank::PerformRotateTo()
 {
   float tm = m_tmrRotate.GetTime();
   // Rotate Turret
-  if (fabs(m_turretRotateTo - m_turretRotate) > 0.14f)
-    m_turretRotate += tm/500;
+  if (float tdiff = fabs(m_turretRotateTo - m_turretRotate) > 0.14f)
+    m_turretRotate += min(tm/500,tdiff);
 
   // Make Barrel go up/down
-  if (fabs(m_barrelHeightTo - m_barrelHeight) > 0.08f)
+  if (float bdiff = fabs(m_barrelHeightTo - m_barrelHeight) > 0.08f)
   if (m_barrelHeight < m_barrelHeightTo)
-    m_barrelHeight += tm/1000;
+    m_barrelHeight += min(tm/1500,bdiff) ;
   else
-    m_barrelHeight -= tm/1000;
+    m_barrelHeight -= min(tm/1500,bdiff);
  
   if (m_barrelHeight < 0)         m_barrelHeight = 0;
   if (m_barrelHeight > D3DX_PI/2) m_barrelHeight = D3DX_PI/2;
@@ -349,8 +349,8 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
   OutputDebugString(debg);
 
   objadd = new c3DObjectMissile(tpe);
-  objadd->accel   (D3DXVECTOR3(0.0f,-9.8f,0.0f));
-  objadd->velocity(tVelocity * m_firePower/16);
+  objadd->accel   (D3DXVECTOR3(0.0f,-7.8f,0.0f));
+  objadd->velocity(tVelocity * m_firePower/12);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);
