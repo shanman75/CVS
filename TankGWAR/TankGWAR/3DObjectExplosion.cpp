@@ -1,5 +1,6 @@
 #include "StdAfx.h"
 #include ".\3dobjectexplosion.h"
+#include "wavsound.h"
 #include <stdio.h>
 
 int             c3DObjectExplosion::m_graph_init = 0;
@@ -7,7 +8,7 @@ LPD3DXMESH			c3DObjectExplosion::m_expmesh;
 LPDIRECT3DTEXTURE9*	c3DObjectExplosion::m_exptex;
 D3DMATERIAL9*		c3DObjectExplosion::m_expmat;
 DWORD				    c3DObjectExplosion::m_expNmat;
-
+extern cwavsound *wav;
 
 c3DObjectExplosion::c3DObjectExplosion(float radius,float exp_dur, D3DCOLORVALUE col)
 {
@@ -61,7 +62,7 @@ void c3DObjectExplosion::_LoadGraphics(void)
         SAFE_RELEASE( pAdjacencyBuffer );
         return;
     }
-
+   wav->play(explosion);
    m_expNmat = 1;
    m_exptex = new LPDIRECT3DTEXTURE9 [m_expNmat];
    m_expmat = new D3DMATERIAL9 [m_expNmat];

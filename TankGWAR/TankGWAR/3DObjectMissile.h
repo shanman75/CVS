@@ -1,11 +1,13 @@
 #pragma once
 #include "3dobject.h"
 
+//enum MSLTYPE {SHELL,ATOMBOMB,SCUD,AMRAM,FUNKIEBOMB};
+
 class c3DObjectMissile :
 	public c3DObject
 {
 public:
-  enum MSLTYPE { SHELL, ATOMBOMB, SCUD, AMRAM, FUNKIEBOMB };
+  enum MSLTYPE {SHELL,ATOMBOMB,SCUD,AMRAM,FUNKIEBOMB};
   static const int MSLNUM = 5;
 	c3DObjectMissile(MSLTYPE missile_type = SCUD);
 	virtual ~c3DObjectMissile(void);

@@ -6,6 +6,7 @@
 #include "ObjMgr.h"
 #include "resource.h"
 #include "tankgwar.h"
+#include "wavsound.h"
 #include <stdio.h>
 
 // Globals
@@ -17,7 +18,7 @@ TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int g_ActiveApp=1;
 cmp3stream *g_mp3_1;							//first mp3 sound
-
+cwavsound *wav;
 
 //
 //  FUNCTION: MyRegisterClass()
@@ -155,6 +156,7 @@ char debg[255];
 		SafeDelete(g_D3DInput);
     OutputDebugString("Deleting MP3 object\n");
     SafeDelete(g_mp3_1);
+	SafeDelete(wav);
     CoUninitialize();
    	g_MainDestroy();
 		
@@ -197,7 +199,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
   CoInitialize(NULL);
   g_mp3_1=new cmp3stream(g_hWnd);
   g_mp3_1->CreateGraph(NULL);
-
+  wav=new cwavsound(g_hWnd);
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_TANKGWAR);
 

@@ -14,9 +14,16 @@ modified April 24,2004
 
 #include <dsound.h>
 #include <Mmreg.h>
+#include <stdlib.h>
+#include <stdio.h>
+
+#define mono 1
+#define stereo 2
+#define frequency 11025
+#define soundbitquality 16
 
 
-enum gamesound{tankmove,bullet,abomb,scud,amram,fbomb,explosion,maxsounds};
+enum gamesound{tankmove,shell,abomb,scud,amram,fbomb,explosion,maxsounds};
 
 class cwavsound
 { //class to play a wav
@@ -26,7 +33,8 @@ class cwavsound
 	  void stopsounds();
 	  ~cwavsound();
 	private:
-	  void loadbuffers(); 
+	  void loadbuffers();
+	  int loadsound(char *filename,BYTE **buffer); 
 	  LPDIRECTSOUND8 ds8;
 	  LPDIRECTSOUNDBUFFER soundbuffer[maxsounds];
 };

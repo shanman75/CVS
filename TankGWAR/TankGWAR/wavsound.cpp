@@ -31,42 +31,22 @@ void cwavsound::stopsounds()
 
 cwavsound::~cwavsound()
 {	for(int i=0;i<maxsounds;i++)
-    {  soundbuffer[i]->Release();
+    {  //soundbuffer[i]->Release();
        soundbuffer[i]=NULL;
 	}
 	ds8->Release();
 }
 
-void cwavsound::loadbuffers()
-{   WAVEFORMATEX wavfile;
-    DSBUFFERDESC bufdes;
+int cwavsound::loadsound(char *filename,BYTE **buffer)
+{// FILE * logging;
+ // logging=fopen("test2.txt","w");
 
-	//wave format descriptor
-    memset(&wavfile,0,sizeof(WAVEFORMATEX));
-	wavfile.nAvgBytesPerSec=22050;  //blockalign * samplespersec
-	wavfile.nBlockAlign=2;			//channels*bps/8
-	wavfile.nChannels=1;
-	wavfile.nSamplesPerSec=11025;
-	wavfile.wBitsPerSample=16;
-	wavfile.wFormatTag=WAVE_FORMAT_PCM;
-
-    //direct sound buffer descriptor
-    memset(&bufdes,0,sizeof(DSBUFFERDESC));
-	bufdes.dwSize=sizeof(DSBUFFERDESC);
-	bufdes.dwFlags=DSBCAPS_STATIC;
-	bufdes.dwBufferBytes=DSBSIZE_MIN;
-	bufdes.dwReserved=0;
-//	bufdes.guid3DAlgorithm=NULL;
-	bufdes.lpwfxFormat=&wavfile;
-	for(int i=0;i<maxsounds;i++)
-	{	soundbuffer[i]=NULL;
-		ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[i]),NULL);
-	}
-
- /* HMMIO hmfr;
+  int size=0;
+  HMMIO hmfr;
   MMCKINFO parent,child;
-  BYTE *sound=NULL; //temporary buffer to hold sound data
+  WAVEFORMATEX wfmtx;
   //reclaim memory from buffer, if already used
+  delete[]*buffer;
   //init parent and child MMCKINFOs
   parent.ckid=(FOURCC)0;
   parent.cksize=0;
@@ -75,66 +55,155 @@ void cwavsound::loadbuffers()
   parent.dwFlags=0;
   child=parent;
   //open sound file
-  hmfr=mmioOpen("resources\sounds\turret.wav",NULL,MMIO_READ|MMIO_ALLOCBUF);
 
+  hmfr=mmioOpen(filename,NULL,MMIO_READ|MMIO_ALLOCBUF);
+
+  if(hmfr==NULL)return NULL;
   //descend into the RIFF
   parent.fccType=mmioFOURCC('W','A','V','E');
   if(mmioDescend(hmfr,&parent,NULL,MMIO_FINDRIFF)){
-    mmioClose(hmfr,0);
+    mmioClose(hmfr,0); return NULL; //not a wave file
   }
   //descend to the WAVEfmt
   child.ckid=mmioFOURCC('f','m','t',' ');
   if(mmioDescend(hmfr,&child,&parent,0)){
-    mmioClose(hmfr,0);
+    mmioClose(hmfr,0); return NULL; //file has no fmt chunk
   }
   //read the WAVEFMT from the wave file
-  if(mmioRead(hmfr,(char*)&wavfile,sizeof(wavfile))!=sizeof(wavfile)){
-    mmioClose(hmfr,0);
+  if(mmioRead(hmfr,(char*)&wfmtx,sizeof(wfmtx))!=sizeof(wfmtx)){
+    mmioClose(hmfr,0); return NULL; //unable to read fmt chunk
+  }
+  //check wave format
+  if(wfmtx.wFormatTag!=WAVE_FORMAT_PCM){
+    mmioClose(hmfr,0); return NULL; //WAVE file is not PCM format
   }
   //ascend back to RIFF level
   if(mmioAscend(hmfr,&child,0)){
-    mmioClose(hmfr,0);
+    mmioClose(hmfr,0); return NULL; //unable to ascend
   }
   //descend to the data chunk
   child.ckid=mmioFOURCC('d','a','t','a');
   if(mmioDescend(hmfr,&child,&parent,MMIO_FINDCHUNK)){
-    mmioClose(hmfr,0);
+    mmioClose(hmfr,0); return NULL; //WAVE file has no data chunk
+  }
+  //grab memory to store sound
+  size=child.cksize;
+  *buffer=new BYTE[size];
+  if(*buffer==NULL){
+    mmioClose(hmfr,0); return NULL; //out of memory
   }
   //read the wave data
-  mmioRead(hmfr,(char *)sound,child.cksize);
+  if((int)mmioRead(hmfr,(char *)*buffer,size)!=size){
+    //data read failed
+    mmioClose(hmfr,0); delete[]*buffer; return NULL; 
+  }
   //close file and return
   mmioClose(hmfr,0);
+  return size;
+ // fclose(logging);
+}
 
-  
+
+void cwavsound::loadbuffers()
+{   WAVEFORMATEX wavfile;
+    DSBUFFERDESC bufdes;
+	BYTE *sound=NULL; //temporary buffer to hold sound data
 	LPVOID w1,w2; //write pointer (use 2 for buffer wraparound)
-    DWORD l1,l2; //length of sound to be written to write pointers
+	DWORD l1,l2; //length of sound to be written to write pointers
+//	FILE * logging;
+//	logging=fopen("test.txt","w");
 
-	soundbuffer[tankmove]->Lock(0,DSBSIZE_MIN,&w1,&l1,&w2,&l2,0);
-	     CopyMemory(w1,"resources\sound\turret.wav",l1);
-	soundbuffer[tankmove]->Unlock(w1,l1,w2,l2);
+	//wave format descriptor
+    memset(&wavfile,0,sizeof(WAVEFORMATEX));
+	wavfile.wFormatTag=WAVE_FORMAT_PCM;
+	wavfile.nChannels=mono;
+	wavfile.nSamplesPerSec=frequency;
+	wavfile.wBitsPerSample=soundbitquality;
+	wavfile.nBlockAlign=wavfile.nChannels*wavfile.wBitsPerSample/8;		
+	wavfile.nAvgBytesPerSec=wavfile.nBlockAlign*wavfile.nSamplesPerSec;
+	
+    //direct sound buffer descriptor
+    memset(&bufdes,0,sizeof(DSBUFFERDESC));
+	bufdes.dwSize=sizeof(DSBUFFERDESC);
+	bufdes.dwFlags=DSBCAPS_STATIC;
+	bufdes.dwReserved=0;
+	bufdes.lpwfxFormat=(LPWAVEFORMATEX)&wavfile;
+	
+	int length=loadsound("resource\\sounds\\turret.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[tankmove]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[tankmove]),NULL)))
+	{	soundbuffer[tankmove]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[tankmove]->Unlock(w1,l1,w2,l2);
+	}
 
-/*	soundbuffer[bullet]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[bullet]->Unlock(w1,l1,w2,l2);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[abomb]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[abomb]->Unlock(w1,l1,w2,l2);
+	length=loadsound("resource\\sounds\\shell.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[shell]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[shell]),NULL)))
+	{	soundbuffer[shell]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[shell]->Unlock(w1,l1,w2,l2);
+	}
 
-	soundbuffer[scud]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[scud]->Unlock(w1,l1,w2,l2);
+	length=loadsound("resource\\sounds\\abomb.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[abomb]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[abomb]),NULL)))
+	{	soundbuffer[abomb]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[abomb]->Unlock(w1,l1,w2,l2);
+	}
 
-	soundbuffer[amram]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[amram]->Unlock(w1,l1,w2,l2);
+	length=loadsound("resource\\sounds\\scud.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[scud]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[scud]),NULL)))
+	{	soundbuffer[scud]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[scud]->Unlock(w1,l1,w2,l2);
+	}
 
-	soundbuffer[fbomb]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[fbomb]->Unlock(w1,l1,w2,l2);
+	length=loadsound("resource\\sounds\\amram.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[amram]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[amram]),NULL)))
+	{	soundbuffer[amram]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[amram]->Unlock(w1,l1,w2,l2);
+	}
 
-	soundbuffer[explosion]->Lock(0,DSBSIZE_MAX,&w1,&l1,&w2,&l2,0);
-      CopyMemory(w1,"turret.wav",l1);
-	soundbuffer[explosion]->Unlock(w1,l1,w2,l2);
-*/
+    length=loadsound("resource\\sounds\\fbomb.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[fbomb]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[fbomb]),NULL)))
+	{	soundbuffer[fbomb]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[fbomb]->Unlock(w1,l1,w2,l2);
+	}
+
+	length=loadsound("resource\\sounds\\explosion.wav",&sound);
+	bufdes.dwBufferBytes=length;
+	soundbuffer[explosion]=NULL;
+	if(SUCCEEDED(ds8->CreateSoundBuffer(&bufdes,&(soundbuffer[explosion]),NULL)))
+	{	soundbuffer[explosion]->Lock(0,length,&w1,&l1,&w2,&l2,0);
+			CopyMemory(w1,sound,l1);
+		if(w2!=NULL)
+			CopyMemory(w2,(sound+l1),l2); //load  second half
+		soundbuffer[explosion]->Unlock(w1,l1,w2,l2);
+	}
+//	fclose(logging);
 }

@@ -3,6 +3,7 @@
 #include "3DObjectTank.h"
 #include "3DObjectMissile.h"
 #include "ObjMgr.h"
+#include "wavsound.h"
 #include <stdio.h>
 
 int					        c3DObjectTank::m_graph_init = 0;
@@ -11,6 +12,7 @@ DWORD				        c3DObjectTank::m_tankNmat = 0;
 LPDIRECT3DTEXTURE9*	c3DObjectTank::m_tanktex = NULL;
 LPDIRECT3DTEXTURE9* c3DObjectTank::m_skintex = NULL;
 D3DMATERIAL9*		    c3DObjectTank::m_tankmat = NULL;
+extern cwavsound *wav;
 
 const float c3DObjectTank::tank_width  = 3.6f;
 const float c3DObjectTank::tank_height = 1.7f;
@@ -120,13 +122,21 @@ void c3DObjectTank::event(enum EVENT evnt, float amount)
 //  if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.0006f*m_time.PeekTime() * amount; break;
+      m_barrelHeight -= 0.0006f*m_time.PeekTime() * amount; 
+	  wav->play(tankmove);
+	  break;
     case DOWN:
-      m_barrelHeight +=0.0006f*m_time.PeekTime() * amount; break;
+      m_barrelHeight +=0.0006f*m_time.PeekTime() * amount; 
+	  wav->play(tankmove);
+	  break;
     case LEFT:
-      m_turretRotate-=0.0008f*m_time.PeekTime() * amount; break;
+      m_turretRotate-=0.0008f*m_time.PeekTime() * amount; 
+	  wav->play(tankmove);
+	  break;
     case RIGHT:
-      m_turretRotate+=0.0008f*m_time.PeekTime() * amount; break;
+      m_turretRotate+=0.0008f*m_time.PeekTime() * amount; 
+	  wav->play(tankmove);
+	  break;
     case PWRUP:
       m_firePower+=0.1f*m_time.PeekTime() * amount; break;
     case PWRDN:
@@ -286,5 +296,13 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);
+
+  switch(tpe)
+  {  case 0:		wav->play(shell); break;
+	 case 1:		wav->play(abomb); break;
+	 case 2:		wav->play(scud); break;
+	 case 3:		wav->play(amram); break;
+	 case 4:		wav->play(fbomb); break;
+  }
   return objadd;
 }

@@ -1,5 +1,5 @@
 #include "StdAfx.h"
-#include ".\cameraaboveterrain.h"
+#include "cameraaboveterrain.h"
 #include "GameState.h"
 
 cCameraAboveTerrain::cCameraAboveTerrain(void)
