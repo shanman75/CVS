@@ -6,7 +6,7 @@ Implementation file for an mp3 audio class.
 
 Includes functions to setup an mp3 audio stream.
 
-Last updated: March 16,2004
+Last updated: April 8,2004
 ****************************************************************/
 
 #include "mp3aud.h"
@@ -40,6 +40,14 @@ int mp3stream::CreateGraph(LPCSTR filename)
 	{   MediaControl->Run();
 		return 0;
 	}
+}
+
+void mp3stream::startsound()
+{	MediaControl->Run();
+}
+
+void mp3stream::stopsound()
+{	MediaControl->Stop();
 }
 
 void mp3stream::OnGraphEvent()

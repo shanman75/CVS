@@ -5,7 +5,7 @@ initialization.cpp
 This file for the initializing the graphics hardware for direct
 3d.
 
-Last modified: March 18, 2004
+Last modified: April 8, 2004
 ****************************************************************/
 
 #include "initialization.h"
@@ -13,6 +13,8 @@ Last modified: March 18, 2004
 extern IDirect3D9 *d3dcomobj;
 extern IDirect3DDevice9 *d3ddevice;
 extern D3DPRESENT_PARAMETERS presparams;
+//extern IDirect3DSurface9* d3dbackbuffer;
+//extern IDirect3DSurface9* testscreen;
 extern LPDIRECT3DVERTEXBUFFER9 sbnegx;
 extern LPDIRECT3DVERTEXBUFFER9 sbposx;
 extern LPDIRECT3DVERTEXBUFFER9 sbnegz;
@@ -225,14 +227,14 @@ bool initd3d(HINSTANCE hInstance,HWND hwnd)
   { //bail if failed
     d3ddevice=NULL; return FALSE;
   }
- // d3ddevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&d3dbackbuffer);		
+  //d3ddevice->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&d3dbackbuffer);		
   //setup backbuffer for menu screens
   //create vertex buffer for background
   sb=d3ddevice->CreateVertexBuffer( 
     4*sizeof(BILLBOARDVERTEX),D3DUSAGE_WRITEONLY,BILLBOARDVERTEX::FVF,
     D3DPOOL_MANAGED,&sbnegx,NULL);
   if(FAILED(sb))return FALSE; //bail if failed
-    sb=d3ddevice->CreateVertexBuffer( 
+  sb=d3ddevice->CreateVertexBuffer( 
     4*sizeof(BILLBOARDVERTEX),D3DUSAGE_WRITEONLY,BILLBOARDVERTEX::FVF,
     D3DPOOL_MANAGED,&sbposx,NULL);
   if(FAILED(sb))return FALSE; //bail if failed

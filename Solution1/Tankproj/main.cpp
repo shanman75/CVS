@@ -4,7 +4,7 @@ Main.cpp
 Contains the windows main, and windows procedure functions that control
 the flow of the game.
 
-Last Updated: March 29,2004
+Last Updated: April 8,2004
 
 ************************************************************************/
 
@@ -32,7 +32,10 @@ mp3stream *mp3_1;
 IDirect3D9 *d3dcomobj=NULL;
 IDirect3DDevice9 *d3ddevice=NULL;
 D3DPRESENT_PARAMETERS presparams;
+//IDirect3DSurface9* d3dbackbuffer=NULL;
+//IDirect3DSurface9* testscreen=NULL;
 LPDIRECT3DTEXTURE9 BackgroundTexture=NULL; //texture for background
+LPDIRECT3DTEXTURE9 skytexture=NULL; //texture for background
 LPDIRECT3DVERTEXBUFFER9 sbnegx;
 LPDIRECT3DVERTEXBUFFER9 sbposx;
 LPDIRECT3DVERTEXBUFFER9 sbnegz;
@@ -80,7 +83,11 @@ int WINAPI WinMain(HINSTANCE hinstance,HINSTANCE hprevinstance,LPSTR cmdline,int
 		   DispatchMessage(&message);
 		}
 		else if(active)
+		{	mp3_1->startsound();
 			ProcessFrame();
+		}	//else if
 		else
+		{	mp3_1->stopsound();  //stop the sound when alt-tab out
 			WaitMessage();
+		}	//else
 }

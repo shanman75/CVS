@@ -3,7 +3,7 @@
 initialization.h
 
 Header file for the initialization .cpp file
-Last modified: March 29, 2004
+Last modified:April 8, 2004
 ****************************************************************/
 
 #ifndef __init_h__
@@ -27,7 +27,7 @@ struct BILLBOARDVERTEX
 };
 
 //input device type
-enum InputDeviceType{KEYBOARD_INPUT,MOUSE_INPUT,JOYSTICK_INPUT};
+enum InputDeviceType{KEYBOARD_INPUT,MOUSE_INPUT};
 
 //prototypes
 void InitModeStrings(D3DDISPLAYMODE*,int);

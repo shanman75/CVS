@@ -8,9 +8,11 @@ last modified: march 29, 2004
 
 #include "input.h"
 
+extern bool cameraontanks;  //boolean for free floating camera
+extern bool showfps;       //boolean for displaying framerate
+extern IDirect3DDevice9 *d3ddevice;
+
 CInputManager::CInputManager(HINSTANCE hInstance,HWND hwnd){ //constructor
-  nInputDevice=KEYBOARD_INPUT; //default to keyboard input
-  InitInputDevice(); //current input device
   //create DirectInput object
   HRESULT hr=DirectInput8Create(hInstance,DIRECTINPUT_VERSION, 
     IID_IDirectInput8A,(void**)&lpDirectInput,NULL); 
@@ -32,49 +34,11 @@ CInputManager::~CInputManager(){ //destructor
     pMouse->Unacquire(); //unacquire device
     pMouse->Release(); //release it
   }
-
   //now release DirectInput
   if(lpDirectInput)lpDirectInput->Release();
 }
 
-//registry access for current input device
-
-void CInputManager::InitInputDevice(){ 
-//get last used device from registry
-  HKEY RegistryKey; //registry key
-  const int BUFSIZE=8; //buffer size
-  char buffer[BUFSIZE]; //text buffer
-  int result=RegCreateKey(HKEY_CURRENT_USER,
-    "SOFTWARE\\LARC\\NedFarm",&RegistryKey);
-  DWORD type; //type of registry entry
-  if(result==ERROR_SUCCESS){ //entry exists
-    unsigned long length=BUFSIZE-1; buffer[0]=0;
-    RegQueryValueEx(RegistryKey,"InputDevice",NULL,&type,
-       (unsigned char *)buffer,&length); //get value into buffer
-    if(length){ //success
-      buffer[length]=0; sscanf(buffer,"%d",&nInputDevice);
-    }
-    else nInputDevice=KEYBOARD_INPUT; //default to keyboard input
-    RegCloseKey(RegistryKey);
-  }
-}
-
-void CInputManager::SetInputDevice(){ 
-//save last used device to registry
-  HKEY RegistryKey; //registry key
-  if(RegCreateKey(HKEY_CURRENT_USER,"SOFTWARE\\LARC\\NedFarm",
-    &RegistryKey)==ERROR_SUCCESS){ //entry exists
-    const int BUFSIZE=16; //buffer size
-    char buffer[BUFSIZE]; //text buffer
-    sprintf(buffer,"%d",nInputDevice); //convert to string
-    RegSetValueEx(RegistryKey,"InputDevice",NULL,REG_SZ,
-      (unsigned char *)buffer,(DWORD)strlen(buffer)+1); //set value
-    RegCloseKey(RegistryKey);
-  }
-}
-
 //DirectInput setup routines
-
 BOOL CInputManager::InitKeyboardInput(HWND hwnd){ //set up keyboard input
   //create keyboard device
   HRESULT hr=lpDirectInput->CreateDevice(GUID_SysKeyboard,&pKeyboard,NULL); 
@@ -140,7 +104,7 @@ BOOL CInputManager::InitMouseInput(HWND hwnd){ //set up mouse input
 }
 
 //next 2 globals are a kluge for callback functions
-LPDIRECTINPUT8 g_lpDirectInput; //DirectInput object
+LPDIRECTINPUT8 klpDirectInput; //DirectInput object
 
 //keyboard processing
 BOOL CInputManager::ProcessKeyboardInput(){ //process buffered keyboard events
@@ -166,17 +130,6 @@ BOOL CInputManager::ProcessKeyboardInput(){ //process buffered keyboard events
 }
 
 //keyboard handlers for different phases
-
-BOOL CInputManager::KeyboardHandler(DWORD keystroke)
-{ //main keyboard handler
-  BOOL result=FALSE; //TRUE if we are to exit game
-  switch(keystroke)
-  {	 DIK_ESC : result=TRUE;
-               break;
-  }
-  return result;
-} //KeyboardHandler
-
 
 BOOL CInputManager::letter(WPARAM keystroke,char& ascii){
   BOOL result=FALSE;
@@ -229,23 +182,20 @@ BOOL CInputManager::number(WPARAM keystroke,char& ascii){
 }
 
 
-void CInputManager::GameKeyboardHandler(DWORD keystroke,BOOL override){ //game phase
+BOOL CInputManager::KeyboardHandler(DWORD keystroke,BOOL override){ //game phase
   //function keys work all the time
+  BOOL result=FALSE;
   switch(keystroke){
-    case DIK_ESCAPE:  break;
+    case DIK_ESCAPE:  result=TRUE; break;
     case DIK_F1:break;
-    case DIK_F2:  return;
-  }
-  //other keys in KEYBOARD_INPUT mode or when overridden
-  if(nInputDevice!=KEYBOARD_INPUT&&!override)return;
-  switch(keystroke){
-    case DIK_UP:break;
-    case DIK_DOWN: break;
-    case DIK_LEFT: break;
-    case DIK_RIGHT:  break;
+    case DIK_W:break;
+    case DIK_S: break;
+    case DIK_A: break;
+    case DIK_D:  break;
     case DIK_SPACE:  break;
     default: break;
   }
+  return result;
 } //GameKeyboardHandler
 
 //mouse processing
@@ -297,21 +247,12 @@ void CInputManager::MouseMove(int x,int y){
   //process mouse move
   pointMouse.x+=x; pointMouse.y+=y;
   //mouse as joystick
-  if(nInputDevice!=MOUSE_INPUT)return; //bail if mouse not selected
   //set extent
   SIZE extent; //extent that mouse moves in
   extent.cx=SCREEN_WIDTH;
   extent.cy=SCREEN_HEIGHT; 
   //set plane speed based on point and extent
   SetPlaneSpeed(pointMouse,extent); 
-}
-
-
-
-void CInputManager::GameLMouseDown(){
-//mouse down handler for game
-  if(nInputDevice!=MOUSE_INPUT)return; //bail if mouse not selected
-  GameKeyboardHandler(DIK_SPACE,TRUE);
 }
 
 void CInputManager::LMouseDown()
@@ -326,4 +267,3 @@ BOOL CInputManager::LMouseUp()
   BOOL result=FALSE;
   return result;
 }
-
