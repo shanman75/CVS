@@ -13,6 +13,7 @@ class c3DObjectTank:
 {
 public:
   friend class cGameState;
+  friend class minimap;
 
   static enum FIRE_TYPE {MISSILE,ABOMB};
   static enum EVENT {UP,DOWN,LEFT,RIGHT,PWRUP,PWRDN};

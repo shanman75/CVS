@@ -60,7 +60,7 @@ char * strLevel_HILLS(int hills);
 char * strLevel_DIRT(int dirt);
 
 class cGameState
-{
+{ friend class minimap;
 public:
   enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
   enum MAINSTATES { MAINMENU, CREDITS, HELP, GAMESETUP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
@@ -94,6 +94,9 @@ public:
 
   void OnLostDevice(void);
   void OnResetDevice(void);
+  int returnplayers(void);
+  int returncurrentplayer(void);
+ // st_PlayerState m_PlayerState[MAX_PLAYERS];
 private:     
      cSkyBox *m_skybox;
      cTerrain *m_terrain;
@@ -101,7 +104,6 @@ private:
      void NextWeapon(int t_dir = 1);
      void _InitLevelState(void);
      void _InitGame(void);
-
      st_PlayerState m_PlayerState[MAX_PLAYERS];
      st_LevelState m_LevelState;
      int m_numplayers;

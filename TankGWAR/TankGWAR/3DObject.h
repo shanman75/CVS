@@ -11,6 +11,7 @@ class c3DObject
 {
 friend class CObjMgr;
 friend class cGameState;
+friend class minimap;
 public:
 	c3DObject(D3DXVECTOR3 pos = D3DXVECTOR3(0,0,0));
 	virtual ~c3DObject(void);

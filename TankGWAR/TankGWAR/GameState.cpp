@@ -1185,3 +1185,11 @@ void cGameState::_InitGame(void)
   SetCurrentCamera(&m_camBehindTank);
   CTimer::UnPause();
 }
+
+int cGameState::returnplayers()
+{   return m_numplayers;
+}
+
+int cGameState::returncurrentplayer()
+{	return m_currentplayer;
+}
