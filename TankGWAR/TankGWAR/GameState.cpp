@@ -77,7 +77,7 @@ void cGameState::NextPlayer(void)
 BOOL PointInRect(D3DXVECTOR2 *pnt, RECT *rct)
 {
   if ( (pnt->x >= rct->left) && (pnt->x <= rct->right))
-    if ((pnt->y >= rct->bottom) && (pnt->y <= rct->bottom))
+    if ((pnt->y >= rct->top) && (pnt->y <= rct->bottom))
       return true;
   return false;
 }
@@ -89,17 +89,43 @@ void cGameState::paintbg(void)
 
   g_D3DInput->MouseScreen(&mscreen);
 
-  if (m_mainstate == MAINSTATES::PRELEVEL) {
+  if (m_mainstate == MAINSTATES::MAINMENU) {
+    m_mainmenubutt = MAINMENUBUTT::NONE;
     int but_ng;
     g_D3DObject->m_pd3dxSprite->Begin(0);
     m_preroundBk->Paint(0.0f,0.0f);
 
-    SetRect(&mrect,340,100,800,135);
-    SetRect(&mrect,0,0,800,300);
+    // New Game Button
+    SetRect(&mrect,200,96,600,137);
     but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NEWGAME;
     m_preroundRegButton[but_ng]->Paint(200.0f,96.0f);
     g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"New Game",-1,
-               &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.4f,1.0f,1.0f));
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    // Credits button
+    SetRect(&mrect,200,96+41+30,600,96+41+30+41);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
+    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+41.0f+30.0f);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Credits",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    // Help button
+    SetRect(&mrect,200,96+(41+30)*2,600,96+(41+30)*2+41);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::NONE;
+    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+(41.0f+30.0f)*2);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Help",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+    // Quit button
+    SetRect(&mrect,200,96+(41+30)*3,600,96+(41+30)*3+41);
+    but_ng = PointInRect(&mscreen,&mrect) ? 0 : 1;
+    if (but_ng == 0) m_mainmenubutt = MAINMENUBUTT::QUIT;
+    m_preroundRegButton[but_ng]->Paint(200.0f,96.0f+(41.0f+30.0f)*3);
+    g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Quit",-1,
+      &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
     m_preroundMousePtr->Paint(&mscreen);
 //    m_preroundButtons->Paint(&mouserect,&mscreen);
@@ -197,6 +223,7 @@ void cGameState::GetInput(void)
   g_D3DInput->MouseScreen(&mscreen);
 
   c3DObjectTank *tmpP = NULL;
+  static bool v_KEYUP_ESC = true;
   static bool v_KEYUP_PGUP = true;
   static bool v_KEYUP_PGDN = true;
   static bool v_KEYUP_F1 = true;
@@ -208,9 +235,6 @@ void cGameState::GetInput(void)
   static bool WIREFRAME = false;
 
   static bool v_KEYUP_F = true;
-
-  if(g_D3DInput->KeyDown(DIK_ESCAPE))
-    exit(0);
 
  // g_D3DInput->GetInput((cTerrain *)m_terrain);
   if (g_D3DInput->KeyDown(DIK_W) && v_KEYUP_W) {
@@ -227,15 +251,36 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_mainstate) {
-    case MAINSTATES::PRELEVEL:
+    case MAINSTATES::MAINMENU:
+      if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
+               SendMessage(g_hWnd,WM_QUIT,0,0);
+               return;
+      }
       if(g_D3DInput->MouseDown(0)) {
-        OutputDebugString("Mouse down!  Going to Level State\n");
-        this->AddPlayer();
-        m_mainstate = MAINSTATES::LEVEL;
-        m_gstate = STATES::TARGETING;
+        switch (m_mainmenubutt) {
+         case MAINMENUBUTT::NEWGAME:
+          CTimer::Pause();
+          AddPlayer();
+          CTimer::UnPause();
+          m_mainstate = MAINSTATES::LEVEL;
+          m_gstate = STATES::TARGETING;
+          break;
+         case MAINMENUBUTT::QUIT:
+           SendMessage(g_hWnd,WM_QUIT,0,0);
+         default: break;
+        }
       }
       break;
     case MAINSTATES::LEVEL:
+     if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC ) {
+       m_gstate = STATES::NOTHING;
+       m_mainstate = MAINSTATES::MAINMENU;
+       g_ObjMgr->reset();
+       m_numplayers = 0;
+       g_D3DObject->DefaultRenderState();
+       v_KEYUP_ESC = false;
+       break;
+     }
     switch (m_gstate) {
       case TARGETING:
           tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
@@ -293,19 +338,6 @@ void cGameState::GetInput(void)
           if (fabs(maxis.z) > 0.10)
             tmpP->event(c3DObjectTank::EVENT::PWRDN,maxis.z/70);
 
-          if (!g_D3DInput->KeyDown(DIK_PGUP))
-            v_KEYUP_PGUP = true;
-          if (!g_D3DInput->KeyDown(DIK_PGDN))
-            v_KEYUP_PGDN = true;
-          if (!g_D3DInput->KeyDown(DIK_F1))
-            v_KEYUP_F1 = true;
-          if (!g_D3DInput->KeyDown(DIK_F2))
-            v_KEYUP_F2 = true;
-          if (!g_D3DInput->KeyDown(DIK_Z))
-            v_KEYUP_Z = true;
-          if (!g_D3DInput->KeyDown(DIK_A))
-            v_KEYUP_A = true;
-
           break;
       case FIRING:
         break;
@@ -323,6 +355,20 @@ void cGameState::GetInput(void)
     default:
       break;
   }
+          if (!g_D3DInput->KeyDown(DIK_ESCAPE))
+            v_KEYUP_ESC = true;
+          if (!g_D3DInput->KeyDown(DIK_PGUP))
+            v_KEYUP_PGUP = true;
+          if (!g_D3DInput->KeyDown(DIK_PGDN))
+            v_KEYUP_PGDN = true;
+          if (!g_D3DInput->KeyDown(DIK_F1))
+            v_KEYUP_F1 = true;
+          if (!g_D3DInput->KeyDown(DIK_F2))
+            v_KEYUP_F2 = true;
+          if (!g_D3DInput->KeyDown(DIK_Z))
+            v_KEYUP_Z = true;
+          if (!g_D3DInput->KeyDown(DIK_A))
+            v_KEYUP_A = true;
 }
 
 void cGameState::GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient)
@@ -362,7 +408,7 @@ cGameState::cGameState(void)
   //m_terrain = new cTerrain(50,50,10.0f);
   m_skybox = new cSkyBox();
   m_tmissile = new c3DObjectMissile();
-  m_mainstate = MAINSTATES::PRELEVEL;
+  m_mainstate = MAINSTATES::MAINMENU;
   m_gstate = STATES::NOTHING;
   SetCurrentCamera(&m_camera);
   //m_terrain->RandomizeMesh();

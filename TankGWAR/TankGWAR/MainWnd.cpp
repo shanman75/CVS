@@ -143,7 +143,10 @@ char debg[255];
                          if (g_ActiveApp) g_time.UnPause();
                          else g_time.Pause();
                           break; //iconize
+    case WM_QUIT:
 	  case WM_DESTROY:
+      g_ActiveApp = 0; g_time.Pause();
+   	g_MainDestroy();
 		/*
 		OutputDebugString("Deleting global Midi\n");
 		SafeDelete(g_Midi);
@@ -158,14 +161,14 @@ char debg[255];
     SafeDelete(g_mp3_1);
 	SafeDelete(wav);
     CoUninitialize();
-   	g_MainDestroy();
 		
 		OutputDebugString("Deleting global D3D Object\n");
 		SafeDelete(g_D3DObject);
 		PostQuitMessage(0);
+    exit(0);
 		break;
     case WM_KEYDOWN:
-		  if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);  // Remark this out to remove the ESCAPE
+		  //if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);  // Remark this out to remove the ESCAPE
 		                                                   // Key exiting functionality
     break;
     case WM_USER:      g_mp3_1->OnGraphEvent();         // handles events
@@ -217,7 +220,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
          g_MainGameLoop();
 	     }
 	   else {
-		   g_mp3_1->stopsound();
+       g_mp3_1->stopsound();
 		   g_time.Pause();
 		   WaitMessage();
 	   }

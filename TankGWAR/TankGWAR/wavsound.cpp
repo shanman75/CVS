@@ -46,7 +46,7 @@ int cwavsound::loadsound(char *filename,BYTE **buffer)
   MMCKINFO parent,child;
   WAVEFORMATEX wfmtx;
   //reclaim memory from buffer, if already used
-  delete[]*buffer;
+  //delete [] buffer;
   //init parent and child MMCKINFOs
   parent.ckid=(FOURCC)0;
   parent.cksize=0;

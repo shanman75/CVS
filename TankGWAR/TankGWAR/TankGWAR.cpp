@@ -40,6 +40,7 @@ void g_MainInit()
 
 void g_MainGameLoop() 
 {
+   if (!g_ActiveApp) return;
    static int tm = 1;
    static char debg[255];
    if (--tm == 0) {
@@ -49,10 +50,9 @@ void g_MainGameLoop()
    }
 
    g_time.UpdateClock();
-   if (g_D3DObject->DeviceLost())
-     return;
 
    g_GameState->GetInput();
+   if (!g_ActiveApp) return;
  
    g_ObjMgr->move();
    g_GameState->move();

@@ -38,7 +38,8 @@ class cGameState
 {
 public:
   enum STATES { NOTHING, TARGETING, FIRING, EXPLODING};
-  enum MAINSTATES { MENU, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
+  enum MAINSTATES { MAINMENU, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
+  enum MAINMENUBUTT { NEWGAME, QUIT, NONE };
   cGameState(void);
   ~cGameState(void);
   void move(void);
@@ -92,6 +93,8 @@ private:
      static CTexture *m_preroundBk;
      static CTexture *m_preroundMousePtr;
      static CTexture *m_preroundRegButton[2];
+
+     enum MAINMENUBUTT m_mainmenubutt;
      
      c3DObjectMissile *m_tmissile;
 };

@@ -15,9 +15,9 @@ public:
 	void  Reset();
 	float PeekTime();
 	float UpdatePeekTime();
-	void TogglePause();
-	void Pause();
-	void UnPause();   // Forces unpause
+	static void TogglePause();
+	static void Pause();
+	static void UnPause();   // Forces unpause
 	BOOL CmpTime(float cmptm);
 	BOOL CmpTime(void);
 	BOOL CmpTimeRaw(void);
