@@ -4,7 +4,7 @@ destroextern LPDIRECT3DVERTEXBUFFER9y.cpp
 This is a file for the exiting of direct 3d and releasing
 textures.
 
-last modified: march 29, 2004
+last modified: April 8, 2004
 ****************************************************************/
 
 #include "destroy.h"
@@ -12,6 +12,8 @@ last modified: march 29, 2004
 extern IDirect3D9 *d3dcomobj;
 extern IDirect3DDevice9 *d3ddevice;
 extern D3DPRESENT_PARAMETERS presparams;
+//extern IDirect3DSurface9* d3dbackbuffer;
+//extern IDirect3DSurface9* testscreen;
 extern LPDIRECT3DVERTEXBUFFER9 sbnegx;
 extern LPDIRECT3DVERTEXBUFFER9 sbposx;
 extern LPDIRECT3DVERTEXBUFFER9 sbnegz;
@@ -26,7 +28,7 @@ void clean()
 
 void ReleaseD3D()
 { //release d3d
-  //if(d3dbackbuffer)d3dbackbuffo->Release(); //release back buffer
+//  if(d3dbackbuffer)d3dbackbuffer->Release(); //release back buffer
   if(sbnegx)sbnegx->Release(); //release vertex buffers
   if(sbposx)sbposx->Release();
   if(sbnegz)sbnegz->Release();
