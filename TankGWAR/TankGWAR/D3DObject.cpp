@@ -57,15 +57,15 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.BackBufferWidth=curmode.Width; //width
   m_d3dpp.BackBufferHeight=curmode.Height; //height
   m_d3dpp.BackBufferFormat=curmode.Format; //color mode
-  m_d3dpp.BackBufferCount=1; //one back buffer
+  m_d3dpp.BackBufferCount=2; //one back buffer
   m_d3dpp.MultiSampleType=D3DMULTISAMPLE_NONE;
   m_d3dpp.SwapEffect=D3DSWAPEFFECT_FLIP; //flip pages
-  //m_d3dpp.SwapEffect=D3DSWAPEFFECT_DISCARD; // Try it..
+  m_d3dpp.SwapEffect=D3DSWAPEFFECT_DISCARD; // Try it..
 //  m_d3dpp.SwapEffect             = D3DSWAPEFFECT_COPY_VSYNC;
   m_d3dpp.hDeviceWindow=NULL; //full screen
   m_d3dpp.Windowed=false; //full screen
 
-  if (1) {  
+  if (0) {  
   m_d3dpp.Windowed = true;
   m_d3dpp.hDeviceWindow = g_hWnd;
   m_d3dpp.SwapEffect = D3DSWAPEFFECT_COPY;
@@ -89,7 +89,7 @@ int D3DObject::_InitD3D9(void)
 //  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_IMMEDIATE ;
 //  m_d3dpp.FullScreen_PresentationInterval=D3DPRESENT_INTERVAL_DEFAULT ;
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_DEFAULT;
-  //m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
+  m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;
 
 
 /*
@@ -462,6 +462,7 @@ void D3DObject::BeginPaint()
 	m_d3ddevice9->BeginScene();
     m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET, 
           D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
+	m_d3ddevice9->Clear( 0, NULL, D3DCLEAR_TARGET, D3DCOLOR_XRGB(255,255,255),1.0f,0);
     m_pd3dxSprite->Begin(D3DXSPRITE_DONOTSAVESTATE);
 }
 

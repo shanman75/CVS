@@ -143,6 +143,9 @@
 				RelativePath=".\TankGWAR.cpp">
 			</File>
 			<File
+				RelativePath=".\Texture.cpp">
+			</File>
+			<File
 				RelativePath=".\Timer.cpp">
 			</File>
 		</Filter>
@@ -167,6 +170,9 @@
 			</File>
 			<File
 				RelativePath=".\TankGWAR.h">
+			</File>
+			<File
+				RelativePath=".\Texture.h">
 			</File>
 			<File
 				RelativePath=".\Timer.h">

@@ -176,6 +176,8 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_TANKGWAR);
 
+	g_MainInit();
+
 	while(TRUE)
 	{
        if(PeekMessage(&msg,NULL,0,0,PM_NOREMOVE)){ //if message waiting
@@ -192,5 +194,6 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	   }
    }
 
+	g_MainDestroy();
 	return (int) msg.wParam;
 }
