@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "d3dobject.h"
 #include "stdio.h"
+#include "objmgr.h"
 
 D3DObject *g_D3DObject;							// Main D3D Object
 
@@ -231,7 +232,7 @@ int D3DObject::PaintText ()
 	newfps++;
 
 	char *outstr2 = new char[500];
-	sprintf(outstr2,"FPS = %f Timer=%i\n",fps,m_x);
+	sprintf(outstr2,"FPS = %f NUM Objects=%i\n",fps,g_ObjMgr->GetNumObj());
 	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
 	delete outstr2;
 

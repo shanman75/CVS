@@ -3,8 +3,10 @@
 
 DWORD CTimer::m_gtime = GetTickCount();
 
+
 CTimer::CTimer(void)
 {
+//	m_numover = 0;
 	Reset();
 }
 
@@ -20,7 +22,7 @@ void CTimer::UpdateClock()
 DWORD CTimer::PeekTime()
 {
   //return m_ltime > my_gtime ? m_ltime-my_gtime : ((DWORD)(0 - 1)) - m_ltime + m_gtime;
-  return (m_gtime-m_ltime)%TIMER_MAXDLTA;
+  return abs((m_gtime-m_ltime)%TIMER_MAXDLTA);
 }
 
 DWORD CTimer::UpdatePeekTime()
@@ -32,10 +34,9 @@ DWORD CTimer::UpdatePeekTime()
 
 DWORD CTimer::GetTime()
 {
-  UINT my_ltime = m_ltime;
+  UINT my_time = PeekTime();
   Reset();
-  //return m_ltime > my_gtime ? my_gtime-m_ltime : ((DWORD)(0 - 1)) - m_ltime + m_gtime;
-  return (m_gtime-my_ltime)%TIMER_MAXDLTA;
+  return my_time;
 }
 
 DWORD CTimer::UpdateGetTime()

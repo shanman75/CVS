@@ -17,18 +17,27 @@ void CObjEnemy2::move(void)
 CObjEnemy2::CObjEnemy2(void)
 {
 	CObj();
-	if (!m_graph_init) _LoadGraphics();
+	if (!m_graph_init++) _LoadGraphics();
 	m_pos_x = 200;
 	m_pos_y = 200;
 	m_state = REGULAR;
 	m_max_x= m_org_max_x = 120;
 	m_max_y=50;
 	m_time.GetTime();
+	m_type = ENEMY;
+
+	m_boundrectnum = 4;
+	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&m_boundrects[0],35,7,72,69);
+	SetRect((LPRECT)&m_boundrects[1],72,27,99,43);
+	SetRect((LPRECT)&m_boundrects[2],55,69,61,84);
+	SetRect((LPRECT)&m_boundrects[3],8,86,47,91);
+
 }
 
 CObjEnemy2::~CObjEnemy2(void)
 {
-	_UnloadGraphics();
+	if(!--m_graph_init)_UnloadGraphics();
 }
 
 void CObjEnemy2::paint()
@@ -36,6 +45,9 @@ void CObjEnemy2::paint()
 	D3DXVECTOR2 pnt;
 	pnt.x = m_dpos_x;
 	pnt.y = m_dpos_y;
+
+	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1300)) { m_fire_time.Reset(); Fire(); }
+
 	switch (m_state) {
 		case JETTING:
 			m_curtexture = m_jetting[m_jet_seq%4];
@@ -73,7 +85,7 @@ void CObjEnemy2::Fire()
 		m_state = FIRING;
 		m_fir_seq = 0;
 		CObjEnemyWeapon2 *bull = new CObjEnemyWeapon2;
-		bull->SetPosition(m_dpos_x-7,m_dpos_y+87);
+		bull->SetPosition(m_dpos_x+8,m_dpos_y+87);
 		bull->SetSpeed(-750,0);
 		bull->SetAccel(-50,0);
 		g_ObjMgr->add(bull);

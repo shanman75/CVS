@@ -157,6 +157,9 @@
 				RelativePath="Timer.cpp">
 			</File>
 			<File
+				RelativePath="World.cpp">
+			</File>
+			<File
 				RelativePath="dmusic.cpp">
 			</File>
 			<File
@@ -228,6 +231,9 @@
 			</File>
 			<File
 				RelativePath="Timer.h">
+			</File>
+			<File
+				RelativePath="World.h">
 			</File>
 			<File
 				RelativePath="dmusic.h">

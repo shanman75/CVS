@@ -8,13 +8,35 @@ const int CObjMgr::m_numz=3;
 CObjMgr::CObjMgr(void)
 {
 	m_numobj = 0;
-	
+	m_obj[0] = NULL;	
 }
 
 CObjMgr::~CObjMgr(void)
 {
+	char buff[255];
+	OutputDebugString("CObject Manager Dying\n");
+	for (int x=0; x < m_numobj; x++) {
+		sprintf (buff,"CObjectMgr - Killing %i\n",x);
+		OutputDebugString(buff);
+		SafeDelete(m_obj[x]);
+	}
+}
+
+void CObjMgr::coldet(void)
+{
 	for (int x=0; x < m_numobj; x++)
-		SafeDelete(m_obj[m_numobj]);
+		for (int y=x+1; y < m_numobj; y++)
+			if (m_obj[x]->CollisionDet(m_obj[y])) {
+				m_obj[x]->Collision(m_obj[y]);
+				m_obj[y]->Collision(m_obj[x]);
+			};
+
+	for (int x=m_numobj-1; x >= 0; x--) {
+		if (m_obj[x]->m_state == CObj::DEAD) { 
+			OutputDebugString("Dead object needs deleting\n");
+			del(m_obj[x]); 
+		}
+	}
 }
 
 void CObjMgr::move()
@@ -26,8 +48,8 @@ void CObjMgr::move()
 void CObjMgr::paint()
 {
 	for (int z=m_numz; z >= 0; z--) 
-	for (int x=0; x < m_numobj; x++)
-		if (m_obj[x]->m_z == z) m_obj[x]->paint();
+	  for (int x=0; x < m_numobj; x++)
+		if (m_obj[x]->m_z == z) m_obj[x]->paint();	  
 }
 
 void CObjMgr::add(CObj *add)

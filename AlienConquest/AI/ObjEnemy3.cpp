@@ -11,19 +11,30 @@ CTexture *CObjEnemy3::m_firing[4];
 CObjEnemy3::CObjEnemy3(void)
 {
 	CObj();
-	if (!m_graph_init) _LoadGraphics();
+	if (!m_graph_init++) _LoadGraphics();
 	m_max_x=5;
 	m_max_y=2;
 	m_time.GetTime();
+	m_type = ENEMY;
+
+	m_boundrectnum = 4;
+	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&m_boundrects[0],42,17,71,87);
+	SetRect((LPRECT)&m_boundrects[1],76,35,114,52);
+	SetRect((LPRECT)&m_boundrects[2],4,87,79,106);
+	SetRect((LPRECT)&m_boundrects[3],79,85,109,96);
+
 }
 
 CObjEnemy3::~CObjEnemy3(void)
 {
-	_UnloadGraphics();
+	if (!--m_graph_init)_UnloadGraphics();
 }
 
 void CObjEnemy3::paint()
 {
+	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1500)) { m_fire_time.Reset(); Fire(); }
+
 	switch (m_state) {
 		case FIRING:
 			m_curtexture = m_firing[m_fir_seq];

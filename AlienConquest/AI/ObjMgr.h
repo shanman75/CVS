@@ -15,9 +15,13 @@ public:
 	~CObjMgr(void);
 	void move();
 	void paint();
+	void coldet();
+
 	void add(CObj *);
 	void del(CObj *);
 	static const int m_numz;
+
+	int GetNumObj(void) { return m_numobj; }
 
 	const static int MAX_OBJECTS = 500;
 	const static int MAX_ANIMATE = 10;

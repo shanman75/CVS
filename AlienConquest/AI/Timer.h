@@ -1,6 +1,6 @@
 #pragma once
 
-#define TIMER_MAXDLTA 3000
+#define TIMER_MAXDLTA 4294967294
 
 class CTimer
 {

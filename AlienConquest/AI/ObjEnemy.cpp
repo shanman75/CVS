@@ -11,24 +11,33 @@ CTexture *CObjEnemy::m_firing[4];
 CObjEnemy::CObjEnemy(void)
 {
 	CObj();
-	if (!m_graph_init) _LoadGraphics();
+	if (!m_graph_init++) _LoadGraphics();
+	m_boundrectnum = 4;
+	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&m_boundrects[0],39,8,79,41);
+	SetRect((LPRECT)&m_boundrects[1],11,41,83,57);
+	SetRect((LPRECT)&m_boundrects[2],24,57,95,49);
+	SetRect((LPRECT)&m_boundrects[3],23,79,53,93);
 	m_max_x=5;
 	m_max_y=2;
 	m_time.GetTime();
+	m_type = ENEMY;
 }
 
 CObjEnemy::~CObjEnemy(void)
 {
-	_UnloadGraphics();
+	if (!--m_graph_init) _UnloadGraphics();
+	if (m_boundrects) delete []m_boundrects;
 }
 
 void CObjEnemy::paint()
 {
+	if (m_state == REGULAR && (m_fire_time.PeekTime() > 1000)) { m_fire_time.Reset(); Fire(); }
 	switch (m_state) {
 		case FIRING:
 			m_curtexture = m_firing[m_fir_seq];
 			if (m_fir_seq >= 4) m_state = REGULAR;
-			if (m_ani_time.PeekTime() > 135) { m_fir_seq++; m_ani_time.Reset(); }
+			if (m_ani_time.PeekTime() > 45) { m_fir_seq++; m_ani_time.Reset(); }
 		    break;
 		case REGULAR:
 		default:
@@ -44,7 +53,7 @@ void CObjEnemy::Fire()
 		m_state = FIRING;
 		m_fir_seq = 0;
 		CObjEnemyWeapon *bull = new CObjEnemyWeapon;
-		bull->SetPosition(m_dpos_x+32,m_dpos_y+47);
+		bull->SetPosition(m_dpos_x+12,m_dpos_y+47);
 		bull->SetSpeed(-350,0);
 		bull->SetAccel(-45,0);
 		g_ObjMgr->add(bull);

@@ -8,12 +8,12 @@ CBkGround::CBkGround(void)
 {
   CObj();
   m_z = 3;
-  if (!m_graph_init) _LoadGraphics();
+  if (!m_graph_init++) _LoadGraphics();
 }
 
 CBkGround::~CBkGround(void)
 {
-	_UnloadGraphics();
+	if (!--m_graph_init) _UnloadGraphics();
 }
 
 void CBkGround::_LoadGraphics(void)

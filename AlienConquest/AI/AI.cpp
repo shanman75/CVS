@@ -53,9 +53,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 
 	hAccelTable = LoadAccelerators(hInstance, (LPCTSTR)IDC_AI);
 
-#define NUM_ENEMY1 2
-#define NUM_ENEMY2 2
-#define NUM_ENEMY3 2
+#define NUM_ENEMY1 1
+#define NUM_ENEMY2 1
+#define NUM_ENEMY3 1
 
 	CObjEnemy  *enemy1[NUM_ENEMY1];
 	CObjEnemy2 *enemy2[NUM_ENEMY2];
@@ -69,26 +69,28 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	enemy1[x] = new CObjEnemy;
 	enemy1[x]->SetSpeed(3,4);
 	enemy1[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-	enemy1[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
-	enemy1[x]->Fire();
+//	enemy1[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 	g_ObjMgr->add(enemy1[x]);
 	}
 	for (int x= 0; x<NUM_ENEMY2;x++) {
 		enemy2[x] = new CObjEnemy2;
 		enemy2[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
 		enemy2[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-		enemy2[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
+//		enemy2[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 		g_ObjMgr->add(enemy2[x]);
 	}
 	for (int x= 0; x<NUM_ENEMY3;x++) {
 		enemy3[x] = new CObjEnemy3;
 		enemy3[x]->SetSpeed((float)((rand()%10)-5),(float)((rand()%10)-5));
 		enemy3[x]->SetPosition((float)(rand()%800),(float)(rand()%600));
-		enemy3[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
+//		enemy3[x]->SetAccel((float)(rand()%5),(float)(rand()%5));
 		g_ObjMgr->add(enemy3[x]);
 	}
 
 	hero = new CHero;
+	hero->SetPosition(50,50);
+	enemy1[0]->SetPosition(450,50);
+//	enemy1[0]->Fire();
 //	hero->SetAccel((float)(rand()%50-25),(float)(rand()%30-15));
 //	hero->SetSpeed(50.0,10);
 	g_ObjMgr->add(hero);
@@ -100,7 +102,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	int zf = 4;
 
 	g_Midi = new CMidiMusic;
-	g_Midi->Initialize(FALSE);
+	g_Midi->Initialize(TRUE);
 	DWORD dwcount;
 	INFOPORT Info; // INFOPORT structure to store port information 
 	BOOL bSelected;
@@ -127,12 +129,15 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	}
 
 	 // Read the file and specify if it is a mid file or not 
-	g_Midi->LoadMidiFromFile("c:/games/peanuts.midi",TRUE);
+	g_Midi->LoadMidiFromFile("resource/Doctor Who 5.mid",FALSE);
+//	g_Midi->LoadMidiFromFile("c:/windows/media/town.mid",FALSE);
 	 // Play the file
 	g_Midi->Play();
-	while (FAILED(g_Midi->IsPlaying())) ;
-			
-    while(TRUE)
+	g_Midi->Stop();
+	g_Midi->SetRepeat(TRUE);
+	g_Midi->Play();
+
+	while(TRUE)
        if(PeekMessage(&msg,NULL,0,0,PM_NOREMOVE)){ //if message waiting
         if(GetMessage(&msg,NULL,0,0)==0)return (int) msg.wParam; //get it
 		TranslateMessage(&msg); 
@@ -143,24 +148,34 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 			g_D3DInput->GetInput(hero);
 			
 		    g_Time.UpdateClock();
+			g_ObjMgr->coldet();
 			g_ObjMgr->move();
-			if (g_FireClock.PeekTime() > 1200) { 
-				for (int x= 0; x < NUM_ENEMY1; x++) enemy1[x]->Fire();
-					enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
+			// Collision detection
+			if (g_FireClock.PeekTime() > 800) {
+				g_FireClock.Reset();
+				//enemy1[0]->Fire();
+				//enemy2[0]->Fire();
+				//enemy3[0]->Fire();
+			}
+/*
+			if (g_FireClock.PeekTime() > 4200) { 
+				for (int x= 0; x < NUM_ENEMY1; x++) 
+					//enemy1[x]->Fire();
+	//				enemy1[rand()%NUM_ENEMY1]->Fire(); g_FireClock.Reset();
 					//enemy1[rand()%NUM_ENEMY1]->accel((rand()%15)-7,(rand()%15)-7);
 					//enemy2[rand()%NUM_ENEMY2]->accel((rand()%15)-7,(rand()%15)-7);
 												switch (rand()%4) {
 													case 0:
-														enemy2[rand()%NUM_ENEMY2]->Jet();														
+										//				enemy2[rand()%NUM_ENEMY2]->Jet();														
 														break;
 													case 1:
 													default:
-														enemy2[rand()%NUM_ENEMY2]->Fire();
+														//enemy2[rand()%NUM_ENEMY2]->Fire();
 														break;
 												}
 								//hero->accel(rand()%5-2.5,rand()%5-2.5);
 			}
-
+*/
 		    g_D3DObject->BeginPaint();
 			g_ObjMgr->paint();
 			g_D3DObject->PaintText();
@@ -269,9 +284,13 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
     case WM_ACTIVATEAPP: ActiveApp=(int)wParam; break; //iconize
 	case WM_DESTROY:
+		OutputDebugString("Deleting global Object Manager\n");
 		delete g_ObjMgr;
-		delete g_D3DObject;
+		OutputDebugString("Deleting global D3D Input\n");
 		delete g_D3DInput;
+		OutputDebugString("Deleting global D3D Object\n");
+		delete g_D3DObject;
+		OutputDebugString("Deleting global Midi\n");
 		delete g_Midi;
 		PostQuitMessage(0);
 		break;

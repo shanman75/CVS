@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "obj.h"
 #include "math.h"
+#include "objmgr.h"
 
 const float CObj::SSCALE=(float)0.003;
 const float CObj::ASCALE=(float)0.0014;
@@ -10,12 +11,13 @@ CObj::CObj(void)
 	m_max_x=(float)50.2;
 	m_max_y=(float)45.5;
 	m_time.GetTime();
+	m_age_timer.GetTime();
 	m_z = 1;
+	m_age = 0;
 	m_curtexture = NULL;
-}
-
-CObj::~CObj(void)
-{
+	m_boundrectnum = 0;
+	m_state = REGULAR;
+	m_type = NOTHING;
 }
 
 void CObj::paint(void)
@@ -30,6 +32,7 @@ void CObj::paint(void)
 
 void CObj::move(void)
 {
+	if (m_age  && ((int)m_age_timer.PeekTime() > m_age)) {m_state = DEAD; return;}
 	float tm = (float)m_time.GetTime()/1000;
 
 //	char buff[500];
@@ -91,4 +94,66 @@ void CObj::accel(float xdelta, float ydelta)
 {
   m_accel_x+=xdelta;
   m_accel_y+=ydelta;
+}
+
+BOOL CObj::TestRect(const RECT *cmp1, const POINT ptx, const RECT *cmp2, const POINT pty)
+{
+  LPRECT x = new RECT;
+  LPRECT y = new RECT;
+
+  CopyRect(x,cmp1);
+  CopyRect(y,cmp2);
+  OffsetRect(x,ptx.x,ptx.y);
+  OffsetRect(y,pty.x,pty.y);
+
+  /*
+  char buff[500];
+
+  sprintf (buff,"Comparing (L,T,R,B) cmp1 to cmp2 (%i,%i,%i,%i) (%i,%i,%i,%i)\n",
+	  cmp1->left,cmp1->top,cmp1->right,cmp1->bottom,
+	  cmp2->left,cmp2->top,cmp2->right,cmp2->bottom);
+  OutputDebugString(buff);
+
+  sprintf (buff,"Comparing (L,T,R,B) X to Y (%i,%i,%i,%i) (%i,%i,%i,%i)\n",
+	  x->left,x->top,x->right,x->bottom,
+	  y->left,y->top,y->right,y->bottom);
+  OutputDebugString(buff);
+  */
+
+  if (x->left > y->right || y->left > x->right ||
+	  x->top > y->bottom || y->top > x->bottom )
+	  return FALSE;
+  else
+	  return TRUE;
+}
+
+BOOL CObj::CollisionDet(CObj *colobj)
+{
+  if (!CanCollide(this->m_type,colobj->m_type)) return FALSE;
+
+  POINT ptx = {(LONG)this->m_dpos_x, (LONG) this->m_dpos_y};
+  POINT pty = {(LONG)colobj->m_dpos_x, (LONG) colobj->m_dpos_y};
+
+  for (int x=0; x< this->m_boundrectnum; x++)
+	  for (int y=0; y< colobj->m_boundrectnum; y++)
+		if (TestRect(&this->m_boundrects[x],ptx,&colobj->m_boundrects[y],pty))
+			return TRUE;
+  return FALSE;
+}
+
+void CObj::Collision(CObj *colwith)
+{
+	OutputDebugString("COLLISION!");
+	m_state = DEAD;
+}
+
+BOOL CObj::CanCollide(OTYPE x, OTYPE y)
+{
+  if ( (x == ENEMY && y == HEROWEAPON )
+	   || (x == HEROWEAPON && y == ENEMY) ) return TRUE;
+  if ( (x == HERO && y == ENEMYWEAPON) 
+	  || ( x == ENEMYWEAPON && y == HERO) ) return TRUE;
+  if ( (x == HERO && y == ENEMY) 
+	  || (y == HERO && x == ENEMY)) return TRUE;
+  return FALSE;
 }

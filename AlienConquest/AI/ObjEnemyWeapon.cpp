@@ -1,15 +1,12 @@
 #include "StdAfx.h"
 #include "objenemyweapon.h"
-#include "objmgr.h"
+//#include "objmgr.h"
 
 int CObjEnemyWeapon::m_graph_init = 0;
 CTexture *CObjEnemyWeapon::m_regular[1];
 
 void CObjEnemyWeapon::paint()
 {
-	int anit = m_ani_time.GetTime();
-	m_age -= anit;
-	if (m_age < 0) g_ObjMgr->del(this);
 	switch (m_state) {
 		case REGULAR:
 		default:
@@ -22,18 +19,21 @@ void CObjEnemyWeapon::paint()
 CObjEnemyWeapon::CObjEnemyWeapon(void)
 {
 	CObj();
-	if (!m_graph_init) _LoadGraphics();
+	if (!m_graph_init++) _LoadGraphics();
 	m_max_x=800;
-	m_age=1800;
+	m_age=800;
 	m_max_y=0;
-	m_time.GetTime();
-	m_ani_time.GetTime();
 	m_z = 2;
+	m_boundrectnum = 1;
+	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&m_boundrects[0],0,0,18,8);
+	m_type = ENEMYWEAPON;
 }
 
 CObjEnemyWeapon::~CObjEnemyWeapon(void)
 {
-	_UnloadGraphics();
+	if (!--m_graph_init) {_UnloadGraphics();}
+	//if (m_boundrects) delete []m_boundrects;
 }
 
 void CObjEnemyWeapon::_LoadGraphics()

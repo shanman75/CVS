@@ -30,4 +30,5 @@ private:
 	float m_jet_accel_x;
 	float m_org_max_x;
 	CTimer m_ani_time;
+	CTimer m_fire_time;
 };

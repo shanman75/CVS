@@ -18,6 +18,5 @@ protected:
 	static int m_graph_init;
 
 	int m_fir_seq;
-	int m_age;
 	CTimer m_ani_time;
 };

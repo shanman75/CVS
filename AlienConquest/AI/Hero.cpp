@@ -7,18 +7,25 @@ CTexture *CHero::m_regular[1];
 CHero::CHero(void)
 {
   CObj();
-  if (!m_graph_init) _LoadGraphics();
+	if (!m_graph_init++) _LoadGraphics();
+	m_boundrectnum = 3;
+	m_boundrects = new RECT [m_boundrectnum];
+	SetRect((LPRECT)&m_boundrects[0],11,4,41,61);
+	SetRect((LPRECT)&m_boundrects[1],19,61,44,93);
+	SetRect((LPRECT)&m_boundrects[2],44,48,64,69);
 	m_state = REGULAR;
 	m_max_x= 320;
 	m_max_y= 320;
 	SetAccel(0,0);
 	SetSpeed(0,0);
 	m_time.GetTime();
+	m_type = HERO;
 }
 
 CHero::~CHero(void)
 {
-	_UnloadGraphics();
+	if (!--m_graph_init) _UnloadGraphics();
+	delete []m_boundrects;
 //	~CObj();
 }
 
