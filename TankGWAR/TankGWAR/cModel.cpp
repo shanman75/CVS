@@ -119,7 +119,7 @@ void cModel::MakeWorldMatrix( int x )
     }
 	}
 
-	if ((x==12) || (x==11)) {
+	if ((x==2) || (x==1)) {
 		m_fRoll = (3.14/2) * (m_time2.PeekTime()/19000);
         D3DXMatrixRotationX(&MatTemp, m_fRoll);          // Roll
         D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
@@ -128,8 +128,8 @@ void cModel::MakeWorldMatrix( int x )
 
 	}
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, pMatWorld );
-	//for (int x = 0; x++ ; x<1)
-//   g_D3DObject->m_d3ddevice9->SetTextureStageState(0,D3DTSS_CONSTANT ,0);
+	for (int x = 0; x++ ; x<1)
+      g_D3DObject->m_d3ddevice9->SetTextureStageState(0,D3DTSS_CONSTANT ,0);
 }
 
 void cModel::Paint()

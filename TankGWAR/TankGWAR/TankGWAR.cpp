@@ -30,7 +30,7 @@ void g_MainInit()
    g_ObjMgr.reset();
    CObj *myobj = new CObj();
    g_ObjMgr.add(myobj);
-   tex1 = new CTexture("blah.png",0xFFFF00FF);
+   tex1 = new CTexture("resource\\blah.png",0xFFFF00FF);
    model = new cModel();
    model2 = new cModel();
    model2->SetXYZ(2,0,0);
