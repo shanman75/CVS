@@ -33,6 +33,12 @@ struct st_LevelState {
    int windLevel;   static const int maxWind = 4;
    int numLevels;   static const int maxLevels = 100;
                     static const int minLevels = 1;
+
+   int numKills[MAX_PLAYERS];
+   float numDamage[MAX_PLAYERS];
+   float score[MAX_PLAYERS];
+   float numMoney[MAX_PLAYERS];
+
 };
 
 struct st_PlayerState {
@@ -50,6 +56,10 @@ struct st_PlayerState {
    enum LIVINGSTATE livingstate;
    bool camabove;
    float camabovezoom;
+
+   int numKills;
+   float numDamage;
+   float score;
 };
 
 
@@ -62,7 +72,7 @@ char * strLevel_DIRT(int dirt);
 class cGameState
 { friend class minimap;
 public:
-  enum STATES { NOTHING, TARGETING, FIRING, EXPLODING, KILLDEADTANKS};
+  enum STATES { NOTHING, TARGETING, FIRING, EXPLODING, KILLDEADTANKS, LEVELCOMPLETE};
   enum MAINSTATES { MAINMENU, CREDITS, HELP, GAMESETUP, PRELEVEL, LEVEL, POSTLEVEL, ENDGAME };
   enum MAINMENUBUTT { MM_NEWGAME, MM_CREDITS, MM_QUIT, MM_HELP, MM_NONE };
   enum GAMESETUPBUTT { GS_HUMANPL_UP, GS_HUMANPL_DN, GS_CMPPL_UP, GS_CMPPL_DN,

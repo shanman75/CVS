@@ -46,7 +46,7 @@ void cGameState::move(void)
                     c3DObjectMissile::GetMissileExpColor(m_PlayerState[m_currentplayer].msl_cur_type)
                     );
            m_PlayerState[m_currentplayer].exp_object->pos(msl_pos);
-           if ( fabs(msl_pos.x) <= 150.0f && fabs(msl_pos.z) <= 150.0f)
+           if ( fabs(msl_pos.x) <= 170.0f && fabs(msl_pos.z) <= 170.0f)
               m_PlayerState[m_currentplayer].exp_object->m_position.y = m_terrain->GetHeight(
                         m_PlayerState[m_currentplayer].exp_object->m_position.x,
                         m_PlayerState[m_currentplayer].exp_object->m_position.z );
@@ -84,20 +84,28 @@ void cGameState::move(void)
         m_currentplayer = m_savecurrentplayer;
         NextPlayer();
         SetPlayerCamera();
-        m_gstate = TARGETING;
+        m_gstate = LEVELCOMPLETE;
       }
       else {
         // Found a dying tank!!!
-        m_PlayerState[dyingtank].object->FadeOut(6000.0f);
-        wav->play(playerdead);
+        m_PlayerState[dyingtank].object->FadeOut(3000.0f);
+        //wav->play(playerdead);
         m_PlayerState[dyingtank].livingstate = DEAD;
         m_PlayerState[dyingtank].health = 0;
-        tmrState.setInterval(7200.0f);
+        tmrState.setInterval(3100.0f);
         m_currentplayer = dyingtank;
-        m_PlayerState[dyingtank].camabovezoom = 0.3f;
+        m_PlayerState[dyingtank].camabovezoom = 0.1f;
         SetCurrentCamera(&m_camAboveTerrain);
       }
     }
+    break;
+  case LEVELCOMPLETE:
+       int livetanks;
+       livetanks = 0;
+       for (int x = 0; x < m_numplayers; x++)
+         if (m_PlayerState[x].livingstate == ALIVE) livetanks++;
+       if (livetanks <= 1) { m_mainstate = POSTLEVEL; g_ObjMgr->reset();}
+       else { m_gstate = TARGETING; }
     break;
   default:
     break;
@@ -419,7 +427,44 @@ void cGameState::paintbg(void)
     m_preroundMousePtr->Paint(&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
   }
-  else {
+  else if (m_mainstate == MAINSTATES::POSTLEVEL)
+  {
+    static char t_strbuff[255];
+    int st_y = 30;
+    int spc_y = 20;
+    int ht_y = 31;
+
+    g_D3DObject->m_pd3dxSprite->Begin(0);
+    m_preroundBk->Paint(0.0f,0.0f);
+
+
+    for (int c = 0; c < m_numplayers; c++) {
+      // Names
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,200,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Name",-1,
+          &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),200,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"%i",m_LevelState.numKills[c]);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,m_PlayerState[c].name,-1,
+        &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+      // Kills
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,200,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Kills",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),200,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"%i",m_LevelState.numKills[c]);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+    }
+    m_preroundMousePtr->Paint(&mscreen);
+    g_D3DObject->m_pd3dxSprite->End();
+  }
+  else if (m_mainstate == MAINSTATES::LEVEL) {
     m_skybox->Paint();
     m_terrain->Paint();
   }
@@ -546,6 +591,19 @@ void cGameState::GetInput(void)
   if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_mainstate) {
+    case MAINSTATES::POSTLEVEL:
+      if (g_D3DInput->MouseDown(0) || g_D3DInput->KeyDown(DIK_RETURN) || g_D3DInput->KeyDown(DIK_ESCAPE))
+      {
+        wav->play(mnu_select);
+        m_mainstate = MAINSTATES::MAINMENU;
+        m_gstate = STATES::NOTHING;
+        g_D3DObject->DefaultRenderState();
+        g_D3DInput->ResetMouseScreen();
+        v_KEYUP_ESC = false;
+        v_MOUSEUP_0 = false;
+        return;
+      }
+      break;
     case MAINSTATES::GAMESETUP:
       if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC) {
         wav->play(mnu_select);
@@ -759,6 +817,13 @@ void cGameState::GetInput(void)
           {
               for (int k = 0; k < c3DObjectMissile::MSLNUM; k++)
                   m_PlayerState[m_currentplayer].numweapons[k] = 99;
+          }
+          if (g_D3DInput->KeyDown(DIK_LMENU) && g_D3DInput->KeyDown(DIK_K))
+          {
+              for (int k = 0; k < m_numplayers; k++)
+                  if (k != m_currentplayer) m_PlayerState[k].health = 0;
+              KillDeadTanks();
+              m_gstate = KILLDEADTANKS;
           }
 
           if (g_D3DInput->KeyDown(DIK_F1) && v_KEYUP_F1) {
