@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="Windows-1252"?>
+<?xml version="1.0" encoding = "Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.10"
+	Version="7.00"
 	Name="TankGWAR"
 	ProjectGUID="{A5933BA3-1269-4866-8E49-C4F053ECA691}"
 	Keyword="Win32Proj">
@@ -51,14 +51,8 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
 				Name="VCWebDeploymentTool"
 				ApplicationProtection="0"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -99,17 +93,9 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
-				Name="VCXMLDataGeneratorTool"/>
-			<Tool
 				Name="VCWebDeploymentTool"/>
-			<Tool
-				Name="VCManagedWrapperGeneratorTool"/>
-			<Tool
-				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
-	<References>
-	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -146,9 +132,6 @@
 				RelativePath=".\CameraBehindTank.cpp">
 			</File>
 			<File
-				RelativePath=".\cModel.cpp">
-			</File>
-			<File
 				RelativePath=".\D3DInput.cpp">
 			</File>
 			<File
@@ -161,9 +144,6 @@
 				RelativePath=".\MainWnd.cpp">
 			</File>
 			<File
-				RelativePath="mp3aud.cpp">
-			</File>
-			<File
 				RelativePath=".\Obj.cpp">
 			</File>
 			<File
@@ -171,21 +151,6 @@
 			</File>
 			<File
 				RelativePath=".\SkyBox.cpp">
-			</File>
-			<File
-				RelativePath=".\stdafx.cpp">
-				<FileConfiguration
-					Name="Debug|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
-				<FileConfiguration
-					Name="Release|Win32">
-					<Tool
-						Name="VCCLCompilerTool"
-						UsePrecompiledHeader="1"/>
-				</FileConfiguration>
 			</File>
 			<File
 				RelativePath=".\TankGWAR.cpp">
@@ -204,6 +169,33 @@
 			</File>
 			<File
 				RelativePath=".\World.cpp">
+			</File>
+			<File
+				RelativePath=".\cModel.cpp">
+			</File>
+			<File
+				RelativePath="minimap.cpp">
+			</File>
+			<File
+				RelativePath="mp3aud.cpp">
+			</File>
+			<File
+				RelativePath=".\stdafx.cpp">
+				<FileConfiguration
+					Name="Debug|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+				<FileConfiguration
+					Name="Release|Win32">
+					<Tool
+						Name="VCCLCompilerTool"
+						UsePrecompiledHeader="1"/>
+				</FileConfiguration>
+			</File>
+			<File
+				RelativePath="wavsound.cpp">
 			</File>
 		</Filter>
 		<Filter
@@ -241,9 +233,6 @@
 				RelativePath=".\CameraBehindTank.h">
 			</File>
 			<File
-				RelativePath=".\cModel.h">
-			</File>
-			<File
 				RelativePath=".\D3DInput.h">
 			</File>
 			<File
@@ -254,9 +243,6 @@
 			</File>
 			<File
 				RelativePath=".\MainWnd.h">
-			</File>
-			<File
-				RelativePath="mp3aud.h">
 			</File>
 			<File
 				RelativePath=".\Obj.h">
@@ -276,9 +262,6 @@
 				</FileConfiguration>
 			</File>
 			<File
-				RelativePath=".\stdafx.h">
-			</File>
-			<File
 				RelativePath=".\TankGWAR.h">
 			</File>
 			<File
@@ -296,19 +279,34 @@
 			<File
 				RelativePath=".\World.h">
 			</File>
+			<File
+				RelativePath=".\cModel.h">
+			</File>
+			<File
+				RelativePath="minimap.h">
+			</File>
+			<File
+				RelativePath="mp3aud.h">
+			</File>
+			<File
+				RelativePath=".\stdafx.h">
+			</File>
+			<File
+				RelativePath="wavsound.h">
+			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
-				RelativePath=".\small.ico">
-			</File>
-			<File
 				RelativePath=".\TankGWAR.ico">
 			</File>
 			<File
 				RelativePath=".\TankGWAR.rc">
+			</File>
+			<File
+				RelativePath=".\small.ico">
 			</File>
 		</Filter>
 		<File
