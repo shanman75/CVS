@@ -137,21 +137,30 @@ void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
 	//Find first "X"
     int first = (srcrect->left / m_maxw);
 	int last = (srcrect->right / m_maxh) + ((srcrect->right % m_maxh) >0);
-	trans.x=0;
+	trans.x=points->x;
 	SetRect(&rect,srcrect->left % m_maxw,0,m_maxw,m_maxh);
-	trans.x += points->x;
 	for (int x=first; x< last ; x++) {		    
+		    int p = x % m_ncol;
 			trans.y  = 0;
 			for (int r=0; r<m_nrow; r++) {
-				int spr = x+r*m_ncol;
+				int spr = p+r*m_ncol;
 				trans.y = (int) r*m_maxh;
 				trans.y += points->y;
 				if ((trans.y + m_maxw) > 800) rect.right = m_maxw-(800-trans.y);
 				if (spr < m_numtex)
 					g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,rotation,&trans,color);
 			}
-			trans.x += rect.right-rect.left;
-			SetRect(&rect,0,0,m_maxw,m_maxh);
+			char buff[500];
+			//sprintf (buff,"Adding %i to trans.x\n",rect.right-rect.left);
+			//OutputDebugString(buff);
+			trans.x += (rect.right-rect.left);
+			if (x == m_ncol) {   // Check for edge of texture
+				sprintf (buff,"Edge of screen x=%i, right=%i m_ncol=%i m_nrow=%i\n\n",x,m_width%m_maxw,m_ncol,m_nrow);
+				OutputDebugString(buff);
+				SetRect(&rect, 0, 0, m_width % m_maxw, m_maxh);
+			}
+			else
+				SetRect(&rect,0,0,m_maxw,m_maxh);
 		}
 //	OutputDebugString("CTexture::Paint - return\n");
 }

@@ -16,7 +16,7 @@ HWND hwnd;										// Handle to a Window
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
 int ActiveApp=1;
-	CTexture *tex[3];
+	CTexture *tex[4];
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -49,6 +49,7 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	tex[0] = new CTexture("resource\\farsky.png",0xFFFF00FF);
 	tex[1] = new CTexture("resource\\middleground.png",0xFFFF00FF);
 	tex[2] = new CTexture("resource\\water.png",0xFFFF00FF);
+	tex[3] = new CTexture("resource\\herodumdum2.bmp",0xFFFF00FF);
 
 	// Main message loop:
 	int m_cnt = 0;

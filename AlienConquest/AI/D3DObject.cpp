@@ -219,7 +219,7 @@ int D3DObject::LoadTextureFromFile(char *fname, IDirect3DTexture8 **texture, D3D
 
 int D3DObject::Test (CTexture *tex[])
 {
-  OutputDebugString("D3DObject::Test - begin\n");
+//  OutputDebugString("D3DObject::Test - begin\n");
   static CTimer mytime;
   double SCALE = 0.085;
 
@@ -230,7 +230,7 @@ int D3DObject::Test (CTexture *tex[])
   mx += (mytime.UpdateGetTime() * SCALE);
   int m_x = (int)mx;
 
-	OutputDebugString("Calling begin scene\n");
+//	OutputDebugString("Calling begin scene\n");
   m_d3ddevice8->BeginScene();
   m_d3ddevice8->Clear( 0, NULL, D3DCLEAR_TARGET, 
           D3DCOLOR_XRGB(0,0,255), 1.0f, 0 );
@@ -244,6 +244,7 @@ int D3DObject::Test (CTexture *tex[])
 	double sky = 0.12;
 	double groud = 0.65;
 	double below = 1.68;
+	double hero = 1.12;
 	SetRect(&SrcRect,0+m_x*sky,0,curmode.Width+m_x*sky,600);
 	trans.y = 0;
 //	m_pd3dxSprite->Draw( m_lpTexture[0], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
@@ -265,6 +266,10 @@ int D3DObject::Test (CTexture *tex[])
 	 SetRect(&SrcRect,m_x*below,0,m_x*below+curmode.Width,tex[2]->GetHeight());
 	 trans.y = curmode.Height-50;
 	 tex[2]->Paint(&SrcRect,&trans);
+	 trans.y = ((int)(0.5*m_x*hero)) % curmode.Height;
+	 trans.x = ((int)(m_x*hero)) % curmode.Width;
+	 SetRect(&SrcRect,0,0,tex[3]->GetWidth(),tex[3]->GetHeight());
+	 tex[3]->Paint(&SrcRect,&trans);
 	}
 	m_pd3dxSprite->End();
 
