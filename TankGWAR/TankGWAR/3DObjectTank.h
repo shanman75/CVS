@@ -4,7 +4,7 @@
 #include "D3DObject.h"
 #include "Timer.h"
 
-class cModel:
+class c3DObjectTank:
 	public c3DObject
 {
 public:
@@ -17,14 +17,14 @@ private:
 	void _LoadGraphics(void);
 	void _UnloadGraphics();
 
-	static LPD3DXMESH			m_tank;
-    static DWORD				m_nMat;
-    static LPDIRECT3DTEXTURE9*	m_tanktex;
-    static D3DMATERIAL9*		m_tankmat;
-	static int					m_graph_init;
+	static LPD3DXMESH			        m_tank;
+  static DWORD				          m_nMat;
+  static LPDIRECT3DTEXTURE9*	  m_tanktex;
+  static D3DMATERIAL9*		      m_tankmat;
+	static int					          m_graph_init;
 
-	CTimer						m_time, m_time2;
+	CTimer						            m_time, m_time2;
 
-	float						m_xPos, m_yPos, m_zPos;
+	float						              m_xPos, m_yPos, m_zPos;
 
 };

@@ -2,13 +2,14 @@
 #include "objmgr.h"
 #include <stdio.h>
 
-CObjMgr g_ObjMgr;
+CObjMgr *g_ObjMgr;
 const int CObjMgr::m_numz=3;
 
 CObjMgr::CObjMgr(void)
 {
 	OutputDebugString("Object Manager Created\n");
-	m_numobj=0;
+	m_numobj    =	0;
+	m_num3Dobj  =	0;
 
 	reset();
 }
@@ -55,20 +56,33 @@ void CObjMgr::move()
 
 	for (int x=0; x < m_numobj; x++)
 		m_obj[x]->move();
+  for (int z=0; z < m_num3Dobj; z++)
+		m_3Dobj[z]->move();
+  for (int z=0; z < m_num3Dobj; z++)
+    if(m_3Dobj[z]->m_position.y < 0)
+		   del(m_3Dobj[z]);
 }
 
 void CObjMgr::paint()
 {
-	static char livestr[500];
+	//static char livestr[500];
 	for (int z=m_numz; z >= 0; z--) 
 	  for (int x=0; x < m_numobj; x++)
 		if (m_obj[x] != NULL && m_obj[x]->m_z == z) m_obj[x]->paint();	
+
+  for (int y=0; y < m_num3Dobj; y++)
+    if (m_3Dobj[y] != NULL) m_3Dobj[y]->paint();
 
 }
 
 void CObjMgr::add(CObj *add)
 {
 	if (add!=NULL) m_obj[m_numobj++] = add;
+}
+
+void CObjMgr::add(c3DObject *add)
+{
+	if (add!=NULL) m_3Dobj[m_num3Dobj++] = add;
 }
 
 void CObjMgr::del(CObj *del)
@@ -90,13 +104,38 @@ void CObjMgr::del(CObj *del)
 	OutputDebugString("Deleted object\n");
 }
 
+void CObjMgr::del(c3DObject *del)
+{
+	OutputDebugString("Deleting 3D object\n");
+	if (del != NULL) {
+		int found= 0;
+		// Find the pointer
+		for (int x = 0; x < m_num3Dobj; x++)
+		{
+			if (m_3Dobj[x] == del) { found = 1; delete m_3Dobj[x]; }
+			if (found) { m_3Dobj[x]= m_3Dobj[x+1]; }
+		}
+		if (found)
+		 m_3Dobj[m_num3Dobj--] = NULL;
+		else
+		 OutputDebugString("3D Object NOT found\n");
+	}
+	OutputDebugString("Deleted 3D object\n");
+}
+
 void CObjMgr::reset(void)
 {
 	if (m_numobj > 0)
 	for (int x = 0; x < m_numobj ; x++)
 		SafeDelete(m_obj[x]);
+  if (m_num3Dobj > 0)
+	for (int y = 0; y < m_num3Dobj ; y++)
+		SafeDelete(m_3Dobj[y]);
+
 	m_numobj = 0;
 	m_obj[0] = NULL;	
+	m_num3Dobj = 0;
+	m_3Dobj[0] = NULL;	
 
 	m_world.reset();
 

@@ -1,15 +1,15 @@
 #include "StdAfx.h"
-#include "cmodel.h"
+#include "3DObjectTank.h"
 #include <stdio.h>
 
-int					cModel::m_graph_init = 0;
-LPD3DXMESH			cModel::m_tank = NULL;
-DWORD				cModel::m_nMat = 0;
-LPDIRECT3DTEXTURE9*	cModel::m_tanktex = NULL;
-D3DMATERIAL9*		cModel::m_tankmat = NULL;
+int					c3DObjectTank::m_graph_init = 0;
+LPD3DXMESH			c3DObjectTank::m_tank = NULL;
+DWORD				c3DObjectTank::m_nMat = 0;
+LPDIRECT3DTEXTURE9*	c3DObjectTank::m_tanktex = NULL;
+D3DMATERIAL9*		c3DObjectTank::m_tankmat = NULL;
 
 
-cModel::cModel(float x, float y, float z)
+c3DObjectTank::c3DObjectTank(float x, float y, float z)
 {
 	m_xPos = x;
 	m_yPos = y;
@@ -18,12 +18,12 @@ cModel::cModel(float x, float y, float z)
 	if (!m_graph_init++) _LoadGraphics();
 }
 
-cModel::~cModel(void)
+c3DObjectTank::~c3DObjectTank(void)
 {
    if (!--m_graph_init) _UnloadGraphics();
 }
 
-void cModel::MakeWorldMatrix( int x )
+void c3DObjectTank::MakeWorldMatrix( int x )
 {
 	D3DXMATRIX MatWorld; 
 	D3DXMATRIX *pMatWorld = &MatWorld;
@@ -119,7 +119,7 @@ void cModel::MakeWorldMatrix( int x )
       g_D3DObject->m_d3ddevice9->SetTextureStageState(0,D3DTSS_CONSTANT ,0);
 }
 
-void cModel::Paint()
+void c3DObjectTank::Paint()
 {	
    for (int x = 0; x < (int)m_nMat; x++)  {
 //	 g_D3DObject->m_d3ddevice9->SetMaterial( &tankmat[x] );
@@ -129,7 +129,7 @@ void cModel::Paint()
 	 m_tank->DrawSubset(x);
    }
 }
-void cModel::_UnloadGraphics()
+void c3DObjectTank::_UnloadGraphics()
 {
   m_tank->Release();
   for (int x = 0; x < (int)m_nMat; x++) {
@@ -138,7 +138,7 @@ void cModel::_UnloadGraphics()
   SAFE_DELETE_ARRAY(m_tanktex);
   SAFE_DELETE_ARRAY(m_tankmat);
 }
-void cModel::_LoadGraphics()
+void c3DObjectTank::_LoadGraphics()
 {
 	LPD3DXBUFFER lpMat = NULL;
     LPD3DXBUFFER pAdjacencyBuffer = NULL;

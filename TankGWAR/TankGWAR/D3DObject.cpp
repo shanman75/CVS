@@ -51,7 +51,9 @@ int D3DObject::_InitD3D9(void)
   {
     D3DFORMAT dfmt;
 	dfmt = D3DFMT_X8R8G8B8;
-	m_d3d9->EnumAdapterModes(D3DADAPTER_DEFAULT,dfmt,m++,&curmode);
+	
+	if (FAILED(m_d3d9->EnumAdapterModes(D3DADAPTER_DEFAULT,dfmt,m++,&curmode)))
+		exit(1);
   }
 
   m_d3dpp.BackBufferWidth=curmode.Width; //width
@@ -176,16 +178,25 @@ int D3DObject::PaintFrame(IDirect3DSurface9* in_Frame)
 
 int D3DObject::MakeScreenSurface(int width, int height, D3DFORMAT format, IDirect3DSurface9** dest_surf)
 {
+	HRESULT bl;
+
 	if (width == 0) width = m_d3dpp.BackBufferWidth;
 	if (height == 0) height = m_d3dpp.BackBufferHeight;
 	if (format == D3DFMT_UNKNOWN) format = m_d3dpp.BackBufferFormat;
 
-	return m_d3ddevice9->CreateOffscreenPlainSurface(width,
+	bl = 
+	   m_d3ddevice9->CreateOffscreenPlainSurface(
+		width,
 		height,
 		format,
-		D3DPOOL_DEFAULT,
+		D3DPOOL_SYSTEMMEM,
 		dest_surf,
 		NULL);
+
+	if (FAILED(bl))
+		exit(1);
+	return bl;
+
 	//return m_d3ddevice9->CreateImageSurface(width,height,
 	//	format,dest_surf);
 }
@@ -220,6 +231,7 @@ int D3DObject::LoadSurfaceFromFile (char *fname, IDirect3DSurface9 **surf, D3DCO
 	if (!fmt) fmt = D3DFMT_UNKNOWN;
 	if (D3DXGetImageInfoFromFile(fname,SrcInfo) != D3D_OK) return D3DERR_INVALIDCALL;
 //	if (MakeScreenSurface(SrcInfo->Width,SrcInfo->Height,D3DFMT_UNKNOWN,surf) != D3D_OK) return FALSE;
+
 	if (MakeScreenSurface(SrcInfo->Width,SrcInfo->Height,fmt,surf) != D3D_OK) return FALSE;
 
 //	retval = D3DXLoadSurfaceFromFile(*surf,NULL,NULL, //copy to surface
@@ -321,17 +333,6 @@ return D3D_OK;
 int D3DObject::_InitFonts() {
 
 	HRESULT hr;
-	LOGFONT fn;
-
-	//memset(&fn,0,sizeof(LOGFONT));
-	//strcpy (fn.lfFaceName,"DROSS2.TTF");
-	//fn.lfHeight = 48;
-	//fn.lfWeight = 200;
-	//fn.lfCharSet = DEFAULT_CHARSET;
-
-	//// Get a handle for the font to use
-	////HFONT hFont = (HFONT)GetStockObject(SYSTEM_FONT);
-	//HFONT hFont = (HFONT) CreateFontIndirect(&fn);
 
 	pFont = NULL;
 

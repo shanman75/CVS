@@ -9,7 +9,7 @@ void CTexture::OnLostDevice()
 //  _InitTextures();
 }
 
-void CTexture::Paint(int x, int y)
+void CTexture::Paint(float x, float y)
 {
 	D3DXVECTOR2 pnt (x,y);
 	Paint(&pnt);
@@ -38,7 +38,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int m
 
 	m_filename = strdup(filename);
 
-	sprintf (buff,"CTexture::Create - loading %s RECT=%i\n",filename,srect);
+	sprintf (buff,"CTexture::Create - loading %s\n",filename);
 	OutputDebugString(buff);
 	
 	UpdateDeviceCaps();
@@ -50,7 +50,7 @@ CTexture::CTexture(char *filename,D3DCOLOR colorkey,RECT *srect, int maxw, int m
 		return;
 	}
 	
-	tdesc.Format = (D3DFORMAT)21;
+	tdesc.Format = D3DFMT_A8R8G8B8;
 
 	//sprintf (buff,"CTexture - Format is %i - TFormat is %i Info is %i\n",m_texinfo.Format,tdesc.Format,info.Format);
 	//OutputDebugString(buff);

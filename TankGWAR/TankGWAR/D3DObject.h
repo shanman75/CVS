@@ -60,6 +60,7 @@ public:
     ID3DXFont*              m_pD3DXFont;            // D3DX font    
 	int m_x;
 	LPD3DXSPRITE m_pd3dxSprite;
+
 protected:
 	HRESULT RenderText();
 

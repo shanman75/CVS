@@ -51,7 +51,7 @@ BOOL CWorld::ToScreen(D3DXVECTOR2 *p, D3DXVECTOR2 *t)
 
 void CWorld::move(void)
 {
-   int dlt = m_timer.GetTime();
+   float dlt = m_timer.GetTime();
    m_cur_x += dlt * m_speed_x/1000;
    m_cur_y += dlt * m_speed_y/1000;
 }

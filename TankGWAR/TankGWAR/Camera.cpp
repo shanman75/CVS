@@ -9,12 +9,12 @@ extern cTerrain *terrain;
 cCamera::cCamera(void)
 {
 	m_x = 0;
-	m_y = 0;
-	m_z = -5;
+	m_y = 18.0f;
+	m_z = -19.0f;
 
 	m_rotx = 0;
 	m_roty = 0;
-	m_zoom = 25;
+	m_zoom = 3;
 
 	m_time.Reset();
 	m_time.setInterval(0.2f);
@@ -30,12 +30,12 @@ void cCamera::event(EVENT evnt)
   OutputDebugString("Got a camera event\n");
   if (m_time.CmpTime())
   switch (evnt) {
-	case LEFT:  m_rotx -= 0.05f; break;
-	case RIGHT: m_rotx += 0.05f; break;
-	case DOWN:  m_roty += 0.05f; break;
-	case UP:    m_roty -= 0.05f; break;
-	case ZOOMIN: m_zoom -= 0.2f; break;
-	case ZOOMOUT: m_zoom += 0.2f; break;
+	case LEFT:  m_z -= 0.4f; break;
+	case RIGHT: m_z += 0.4f; break;
+	case DOWN:  m_y += 0.4f; break;
+	case UP:    m_y -= 0.4f; break;
+	case ZOOMIN: m_zoom -= 0.8f; break;
+	case ZOOMOUT: m_zoom += 0.8f; break;
 	default: break;
   }
 
@@ -65,11 +65,11 @@ void cCamera::SetCamera(void)
 	}
 	else {
 	*/ {
-		m_x = (cos(m_roty) * cos(m_rotx)) * m_zoom;
+		//m_x = (cos(m_roty) * cos(m_rotx)) * m_zoom;
 		//(sin(m_roty) + cos(m_rotx)) * m_zoom;
-		m_z = (cos(m_roty) * sin(m_rotx)) * m_zoom;
+		//m_z = (cos(m_roty) * sin(m_rotx)) * m_zoom;
 	}
-	m_y = sin(m_roty) * m_zoom;
+	//m_y = sin(m_roty) * m_zoom;
 
 	/*
 	m_x = m_zoom * ( 1/cosh(m_roty) * cos(m_rotx));
@@ -78,7 +78,7 @@ void cCamera::SetCamera(void)
    */
 
 	//m_y = terrain->GetHeight(m_x,m_z)+10.0f;
-	m_y = 19.2;
+	//m_y = 19.2f;
 	
 	
     /*
@@ -87,9 +87,8 @@ void cCamera::SetCamera(void)
     g_D3DObject->DrawTextStr(300,450,D3DCOLOR_XRGB(240,0,50),debg);
 	*/
 
-
     D3DXVECTOR3 vFromPt   = D3DXVECTOR3( m_x, m_y, m_z );
-    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
+    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 8.0f, 0.0f );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );

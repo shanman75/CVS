@@ -16,8 +16,8 @@
 #include <memory.h>
 #include <tchar.h>
 
-#define WIDTH 1024
-#define HEIGHT 768
+#define WIDTH 800
+#define HEIGHT 600
 #define WINDOWED 0
 
 #define SAFE_DELETE(p)       { if(p) { delete (p);     (p)=NULL; } }

@@ -3,23 +3,7 @@
 #include "Timer.h"
 #include "World.h"
 #include "Obj.h"
-/*
-#include "Text.h"
-#include "Hero.h"
-#include "Hero2.h"
-#include "BkGround.h"
-#include "ObjEnemy.h"
-#include "ObjEnemy2.h"
-#include "ObjEnemy3.h"
-#include "ObjEnemyWeapon.h"
-#include "ObjEnemyWeapon2.h"
-#include "ObjEnemyWeapon3.h"
-#include "ObjHeroWeaponMain.h"
-#include "ObjHeroWeaponMissile.h"
-#include "ObjHeroWeaponLaser.h"
-#include "ObjBmp.h"
-#include "ObjPowerUp.h"
-*/
+#include "3DObject.h"
 
 class CObjMgr
 {
@@ -33,6 +17,8 @@ public:
 
 	void add(CObj *);
 	void del(CObj *);
+	void add(c3DObject *);
+	void del(c3DObject *);
 
 	void reset(void);
 
@@ -41,14 +27,15 @@ public:
 	int GetNumObj(void) { return m_numobj; }
 
 	const static int MAX_OBJECTS = 700;
+	const static int MAX_3DOBJECTS = 50;
 	const static int MAX_ANIMATE = 20;
 private:
-	CObj *m_obj[MAX_OBJECTS];
-	int m_numobj;
+	CObj       *m_obj[MAX_OBJECTS];
+	c3DObject  *m_3Dobj[MAX_3DOBJECTS];
+	int m_numobj, m_num3Dobj;
 	CTimer m_time;
 	CWorld m_world;
 	CTimer m_spawn_tim;
-
 };
 
-extern CObjMgr g_ObjMgr;
+extern CObjMgr *g_ObjMgr;

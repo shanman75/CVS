@@ -115,8 +115,8 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->nz = 0;
 		  VertexPtr->diffuse = randcolor();
 		  //VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
- 		  VertexPtr->u = i%2;
-		  VertexPtr->v = j%2;
+ 		  VertexPtr->u = (float)(i%2);
+		  VertexPtr->v = (float)(j%2);
 		  *t_Heights++ = VertexPtr->y;
 		  VertexPtr++;
 
