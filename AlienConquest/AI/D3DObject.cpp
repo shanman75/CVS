@@ -241,25 +241,17 @@ int D3DObject::Test (CTexture *tex[])
 	m_pd3dxSprite->Begin();
 	trans.x=0;
 
-	double sky = 0.12;
+	double sky = 1.12;
 	double groud = 0.65;
 	double below = 1.68;
 	double hero = 1.12;
-	SetRect(&SrcRect,0+m_x*sky,0,curmode.Width+m_x*sky,600);
-	trans.y = 0;
-//	m_pd3dxSprite->Draw( m_lpTexture[0], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
-	SetRect(&SrcRect,0+m_x*groud,0,curmode.Width+m_x*groud,600);
-	trans.y=0;
-//	m_pd3dxSprite->Draw( m_lpTexture[1], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
-	SetRect(&SrcRect,0+m_x*below,0,curmode.Width+m_x*below,50);
-	trans.y=curmode.Height-50;
-//	m_pd3dxSprite->Draw( m_lpTexture[2], &SrcRect, 0, 0, 0, &trans, 0xFFFFFFFF );
+	int lft=0;
 
-	//OutputDebugString("Calling texture paint\n");
 	if (tex != NULL) {
 	 trans.x = 0;
 	 trans.y = 0;
-	 SetRect(&SrcRect,m_x*sky,0,m_x*sky+curmode.Width,tex[0]->GetHeight());
+	 lft = (((int)(m_x*sky))); //% tex[0]->GetWidth());
+	 SetRect(&SrcRect,lft,0,lft+curmode.Width,tex[0]->GetHeight());
 	 tex[0]->Paint(&SrcRect,&trans);
 	 SetRect(&SrcRect,m_x*groud,0,m_x*groud+curmode.Width,tex[1]->GetHeight());
 	 tex[1]->Paint(&SrcRect,&trans);
@@ -268,8 +260,9 @@ int D3DObject::Test (CTexture *tex[])
 	 tex[2]->Paint(&SrcRect,&trans);
 	 trans.y = ((int)(0.5*m_x*hero)) % curmode.Height;
 	 trans.x = ((int)(m_x*hero)) % curmode.Width;
-	 SetRect(&SrcRect,0,0,tex[3]->GetWidth(),tex[3]->GetHeight());
-	 tex[3]->Paint(&SrcRect,&trans);
+//	 SetRect(&SrcRect,0,0,tex[3]->GetWidth(),tex[3]->GetHeight());
+//	 tex[3]->Paint(&SrcRect,&trans);
+	 tex[3]->Paint(&trans);
 	}
 	m_pd3dxSprite->End();
 
@@ -299,7 +292,7 @@ int D3DObject::Test (CTexture *tex[])
 	*/
 
 	char *outstr2 = new char[500];
-	sprintf(outstr2,"M_X = %i and Timer = %f Mode=%i\n",m_x,fps,curmode.Format);
+	sprintf(outstr2,"M_X = %i and Timer = %f lft=%i\n",m_x,fps,lft);
 	DrawTextStr(150,300,D3DCOLOR_XRGB(255,0,255),outstr2);
 	delete outstr2;
 

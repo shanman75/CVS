@@ -12,6 +12,7 @@ public:
 	CTexture(char *filename, D3DCOLOR colorkey=0);
 	~CTexture(void);
 	void Paint (RECT *,D3DXVECTOR2 *);
+	void Paint (D3DXVECTOR2 *);
 	void OnLostDevice();
 	int GetWidth();
 	int GetHeight();

@@ -121,48 +121,87 @@ CTexture::~CTexture(void)
 //	delete []m_textures;
 }
 
-void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
+void CTexture::Paint(D3DXVECTOR2 *points)
 {
-//	OutputDebugString("CTexture::Paint - begin\n");
 	D3DCOLOR color = 0xFFFFFFFF;
     float rotation = 0;
 	D3DXVECTOR2 rotate(0,0), scale(0,0), trans (0,0);
 	RECT rect;
 
-	if (srcrect->left >= m_width) {
-		OutputDebugString("CTex - Paint - Normalizing\n");
-		CopyRect(&rect,srcrect);
-		SetRect(srcrect,rect.left-m_width,rect.top,rect.right-m_width,rect.bottom);
-	}
-	//Find first "X"
-    int first = (srcrect->left / m_maxw);
-	int last = (srcrect->right / m_maxh) + ((srcrect->right % m_maxh) >0);
 	trans.x=points->x;
-	SetRect(&rect,srcrect->left % m_maxw,0,m_maxw,m_maxh);
-	for (int x=first; x< last ; x++) {		    
-		    int p = x % m_ncol;
-			trans.y  = 0;
-			for (int r=0; r<m_nrow; r++) {
-				int spr = p+r*m_ncol;
-				trans.y = (int) r*m_maxh;
-				trans.y += points->y;
-				if ((trans.y + m_maxw) > 800) rect.right = m_maxw-(800-trans.y);
-				if (spr < m_numtex)
-					g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,rotation,&trans,color);
-			}
-			char buff[500];
-			//sprintf (buff,"Adding %i to trans.x\n",rect.right-rect.left);
-			//OutputDebugString(buff);
-			trans.x += (rect.right-rect.left);
-			if (x == m_ncol) {   // Check for edge of texture
-				sprintf (buff,"Edge of screen x=%i, right=%i m_ncol=%i m_nrow=%i\n\n",x,m_width%m_maxw,m_ncol,m_nrow);
-				OutputDebugString(buff);
-				SetRect(&rect, 0, 0, m_width % m_maxw, m_maxh);
-			}
-			else
-				SetRect(&rect,0,0,m_maxw,m_maxh);
+	for (int mx = 0; mx < m_ncol; mx++) {
+		trans.y=points->y;
+		for (int my = 0; my < m_nrow; my++) {
+		  SetRect(&rect,0,0,m_maxh,m_maxw);
+		  int spr = (my*m_ncol)+mx;
+		  if (spr < m_numtex) {
+			g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
+		  }
+		  else {OutputDebugString("CTexture - Paint....sprite out of range error\n");}
+		  trans.y+=m_maxh;
 		}
-//	OutputDebugString("CTexture::Paint - return\n");
+		trans.x+=m_maxw;
+	}
+}
+
+void CTexture::Paint(RECT *srcrect, D3DXVECTOR2 *points)
+{
+	D3DCOLOR color = 0xFFFFFFFF;
+    float rotation = 0;
+	D3DXVECTOR2 rotate(0,0), scale(0,0), trans (0,0);
+	RECT rect;
+	char buff[500];
+//		OutputDebugString("CTex - Paint - Begin\n");
+	if (srcrect->left >= m_width) {
+		sprintf(buff,"Normalizing, srcrect->left=%i\n",srcrect->left);
+		OutputDebugString(buff);
+		CopyRect(&rect,srcrect);
+		int mw = rect.right-rect.left;
+		int mt = rect.left%m_width;
+		SetRect(srcrect,mt,rect.top,mt+mw,rect.bottom);
+	}
+	sprintf(buff,"Painting srcrect->left now =%i\n",srcrect->left);
+	OutputDebugString(buff);
+//	g_D3DObject->DrawTextStr(150,150,D3DCOLOR_XRGB(255,0,255),buff);
+
+	//Find first "X"
+	int curx = srcrect->left;
+	trans.x = points->x;
+	int mx = (int) (curx / m_maxw)%m_ncol;   // The "X" Coord of the Square
+	int ax = (int) (curx % m_maxw);	  // The "X" Coord of the point in the square (first time)
+	while (curx <= srcrect->right) {
+		int ar = (int) m_maxw;
+		//if ((srcrect->right - curx) < ar) ar = srcrect->right-curx;  // sub-rect at the end
+		if ((mx == (m_ncol-1)) && ((m_width%m_maxw)<ar)) ar = m_width%m_maxw; //blank space at the end
+		
+		int cury = srcrect->top;
+		trans.y = points->y;
+		int my = (int) (cury / m_maxh)%m_nrow;
+        int ay = (int) (cury % m_maxh);
+		while (cury <= srcrect->bottom) {
+		  int ab = (int) m_maxh;
+		  //if ((srcrect->bottom-cury)<ab) ab = srcrect->right - cury;
+		  if ((my == (m_nrow-1)) && ((m_height%m_maxh)<ab)) ab = m_height %m_maxh;
+		  SetRect(&rect,ax,ay,ar,ab);
+		  int spr = (mx)+(my*m_ncol);
+		  if (spr < m_numtex) {
+			g_D3DObject->SpriteDraw(m_textures[spr],&rect,0,0,0,&trans,color);
+		  }
+		  else {OutputDebugString("CTexture - Paint....sprite out of range error\n");}
+		  char buff[500];
+		  cury += abs(rect.bottom - rect.top) + (rect.bottom == rect.top);
+		  trans.y += abs(rect.bottom - rect.top);
+		  my = (my+1)%m_nrow;
+		  ay=0;
+		}
+		  sprintf(buff,"Curx = %i, Cury = %i rect-(%i,%i,%i,%i) trans(%i,%i) spr=%i\n",curx,cury,
+			  rect.left,rect.top,rect.right,rect.bottom,trans.x,trans.y,0);
+		  OutputDebugString(buff);
+		mx = (mx+1)%m_ncol;
+		trans.x += abs(rect.right - rect.left) ;
+	    curx    += abs(rect.right - rect.left)+ (rect.right == rect.left);
+		ax	    = 0;
+	}
 }
 
 int CTexture::GetHeight() {return m_height;}
