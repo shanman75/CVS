@@ -1,6 +1,7 @@
 #include "StdAfx.h"
 #include "mainwnd.h"
 #include "D3DObject.h"
+#include "D3DInput.h"
 #include "resource.h"
 #include "tankgwar.h"
 #include <stdio.h>
@@ -94,9 +95,9 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
    OutputDebugString("Creating D3D Object\n");
    g_D3DObject = new D3DObject;
    if (g_D3DObject == NULL) return FALSE;
-   /*
    OutputDebugString("Creating D3D Input\n");
    g_D3DInput = new D3DInput;
+/*	
    OutputDebugString("Creating Obj Mgr\n");
    g_ObjMgr = new CObjMgr;
    OutputDebugString("Creating Sound Manager\n");
@@ -135,11 +136,12 @@ char debg[255];
 		SafeDelete(g_SndMgr);
 		OutputDebugString("Deleting global Object Manager\n");
 		SafeDelete(g_ObjMgr);
+		*/
 		OutputDebugString("Deleting global D3D Input\n");
 		SafeDelete(g_D3DInput);
-		*/
 
     	g_MainDestroy();
+		
 		OutputDebugString("Deleting global D3D Object\n");
 		SafeDelete(g_D3DObject);
 		PostQuitMessage(0);

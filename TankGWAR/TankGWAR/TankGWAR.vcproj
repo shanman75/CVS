@@ -32,7 +32,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="d3dx9.lib d3d9.lib"
+				AdditionalDependencies="dxguid.lib dinput8.lib d3dx9.lib d3d9.lib"
 				OutputFile="$(OutDir)/TankGWAR.exe"
 				LinkIncremental="2"
 				GenerateDebugInformation="TRUE"
@@ -79,7 +79,7 @@
 				Name="VCCustomBuildTool"/>
 			<Tool
 				Name="VCLinkerTool"
-				AdditionalDependencies="d3dx9.lib d3d9.lib"
+				AdditionalDependencies="dxguid.lib dinput8.lib d3dx9.lib d3d9.lib"
 				OutputFile="$(OutDir)/TankGWAR.exe"
 				LinkIncremental="1"
 				GenerateDebugInformation="TRUE"
@@ -117,7 +117,13 @@
 			Filter="cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx"
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
+				RelativePath=".\Camera.cpp">
+			</File>
+			<File
 				RelativePath=".\cModel.cpp">
+			</File>
+			<File
+				RelativePath=".\D3DInput.cpp">
 			</File>
 			<File
 				RelativePath=".\D3DObject.cpp">
@@ -164,7 +170,13 @@
 			Filter="h;hpp;hxx;hm;inl;inc;xsd"
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
+				RelativePath=".\Camera.h">
+			</File>
+			<File
 				RelativePath=".\cModel.h">
+			</File>
+			<File
+				RelativePath=".\D3DInput.h">
 			</File>
 			<File
 				RelativePath=".\D3DObject.h">

@@ -6,7 +6,7 @@
 // Global Variables
 
 extern HWND g_hWnd;        // Global HWND
-extern HINSTANCE g_hIinst; // Global hinstance
+extern HINSTANCE g_hInst; // Global hinstance
 extern int g_ActiveApp;	   // If Application is Active
 
 

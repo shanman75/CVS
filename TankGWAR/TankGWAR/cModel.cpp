@@ -112,9 +112,9 @@ void cModel::MakeWorldMatrix( int x )
 
 		float m_barrelHeight = fmod((D3DX_PI/2) * (m_time2.PeekTime()/12000),D3DX_PI/2);
 
-		char ch[255];
-		sprintf (ch,"Barrel Height = %f cos=%f\n", m_barrelHeight, cos(m_barrelHeight));
-		OutputDebugString (ch);
+//		char ch[255];
+//		sprintf (ch,"Barrel Height = %f cos=%f\n", m_barrelHeight, cos(m_barrelHeight));
+//		OutputDebugString (ch);
 		
 		//m_fRoll = 3.14/4;
         //D3DXMatrixRotationX(&MatRotY, -m_barrelHeight);          // Roll

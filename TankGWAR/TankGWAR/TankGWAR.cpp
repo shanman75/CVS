@@ -3,21 +3,25 @@
 // BLAH
 
 #include "stdafx.h"
-#include "TankGWAR.h"
-#include "MainWnd.h"
-#include "Timer.h"
+
 #include <d3d9.h>
 #include <d3dx9.h>
 #include <stdio.h>
 
 #include "D3DObject.h"
+#include "D3DInput.h"
 #include "Texture.h"
 #include "ObjMgr.h"
 #include "cModel.h"
+#include "TankGWAR.h"
+#include "MainWnd.h"
+#include "Timer.h"
+#include "Camera.h"
 
 CTimer time, time2;
 CTexture *tex1;
-cModel *model, *model2;
+cModel *model, *model2, *model3;
+cCamera cam;
 
 
 void g_MainDestroy()
@@ -25,6 +29,7 @@ void g_MainDestroy()
   delete tex1;
   delete model;
   delete model2;
+  delete model3;
 }
 void g_MainInit()
 {
@@ -34,7 +39,9 @@ void g_MainInit()
    tex1 = new CTexture("resource\\blah.png",0xFFFF00FF);
    model = new cModel();
    model2 = new cModel();
-   model2->SetXYZ(0,0,0);
+   model2->SetXYZ(0,0,5);
+   model3 = new cModel();
+   model3->SetXYZ(0,0,-5);
 }
 
 
@@ -70,21 +77,12 @@ void g_MainGameLoop()
 
    g_D3DObject->m_d3ddevice9->SetMaterial( &d3dMaterial );
 
-    D3DXMATRIX matView;
-//    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( 0.0f, 0.0f, 20.0f );
-    D3DXVECTOR3 vFromPt   = D3DXVECTOR3( 8.0f, 0.0f, 0.0f );
-    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( 0.0f, 0.0f, 0.0f );
-    D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
-    D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );
-    g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_VIEW, &matView );
-
-    D3DXMATRIX matProj;
-    FLOAT fAspect = ((FLOAT)800) / 600;
-    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 100.0f );
-	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
-
+	g_D3DInput->GetInput((cCamera *)&cam);					 
+	cam.SetCamera();
+ 
 	model->Paint();
-	//model2->Paint();
+	model2->Paint();
+	model3->Paint();
 
    g_D3DObject->m_pd3dxSprite->Begin(0);
    tex1->Paint((int)(time2.PeekTime()/50)%800,(int)(time2.PeekTime()/50)%600);
