@@ -21,9 +21,11 @@ void cCameraBehindMissile::SetCamera()
 
     char bah[1255];
 
-    sprintf(bah,"Orientation (%.1f,%.1f) sin,cos(orx) (%.2f,%.2f)  sin,cos(ory) (%.2f,%.2f)\n", tor.x, tor.y,
+    sprintf(bah,"Orientation (%.1f,%.1f) sin,cos(orx) (%.2f,%.2f)  sin,cos(ory) (%.2f,%.2f) (%.2f,%.2f,%.2f\n", 
+                  tor.x, tor.y,
                   sin(tor.x), cos(tor.x),
-                  sin(tor.y), cos(tor.y)
+                  sin(tor.y), cos(tor.y),
+                  tpos.x, tpos.y, tpos.z
             );
     OutputDebugString(bah);
 

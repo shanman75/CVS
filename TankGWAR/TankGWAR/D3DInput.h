@@ -29,6 +29,7 @@ private:
   CTimer m_keytime;
   CTimer m_mousetime;
 
+  DIMOUSESTATE m_dims;
 };
 
 extern D3DInput *g_D3DInput;

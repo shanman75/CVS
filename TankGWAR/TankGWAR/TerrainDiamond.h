@@ -13,27 +13,27 @@
 
 #define TER_X_SMALL 110
 #define TER_Z_SMALL 110
-#define TER_WIDTH_SMALL 7.0f
+#define TER_WIDTH_SMALL 2.0f
 
 // DEFINES
 //#define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
 #define   D3DFVF_MESH   (D3DFVF_XYZ | D3DFVF_DIFFUSE | D3DFVF_TEX1)
+
 // STRUCTURES
-struct sCustomVertex{	
+struct sCustomVertexDiamond{	
 	float		x, y, z;			// Position	
 //	float   nx, ny, nz;			// Normals	
 	D3DCOLOR	diffuse;			// Colour	
 	float	u, v;				// Texture Coordinates
 };
 
-
-class cTerrain
+class cTerrainDiamond
 {
 public:
 	enum EVENT { RAND };
 
-	cTerrain(float ter_x=DEF_TER_X, float ter_z=DEF_TER_Z, float ter_width=DEF_TER_WIDTH);
-	~cTerrain(void);
+	cTerrainDiamond(float ter_x=DEF_TER_X, float ter_z=DEF_TER_Z, float ter_width=DEF_TER_WIDTH);
+	~cTerrainDiamond(void);
 	void Paint(void);
 	void RandomizeMesh(void);
 	void event(EVENT evnt);
@@ -51,7 +51,7 @@ private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;
 	ID3DXMesh *g_TerrainMeshBig;
-	float **m_Heights;
+	float     **m_Heights;
 
   float TER_X, TER_Z;
   float TER_WIDTH;

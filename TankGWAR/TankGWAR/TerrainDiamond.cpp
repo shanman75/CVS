@@ -1,11 +1,10 @@
 #include "StdAfx.h"
-#include "terrain.h"
-#include <d3dx9.h>
+#include "terraindiamond.h"
 #include <stdio.h>
 
-LPDIRECT3DTEXTURE9*	  cTerrain::m_tertex;
+LPDIRECT3DTEXTURE9*	  cTerrainDiamond::m_tertex;
 
-cTerrain::cTerrain(float x,float z,float w)
+cTerrainDiamond::cTerrainDiamond(float x,float z,float w)
 {
   m_tertex = NULL;
 
@@ -42,7 +41,7 @@ cTerrain::cTerrain(float x,float z,float w)
 	_Init();
 }
 
-void cTerrain::Paint()
+void cTerrainDiamond::Paint()
 {
 	D3DXMATRIXA16 matwrld;
   D3DMATERIAL9 mtrl;
@@ -61,7 +60,7 @@ void cTerrain::Paint()
   g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,TRUE);
 }
 
-void cTerrain::_Init()
+void cTerrainDiamond::_Init()
 {
 
   // Create the smaller VB
@@ -117,7 +116,7 @@ void cTerrain::_Init()
 	RandomizeMesh();
 }
 
-D3DCOLOR randcolor()
+D3DCOLOR randcolor_diamond()
 {
 	switch (rand()%3) {
 		case 3:
@@ -131,16 +130,16 @@ D3DCOLOR randcolor()
 	}
 }
 
-void cTerrain::event(EVENT evnt)
+void cTerrainDiamond::event(EVENT evnt)
 {
 	  switch (evnt) {
 		  case RAND: RandomizeMesh(); break;
 		  default: break;
 	  }
 }
-void cTerrain::RandomizeMesh(void)
+void cTerrainDiamond::RandomizeMesh(void)
 {
-	sCustomVertex *VertexPtr;
+	sCustomVertexDiamond *VertexPtr;
 	DWORD *IndexPtr;
 
 	IndexPtr =  NULL;
@@ -156,7 +155,7 @@ void cTerrain::RandomizeMesh(void)
 		  VertexPtr->z = (j - (TER_Z_SMALL-1)/2) * TER_WIDTH_SMALL;
 		  //VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
 		  VertexPtr->y = GetHeight(VertexPtr->x,VertexPtr->z);
-		  VertexPtr->diffuse = randcolor();
+		  VertexPtr->diffuse = randcolor_diamond();
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -196,7 +195,7 @@ void cTerrain::RandomizeMesh(void)
         VertexPtr->y = min(GetHeight(VertexPtr->x,VertexPtr->z),1.0f);
       else 
         VertexPtr->y = -150.0f;
-		  VertexPtr->diffuse = randcolor();
+		  VertexPtr->diffuse = randcolor_diamond();
 //		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -225,7 +224,7 @@ void cTerrain::RandomizeMesh(void)
 //	D3DXComputeNormals(g_TerrainMesh,NULL);
 }
 
-cTerrain::~cTerrain(void)
+cTerrainDiamond::~cTerrainDiamond(void)
 {
   OnLostDevice();
  for (int i = 0; i < (TER_X+1); i++)
@@ -233,19 +232,19 @@ cTerrain::~cTerrain(void)
 delete [] m_Heights;
 }
 
-void cTerrain::OnLostDevice(void)
+void cTerrainDiamond::OnLostDevice(void)
 {
   SAFE_RELEASE(m_tertex[0]);
 	SAFE_RELEASE(g_TerrainMesh);
 	SAFE_RELEASE(g_TerrainMeshBig);
 }
 
-void cTerrain::OnResetDevice(void)
+void cTerrainDiamond::OnResetDevice(void)
 {
   _Init();
 }
 
-float cTerrain::GetHeight(float x, float z)
+float cTerrainDiamond::GetHeight(float x, float z)
 {
   //return 1;
  x = x + (TER_X+1)/2;
@@ -280,7 +279,7 @@ float cTerrain::GetHeight(float x, float z)
  return height;
 }
 
-void cTerrain::SetHeight(float x, float z, float y)
+void cTerrainDiamond::SetHeight(float x, float z, float y)
 {
  x = x + (TER_X+1)/2;
  z = z + (TER_Z+1)/2;
@@ -289,7 +288,7 @@ void cTerrain::SetHeight(float x, float z, float y)
     m_Heights[(int)(floor(x))][(int)(floor(z))] = y;
 }
 
-void cTerrain::FlattenSquare(float x, float z, float sz)
+void cTerrainDiamond::FlattenSquare(float x, float z, float sz)
 {
 //	return;
   // Get Average
@@ -311,7 +310,7 @@ void cTerrain::FlattenSquare(float x, float z, float sz)
   UpdateMeshHeights();
 }
 
-void cTerrain::FlattenSphere(D3DXVECTOR3 pos, float radius)
+void cTerrainDiamond::FlattenSphere(D3DXVECTOR3 pos, float radius)
 {
   int cntr = 0;
   float yval = 0;
@@ -329,8 +328,7 @@ void cTerrain::FlattenSphere(D3DXVECTOR3 pos, float radius)
 }
 
 
-void cTerrain::UpdateMeshHeights()
+void cTerrainDiamond::UpdateMeshHeights()
 {
-
   RandomizeMesh();
 }

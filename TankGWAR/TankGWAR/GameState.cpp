@@ -1,20 +1,26 @@
 #include "StdAfx.h"
 #include "gamestate.h"
+#include "MainWnd.h"
 #include <stdio.h>
 cGameState *g_GameState;
 //LPDIRECT3DTEXTURE9 cGameState::m_statusbartex = NULL;
 CTexture *cGameState::m_statusbartex = NULL;
+extern bool sh_FPS;
+
 void cGameState::move(void)
 {
   static CTimer tmrState;
   D3DXVECTOR3 msl_pos;
-  c3DObject *tmpP;
+//  c3DObject *tmpP;
+//  m_gstate = TARGETING;
 
   switch (m_gstate) 
   {
   case FIRING:
          msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
-         if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y) {
+         if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y ||
+             fabs(msl_pos.x) > 600.0f ||
+             fabs(msl_pos.z) > 600.0f) {
            // Create New Explosion
            m_PlayerState[m_currentplayer].exp_object = 
              new c3DObjectExplosion(
@@ -42,15 +48,27 @@ void cGameState::move(void)
           AssignHits();
           DropTanks();
           KillDeadTanks();
+          
           g_ObjMgr->del(m_PlayerState[m_currentplayer].exp_object);
-          SetCurrentCamera(&m_camBehindTank);
-          m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
+          NextPlayer();
+          if (m_PlayerState[m_currentplayer].camabove) 
+            SetCurrentCamera(&m_camAboveTerrain);
+          else
+            SetCurrentCamera(&m_camBehindTank);
           m_gstate = TARGETING;
     }
     break;
   default:
     break;
   }
+}
+
+void cGameState::NextPlayer(void)
+{
+  int tplay = m_numplayers;
+  m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
+  while(m_PlayerState[m_currentplayer].livingstate != ALIVE && tplay-- > 0)
+    m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
 }
 
 void cGameState::paintbg(void)
@@ -109,7 +127,7 @@ void cGameState::paint(void)
   static RECT healthrect;
   SetRect(&healthrect,28,9,66,28);
   static char healthstr[255];
-  sprintf(healthstr,"%.0f\%",m_PlayerState[m_currentplayer].health);
+  sprintf(healthstr,"%.0f%",m_PlayerState[m_currentplayer].health);
   g_D3DObject->DrawTextStr_StatusBar(&healthrect,D3DCOLOR_XRGB(255,255,255),healthstr, DT_RIGHT | DT_NOCLIP | DT_VCENTER);
 
   static RECT moneyrect;
@@ -148,20 +166,78 @@ void cGameState::paint(void)
                      powerstr, DT_RIGHT | DT_VCENTER);
 
   static RECT missilerect;
+  static char missilestr[50];
   SetRect(&missilerect,631,9,778,28);
+  sprintf (missilestr,"%s %i",c3DObjectMissile::GetMissileStr(m_PlayerState[m_currentplayer].msl_cur_type),
+    min(m_PlayerState[m_currentplayer].numweapons[m_PlayerState[m_currentplayer].msl_cur_type],9));
   g_D3DObject->DrawTextStr_StatusBar(&missilerect,D3DCOLOR_XRGB(255,255,255),
-    c3DObjectMissile::GetMissileStr(m_PlayerState[m_currentplayer].msl_cur_type), DT_CENTER | DT_VCENTER);
+    missilestr, DT_CENTER | DT_VCENTER);
 
 }
 void cGameState::GetInput(void)
 {
   c3DObjectTank *tmpP = NULL;
+  static bool v_KEYUP_PGUP = true;
+  static bool v_KEYUP_PGDN = true;
+  static bool v_KEYUP_F1 = true;
+  static bool v_KEYUP_F2 = true;
+  static bool v_KEYUP_Z = true;
+  static bool v_KEYUP_A = true;
 
-  g_D3DInput->GetInput((cTerrain *)m_terrain);
+  static bool v_KEYUP_W = true;
+  static bool WIREFRAME = false;
+
+  static bool v_KEYUP_F = true;
+
+  if(g_D3DInput->KeyDown(DIK_ESCAPE))
+    exit(0);
+
+ // g_D3DInput->GetInput((cTerrain *)m_terrain);
+  if (g_D3DInput->KeyDown(DIK_W) && v_KEYUP_W) {
+    if (WIREFRAME = !WIREFRAME) 
+      g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
+    else g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_SOLID );
+     v_KEYUP_W = false; 
+   }
+  if (g_D3DInput->KeyDown(DIK_F) && v_KEYUP_F) {
+     sh_FPS = !sh_FPS;
+     v_KEYUP_F = false; 
+   }
+  if (!g_D3DInput->KeyDown(DIK_W)) v_KEYUP_W = true;
+  if (!g_D3DInput->KeyDown(DIK_F)) v_KEYUP_F = true;
 
   switch (m_gstate) {
      case TARGETING:
         tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
+        if (g_D3DInput->KeyDown(DIK_PGUP) && v_KEYUP_PGUP) {
+          NextWeapon(-1); v_KEYUP_PGUP = false; 
+        }
+        if (g_D3DInput->KeyDown(DIK_PGDN) && v_KEYUP_PGDN) {
+          NextWeapon(+1); v_KEYUP_PGDN = false; 
+        }
+
+        if (g_D3DInput->KeyDown(DIK_F1) && v_KEYUP_F1) {
+            m_PlayerState[m_currentplayer].camabove = true;
+            SetCurrentCamera(&m_camBehindTank);
+            v_KEYUP_F1= false; 
+        }
+
+        if (g_D3DInput->KeyDown(DIK_F2) && v_KEYUP_F2) {
+            m_PlayerState[m_currentplayer].camabove = false;
+            SetCurrentCamera(&m_camAboveTerrain);
+            v_KEYUP_F2= false; 
+        }
+
+        if (g_D3DInput->KeyDown(DIK_Z) && v_KEYUP_Z) {
+            m_PlayerState[m_currentplayer].camabovezoom *= 0.80f;
+            v_KEYUP_Z= false; 
+        }
+
+        if (g_D3DInput->KeyDown(DIK_A) && v_KEYUP_A) {
+            m_PlayerState[m_currentplayer].camabovezoom *= 1.10f;
+            v_KEYUP_A= false; 
+        }
+
         if (g_D3DInput->KeyDown(DIK_UP))
           tmpP->event(c3DObjectTank::UP);
         else if (g_D3DInput->KeyDown(DIK_DOWN))
@@ -174,13 +250,31 @@ void cGameState::GetInput(void)
           tmpP->event(c3DObjectTank::PWRDN);
         else if (g_D3DInput->KeyDown(DIK_EQUALS))
           tmpP->event(c3DObjectTank::PWRUP);
-        if (g_D3DInput->MouseDown(0) | g_D3DInput->KeyDown(DIK_F) | g_D3DInput->KeyDown(DIK_SPACE)) {
-          m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)tmpP->Fire(c3DObjectTank::MISSILE);          
+        if (g_D3DInput->KeyDown(DIK_SPACE)) {
+          m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)tmpP->Fire(m_PlayerState[m_currentplayer].msl_cur_type);          
           SetCurrentCamera(&m_camBehindMissile);
           m_gstate = FIRING;
         }
+        if (g_D3DInput->MouseDown(0))
+        {
+          OutputDebugString("Mouse 0 Down!!\n");
+        }
+        if (!g_D3DInput->KeyDown(DIK_PGUP))
+           v_KEYUP_PGUP = true;
+        if (!g_D3DInput->KeyDown(DIK_PGDN))
+           v_KEYUP_PGDN = true;
+        if (!g_D3DInput->KeyDown(DIK_F1))
+           v_KEYUP_F1 = true;
+        if (!g_D3DInput->KeyDown(DIK_F2))
+           v_KEYUP_F2 = true;
+        if (!g_D3DInput->KeyDown(DIK_Z))
+           v_KEYUP_Z = true;
+        if (!g_D3DInput->KeyDown(DIK_A))
+           v_KEYUP_A = true;
+
         break;
      case FIRING:
+       break;
        if (g_D3DInput->KeyDown(DIK_N))
        {
          m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
@@ -215,9 +309,9 @@ void cGameState::GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale, float 
 
 void cGameState::GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D3DXVECTOR3 *velocity)
 {
-  *pos   =    ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_position;
-  *orient =    ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_orient;
-  *velocity =    ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_velocity;
+  *pos         = ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_position;
+  *orient      = ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_orient;
+  *velocity    = ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_velocity;
   //orient->y = ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_barrelHeight;
   //orient->z = ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_firePower;
     //= ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_orient;
@@ -229,8 +323,8 @@ cGameState::cGameState(void)
   m_terrain = new cTerrain(1850,1850,20.0f);
   //m_terrain = new cTerrain(50,50,10.0f);
   m_skybox = new cSkyBox();
+  m_tmissile = new c3DObjectMissile();
   //m_terrain->RandomizeMesh();
-  SetCurrentCamera(new cCameraBehindTank);
   _Init();
 }
 
@@ -238,6 +332,7 @@ cGameState::~cGameState(void)
 {
   SAFE_DELETE(m_terrain);  
   SAFE_DELETE(m_skybox);
+  SAFE_DELETE(m_tmissile);
   _Delete();
 }
 
@@ -249,12 +344,13 @@ void cGameState::AddPlayer(BOOL human)
 
   m_gstate = cGameState::TARGETING;
 
+  srand(timeGetTime());
   float t_x, t_y, t_z;
 
   for (int x =0 ; x < 5; x++)  {
     tmpP = new c3DObjectTank();
-    t_x = rand()%600-300;
-    t_z = rand()%600-300;
+    t_x = (float)(rand()%400-200);
+    t_z = (float)(rand()%400-200);
     m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*4.0f);
     t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
     tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
@@ -262,12 +358,20 @@ void cGameState::AddPlayer(BOOL human)
     m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
     g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
     m_PlayerState[x].health = 100.0f;
-    m_PlayerState[x].money = 1234567890;
+    m_PlayerState[x].money = 1234567890.0f;
     m_PlayerState[x].name = new char[50];
-    m_PlayerState[x].msl_cur_type = (c3DObjectMissile::MSLTYPE)x;
+    m_PlayerState[x].livingstate = ALIVE;
+    m_PlayerState[x].msl_cur_type = (c3DObjectMissile::MSLTYPE::SHELL);
+    m_PlayerState[x].camabove = false;
+    m_PlayerState[x].camabovezoom = 1.0f;
     sprintf (m_PlayerState[x].name,"%s%d","Player ",x);
+
+    for (int k = 0; k < c3DObjectMissile::MSLNUM; k++)
+      m_PlayerState[x].numweapons[k] = 30;
     m_numplayers++;
   }
+
+  SetCurrentCamera(&m_camBehindTank);
 }
 
 cCamera * cGameState::GetCurrentCamera() { 
@@ -330,18 +434,48 @@ void cGameState::DropTanks()
      float pl_x = m_PlayerState[x].object->m_position.x;
      float pl_z = m_PlayerState[x].object->m_position.z;
 
-     if (m_terrain->GetHeight(pl_x,pl_z) < m_PlayerState[x].object->m_position.y - c3DObjectTank::tank_height)
+     float mod_terheight = m_terrain->GetHeight(pl_x,pl_z) +  c3DObjectTank::tank_height;
+
+     if (mod_terheight < m_PlayerState[x].object->m_position.y)
      {
+       //OutputDebugString("Drop tanks registered it on ");
+       //OutputDebugString(m_PlayerState[x].name);
+       //OutputDebugString("\n");
        m_terrain->FlattenSquare(pl_x,pl_z,c3DObjectTank::tank_width*3.0f);
        // Assign Damage
        m_PlayerState[x].health -= min((m_PlayerState[x].object->m_position.y - m_terrain->GetHeight(pl_x,pl_z)),10);
        // Move tank down!!!
        m_PlayerState[x].object->m_position.y = m_terrain->GetHeight(pl_x,pl_z) + c3DObjectTank::tank_height;
      }
-   }   
+   }
 }
 
 void cGameState::KillDeadTanks()
 {
+   for (int x = 0; x < m_numplayers; x++)
+     if (m_PlayerState[x].health <= 0.0f)
+       m_PlayerState[x].livingstate = DEAD;
+}
 
+void cGameState::NextWeapon(int t_dir)
+{
+  m_PlayerState[m_currentplayer].numweapons[(int)c3DObjectMissile::MSLTYPE::SHELL] = 99;
+  m_PlayerState[m_currentplayer].msl_cur_type = (c3DObjectMissile::MSLTYPE)
+       ((m_PlayerState[m_currentplayer].msl_cur_type + t_dir) % c3DObjectMissile::MSLNUM);
+  if (m_PlayerState[m_currentplayer].msl_cur_type < 0) 
+    m_PlayerState[m_currentplayer].msl_cur_type = (c3DObjectMissile::MSLTYPE)(m_PlayerState[m_currentplayer].msl_cur_type +
+          c3DObjectMissile::MSLNUM);
+  while (m_PlayerState[m_currentplayer].numweapons[m_PlayerState[m_currentplayer].msl_cur_type]<=0)
+  {
+   m_PlayerState[m_currentplayer].msl_cur_type = (c3DObjectMissile::MSLTYPE)
+       ((m_PlayerState[m_currentplayer].msl_cur_type + t_dir) % c3DObjectMissile::MSLNUM);
+   if (m_PlayerState[m_currentplayer].msl_cur_type < 0) 
+    m_PlayerState[m_currentplayer].msl_cur_type = (c3DObjectMissile::MSLTYPE)(m_PlayerState[m_currentplayer].msl_cur_type +
+          c3DObjectMissile::MSLNUM);
+  }
+}
+
+void cGameState::GetCurrentCamAboveZoom(float *flt)
+{
+  *flt = m_PlayerState[m_currentplayer].camabovezoom;
 }

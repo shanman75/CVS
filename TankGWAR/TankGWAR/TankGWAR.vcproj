@@ -137,6 +137,9 @@
 				RelativePath=".\CameraAboveHit.cpp">
 			</File>
 			<File
+				RelativePath=".\CameraAboveTerrain.cpp">
+			</File>
+			<File
 				RelativePath=".\CameraBehindMissile.cpp">
 			</File>
 			<File
@@ -191,6 +194,9 @@
 				RelativePath=".\Terrain.cpp">
 			</File>
 			<File
+				RelativePath=".\TerrainDiamond.cpp">
+			</File>
+			<File
 				RelativePath=".\Texture.cpp">
 			</File>
 			<File
@@ -224,6 +230,9 @@
 			</File>
 			<File
 				RelativePath=".\CameraAboveHit.h">
+			</File>
+			<File
+				RelativePath=".\CameraAboveTerrain.h">
 			</File>
 			<File
 				RelativePath=".\CameraBehindMissile.h">
@@ -274,6 +283,9 @@
 			</File>
 			<File
 				RelativePath=".\Terrain.h">
+			</File>
+			<File
+				RelativePath=".\TerrainDiamond.h">
 			</File>
 			<File
 				RelativePath=".\Texture.h">

@@ -6,6 +6,37 @@ LPD3DXMESH			c3DObjectMissile::m_missilemesh;
 LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_missiletex;
 D3DMATERIAL9*		c3DObjectMissile::m_missilemat;
 DWORD				c3DObjectMissile::m_missileNmat;
+//enum MSLTYPE { SHELL, ATOMBOMB, SCUD, AMRAM, FUNKIEBOMB };
+
+// SHELL
+LPD3DXMESH			    c3DObjectMissile::m_SHELL_mesh;
+LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_SHELL_tex;
+D3DMATERIAL9*		    c3DObjectMissile::m_SHELL_mat;
+DWORD				        c3DObjectMissile::m_SHELL_Nmat;
+
+// ATOMBOMB
+LPD3DXMESH			    c3DObjectMissile::m_ATOMBOMB_mesh;
+LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_ATOMBOMB_tex;
+D3DMATERIAL9*		    c3DObjectMissile::m_ATOMBOMB_mat;
+DWORD				        c3DObjectMissile::m_ATOMBOMB_Nmat;
+
+// SCUD
+LPD3DXMESH			    c3DObjectMissile::m_SCUD_mesh;
+LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_SCUD_tex;
+D3DMATERIAL9*		    c3DObjectMissile::m_SCUD_mat;
+DWORD				        c3DObjectMissile::m_SCUD_Nmat;
+
+// AMRAM
+LPD3DXMESH			    c3DObjectMissile::m_AMRAM_mesh;
+LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_AMRAM_tex;
+D3DMATERIAL9*		    c3DObjectMissile::m_AMRAM_mat;
+DWORD				        c3DObjectMissile::m_AMRAM_Nmat;
+
+// FUNKIEBOMB
+LPD3DXMESH			    c3DObjectMissile::m_FUNKIEBOMB_mesh;
+LPDIRECT3DTEXTURE9*	c3DObjectMissile::m_FUNKIEBOMB_tex;
+D3DMATERIAL9*		    c3DObjectMissile::m_FUNKIEBOMB_mat;
+DWORD				        c3DObjectMissile::m_FUNKIEBOMB_Nmat;
 
 int c3DObjectMissile::m_graph_init = 0;
 
@@ -32,14 +63,48 @@ void c3DObjectMissile::move()
   c3DObject::move();
 }
 
-c3DObjectMissile::c3DObjectMissile(void)
+c3DObjectMissile::c3DObjectMissile(MSLTYPE missile_type)
 {
 	if (!m_graph_init++) _LoadGraphics();
 
-  m_curmesh = m_missilemesh;
-  m_nMat = m_missileNmat;
-  m_curtex = m_missiletex;
-  m_curmat = m_missilemat;
+  switch (missile_type) {
+    case AMRAM:
+      m_curmesh =  m_AMRAM_mesh;
+      m_nMat    =  m_AMRAM_Nmat;
+      m_curtex  =  m_AMRAM_tex;
+      m_curmat  =  m_AMRAM_mat;
+      break;
+    case FUNKIEBOMB:
+      m_curmesh =  m_FUNKIEBOMB_mesh;
+      m_nMat    =  m_FUNKIEBOMB_Nmat;
+      m_curtex  =  m_FUNKIEBOMB_tex;
+      m_curmat  =  m_FUNKIEBOMB_mat;
+      break;
+    case SHELL:
+      m_curmesh =  m_SHELL_mesh;
+      m_nMat    =  m_SHELL_Nmat;
+      m_curtex  =  m_SHELL_tex;
+      m_curmat  =  m_SHELL_mat;
+      break;
+    case ATOMBOMB:
+      m_curmesh =  m_ATOMBOMB_mesh;
+      m_nMat    =  m_ATOMBOMB_Nmat;
+      m_curtex  =  m_ATOMBOMB_tex;
+      m_curmat  =  m_ATOMBOMB_mat;
+      break;
+    case SCUD:
+      m_curmesh =  m_SCUD_mesh;
+      m_nMat    =  m_SCUD_Nmat;
+      m_curtex  =  m_SCUD_tex;
+      m_curmat  =  m_SCUD_mat;
+      break;
+    default:
+      m_curmesh =  m_ATOMBOMB_mesh;
+      m_nMat    =  m_ATOMBOMB_Nmat;
+      m_curtex  =  m_ATOMBOMB_tex;
+      m_curmat  =  m_ATOMBOMB_mat;
+    break;
+  }
   m_time.Reset();
   m_initYvelocity=-999.0f;
 
@@ -56,69 +121,171 @@ c3DObjectMissile::~c3DObjectMissile(void)
 
 void c3DObjectMissile::_UnloadGraphics()
 {
-  SAFE_RELEASE(m_missilemesh);
+  SAFE_RELEASE(m_ATOMBOMB_mesh);
   for (int x = 0; x < (int)m_nMat; x++) {
-	  SAFE_RELEASE(m_missiletex[x]);
+	  SAFE_RELEASE(m_ATOMBOMB_tex[x]);
   }
-  SAFE_DELETE_ARRAY(m_missiletex);
-  SAFE_DELETE_ARRAY(m_missilemat);
+  SAFE_DELETE_ARRAY(m_ATOMBOMB_tex);
+  SAFE_DELETE_ARRAY(m_ATOMBOMB_mat);
 }
 void c3DObjectMissile::_LoadGraphics()
 {
-	LPD3DXBUFFER lpMat = NULL;
-  LPD3DXBUFFER pAdjacencyBuffer = NULL;
+	LPD3DXBUFFER  t_lpMat = NULL;
+  LPD3DXBUFFER  t_pAdjacencyBuffer = NULL;
+  D3DXMATERIAL* t_mat;
+  char texpath[2048];
 
-  if (FAILED(D3DXLoadMeshFromX(
-     "resource\\abomb.x",
-     D3DXMESH_SYSTEMMEM,
-     g_D3DObject->m_d3ddevice9,
-     &pAdjacencyBuffer,		// LPD3DXBUFFER *ppAdjacency,
-     &lpMat,				// LPD3DXBUFFER *ppMaterials,
-     NULL,					// LPD3DXBUFFER *ppEffectInstances,
-     &m_missileNmat,				// DWORD *pNumMaterials,
-     &m_missilemesh
-   )))
-     exit(1);
-   else
-     if( FAILED( m_missilemesh->OptimizeInplace(
+  // Atom Bomb
+  if (FAILED(D3DXLoadMeshFromX("resource\\missiles\\abomb.X",
+        D3DXMESH_SYSTEMMEM, g_D3DObject->m_d3ddevice9, &t_pAdjacencyBuffer,
+        &t_lpMat, NULL, &m_ATOMBOMB_Nmat, &m_ATOMBOMB_mesh)))      exit(1);
+  if( FAILED( m_ATOMBOMB_mesh->OptimizeInplace(
                         D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
-                        (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
-    {
-        SAFE_RELEASE( pAdjacencyBuffer );
-        SAFE_RELEASE( lpMat );
-        return;
-    }
+                        (DWORD*)t_pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                        exit(0);
 
-   D3DXMATERIAL* mat = (D3DXMATERIAL*) lpMat->GetBufferPointer();
-   char texpath[512];
+   t_mat = (D3DXMATERIAL*) t_lpMat->GetBufferPointer();
 
-   m_missiletex = new LPDIRECT3DTEXTURE9 [m_missileNmat];
-   m_missilemat = new D3DMATERIAL9 [m_missileNmat];
+   m_ATOMBOMB_tex = new LPDIRECT3DTEXTURE9 [m_ATOMBOMB_Nmat];
+   m_ATOMBOMB_mat = new D3DMATERIAL9 [m_ATOMBOMB_Nmat];
  
-   for (DWORD x = 0; x < m_missileNmat; x++) {
-	   LPDIRECT3DTEXTURE9 tempt;
-	   tempt = NULL;
-
-     m_missilemat[x] = mat[x].MatD3D;
-//     m_missilemat[x].Diffuse = D3DXCOLOR(0.6f,0.6f,0.4f,1.0f);
-//     m_missilemat[x].Ambient = D3DXCOLOR(0.1f,0.1f,0.1f,1.0f);
-//     m_missilemat[x].Specular = D3DXCOLOR(0.8f,0.8f,0.8f,1.0f);
-//     m_missilemat[x].Power = 0.2f;
-     m_missiletex[x] = NULL;
-     if (mat[x].pTextureFilename != NULL) {               
-		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
-	       if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-		   {
-			   m_missiletex[x] = NULL;
-			   OutputDebugString("Create Texture Failed\n");
-		   }
-		   else {
-			   m_missiletex[x] = tempt;
-		   }
+   for (DWORD x = 0; x < m_ATOMBOMB_Nmat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt = NULL;
+     m_ATOMBOMB_mat[x] = t_mat[x].MatD3D;
+     m_ATOMBOMB_tex[x] = NULL;
+     if (t_mat[x].pTextureFilename != NULL) {               
+		     sprintf (texpath,"resource\\missiles\\%s",t_mat[x].pTextureFilename);
+	       if (SUCCEEDED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+			       m_ATOMBOMB_tex[x] = tempt;
 	   }     
    }
-    SAFE_RELEASE( pAdjacencyBuffer );
-    SAFE_RELEASE( lpMat );
+   SAFE_RELEASE( t_pAdjacencyBuffer ); SAFE_RELEASE( t_lpMat );
+
+   // Scud
+  if (FAILED(D3DXLoadMeshFromX("resource\\missiles\\scud.X",
+        D3DXMESH_SYSTEMMEM, g_D3DObject->m_d3ddevice9, &t_pAdjacencyBuffer,
+        &t_lpMat, NULL, &m_SCUD_Nmat, &m_SCUD_mesh)))      exit(1);
+  if( FAILED( m_SCUD_mesh->OptimizeInplace(
+                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                        (DWORD*)t_pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                        exit(0);
+
+   t_mat = (D3DXMATERIAL*) t_lpMat->GetBufferPointer();
+
+   m_SCUD_tex = new LPDIRECT3DTEXTURE9 [m_SCUD_Nmat];
+   m_SCUD_mat = new D3DMATERIAL9 [m_SCUD_Nmat];
+ 
+   for (DWORD x = 0; x < m_SCUD_Nmat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt = NULL;
+     m_SCUD_mat[x] = t_mat[x].MatD3D;
+     m_SCUD_tex[x] = NULL;
+     if (t_mat[x].pTextureFilename != NULL) {               
+		     sprintf (texpath,"resource\\missiles\\%s",t_mat[x].pTextureFilename);
+	       if (SUCCEEDED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+			       m_SCUD_tex[x] = tempt;
+	   }     
+   }
+   SAFE_RELEASE( t_pAdjacencyBuffer ); SAFE_RELEASE( t_lpMat );
+
+   // Shell
+  if (FAILED(D3DXLoadMeshFromX("resource\\missiles\\shell.X",
+        D3DXMESH_SYSTEMMEM, g_D3DObject->m_d3ddevice9, &t_pAdjacencyBuffer,
+        &t_lpMat, NULL, &m_SHELL_Nmat, &m_SHELL_mesh)))      exit(1);
+  if( FAILED( m_SHELL_mesh->OptimizeInplace(
+                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                        (DWORD*)t_pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                        exit(0);
+
+   t_mat = (D3DXMATERIAL*) t_lpMat->GetBufferPointer();
+
+   m_SHELL_tex = new LPDIRECT3DTEXTURE9 [m_SHELL_Nmat];
+   m_SHELL_mat = new D3DMATERIAL9 [m_SHELL_Nmat];
+ 
+   for (DWORD x = 0; x < m_SHELL_Nmat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt = NULL;
+     m_SHELL_mat[x] = t_mat[x].MatD3D;
+     m_SHELL_tex[x] = NULL;
+     if (t_mat[x].pTextureFilename != NULL) {               
+		     sprintf (texpath,"resource\\missiles\\%s",t_mat[x].pTextureFilename);
+	       if (SUCCEEDED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+			       m_SHELL_tex[x] = tempt;
+	   }     
+   }
+   SAFE_RELEASE( t_pAdjacencyBuffer ); SAFE_RELEASE( t_lpMat );
+
+   // AM-RAM
+  if (FAILED(D3DXLoadMeshFromX("resource\\missiles\\scud.x",
+        D3DXMESH_SYSTEMMEM, g_D3DObject->m_d3ddevice9, &t_pAdjacencyBuffer,
+        &t_lpMat, NULL, &m_AMRAM_Nmat, &m_AMRAM_mesh)))      exit(1);
+  if( FAILED( m_AMRAM_mesh->OptimizeInplace(
+                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                        (DWORD*)t_pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                        exit(0);
+
+   t_mat = (D3DXMATERIAL*) t_lpMat->GetBufferPointer();
+
+   m_AMRAM_tex = new LPDIRECT3DTEXTURE9 [m_AMRAM_Nmat];
+   m_AMRAM_mat = new D3DMATERIAL9 [m_AMRAM_Nmat];
+ 
+   for (DWORD x = 0; x < m_AMRAM_Nmat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt = NULL;
+     m_AMRAM_mat[x] = t_mat[x].MatD3D;
+     m_AMRAM_mat[x].Diffuse = D3DXCOLOR(0.1f,0.3f,1.0f,1.0f);
+     m_AMRAM_mat[x].Ambient = D3DXCOLOR(0.1f,0.3f,1.0f,1.0f);
+     m_AMRAM_tex[x] = NULL;
+     if (t_mat[x].pTextureFilename != NULL) {               
+		     sprintf (texpath,"resource\\missiles\\%s",t_mat[x].pTextureFilename);
+	       if (SUCCEEDED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+			       m_AMRAM_tex[x] = tempt;
+	   }     
+   }
+   SAFE_RELEASE( t_pAdjacencyBuffer ); SAFE_RELEASE( t_lpMat );
+
+   // Funkie Bomb
+  if (FAILED(D3DXLoadMeshFromX("resource\\missiles\\funkiebomb.x",
+        D3DXMESH_SYSTEMMEM, g_D3DObject->m_d3ddevice9, &t_pAdjacencyBuffer,
+        &t_lpMat, NULL, &m_FUNKIEBOMB_Nmat, &m_FUNKIEBOMB_mesh)))      exit(1);
+  if( FAILED( m_FUNKIEBOMB_mesh->OptimizeInplace(
+                        D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
+                        (DWORD*)t_pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
+                        exit(0);
+
+   t_mat = (D3DXMATERIAL*) t_lpMat->GetBufferPointer();
+
+   m_FUNKIEBOMB_tex = new LPDIRECT3DTEXTURE9 [m_FUNKIEBOMB_Nmat];
+   m_FUNKIEBOMB_mat = new D3DMATERIAL9 [m_FUNKIEBOMB_Nmat];
+ 
+   for (DWORD x = 0; x < m_FUNKIEBOMB_Nmat; x++) {
+	   LPDIRECT3DTEXTURE9 tempt = NULL;
+     m_FUNKIEBOMB_mat[x] = t_mat[x].MatD3D;
+     m_FUNKIEBOMB_tex[x] = NULL;
+     if (t_mat[x].pTextureFilename != NULL) {               
+		     sprintf (texpath,"resource\\missiles\\%s",t_mat[x].pTextureFilename);
+	       if (SUCCEEDED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+			       m_FUNKIEBOMB_tex[x] = tempt;
+	   }     
+   }
+   SAFE_RELEASE( t_pAdjacencyBuffer ); SAFE_RELEASE( t_lpMat );
+
+}
+
+float c3DObjectMissile::GetMissileLength(enum MSLTYPE m)
+{
+  switch (m)
+  {
+  case FUNKIEBOMB:
+    return 10.0f; break;
+  case AMRAM:
+    return 10.0f; break;
+  case ATOMBOMB:
+    return 15.0f; break;
+  case SHELL:
+    return 10.0f; break;
+  case SCUD:
+    return 10.0f; break;
+  default:
+    return 10.0f; break;
+  }
 }
 
 char *c3DObjectMissile::GetMissileStr(enum MSLTYPE m)
@@ -128,13 +295,13 @@ char *c3DObjectMissile::GetMissileStr(enum MSLTYPE m)
   switch (m)
   {
   case FUNKIEBOMB:
-    return "Funky Bomb"; break;
+    return "F-Bomb"; break;
   case AMRAM:
     return "AM-RAM"; break;
   case ATOMBOMB:
-    return "Atom Bomb"; break;
+    return "A-Bomb"; break;
   case SHELL:
-    return "44mm Shell"; break;
+    return "Shell"; break;
   case SCUD:
     return "Scud"; break;
   default:

@@ -17,7 +17,7 @@ D3DInput::D3DInput(void)
 	if (FAILED( m_DIKB->SetDataFormat(&c_dfDIKeyboard)))
 		return;
 	if (FAILED( m_DIKB->SetCooperativeLevel(g_hWnd, 
-                            DISCL_FOREGROUND | DISCL_NONEXCLUSIVE)))
+                            DISCL_FOREGROUND | DISCL_EXCLUSIVE | DISCL_NOWINKEY)))
 		return;
 
 /*
@@ -45,18 +45,13 @@ BOOL D3DInput::MouseDown(DWORD button)
 {
   if (button > 3) return false;
 
-    DIMOUSESTATE dims;
-    HRESULT hr;
- 
-    if (m_mousetime.GetTime() > 0) {
-    hr = m_DIMO->GetDeviceState(sizeof(dims),(LPVOID)&dims); 
-    if FAILED(hr) 
+  if (m_mousetime.GetTime() > 0)
+    if (m_DIMO->GetDeviceState(sizeof(m_dims),(LPVOID)&m_dims) != DI_OK)
     { 
-		  hr=m_DIMO->Acquire();
-		  while(hr==DIERR_INPUTLOST)hr=m_DIMO->Acquire(); //try real hard
+		  while(m_DIMO->Acquire() == DIERR_INPUTLOST)
+		    ;
       OutputDebugString("Tried to re-acquire mouse\n");
 		  return false;
-    } 
     }
     /*
     if (dims.lX) {
@@ -74,7 +69,7 @@ BOOL D3DInput::MouseDown(DWORD button)
       cam->event(cCamera::RIGHT);
     }
     */
-    if (dims.rgbButtons[button] & 0x80)
+    if (m_dims.rgbButtons[button] & 0x80)
       return true;
     return false;
 }
@@ -293,6 +288,7 @@ void D3DInput::GetInput(CHero2 *hero)
 
 D3DInput::~D3DInput(void)
 {
+  OutputDebugString("Tearing down D3DInput8\n");
 	if (m_DIKB) m_DIKB->Unacquire();
 	SafeRelease(m_DIKB);
 	if (m_DIMO) m_DIMO->Unacquire();

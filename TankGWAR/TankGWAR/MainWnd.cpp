@@ -161,9 +161,8 @@ char debg[255];
 		PostQuitMessage(0);
 		break;
     case WM_KEYDOWN:
-		if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);    // Remark this out to remove the ESCAPE
+		  if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);  // Remark this out to remove the ESCAPE
 		                                                   // Key exiting functionality
-		//OutputDebugString("Help");
     break;
     case WM_USER:      g_mp3_1->OnGraphEvent();         // handles events
       break;

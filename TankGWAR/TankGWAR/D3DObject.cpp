@@ -305,6 +305,7 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
     pFont->OnResetDevice();
     pFont_StatusBar->OnResetDevice();
     g_GameState->OnResetDevice();
+    return false;
   }
   return D3D_OK;
 } //DeviceLost

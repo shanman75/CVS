@@ -253,7 +253,8 @@ BOOL cSkyBox::_Init()
                                   NULL,                         // Ptr to SRCINFO
                                   NULL,                         // Palette entry
                                   &tempt                       // Ptr to Texture
-                                  )));
+                                  )))
+                                  exit(1);
   m_tertex[0] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"2");
@@ -273,7 +274,8 @@ BOOL cSkyBox::_Init()
                                   NULL,                         // Ptr to SRCINFO
                                   NULL,                         // Palette entry
                                   &tempt                       // Ptr to Texture
-                                  )));
+                                  )))
+                                  exit(1);
   m_tertex[1] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"3");
@@ -293,7 +295,8 @@ BOOL cSkyBox::_Init()
                                   NULL,                         // Ptr to SRCINFO
                                   NULL,                         // Palette entry
                                   &tempt                       // Ptr to Texture
-                                  )));
+                                  )))
+                                  exit(1);
   m_tertex[2] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"4");
@@ -313,7 +316,8 @@ BOOL cSkyBox::_Init()
                                   NULL,                         // Ptr to SRCINFO
                                   NULL,                         // Palette entry
                                   &tempt                       // Ptr to Texture
-                                  )));
+                                  )))
+                                  exit(1);
   m_tertex[3] = tempt;
 
   sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"5");
@@ -333,7 +337,8 @@ BOOL cSkyBox::_Init()
                                   NULL,                         // Ptr to SRCINFO
                                   NULL,                         // Palette entry
                                   &tempt                       // Ptr to Texture
-                                  )));
+                                  )))
+                                  exit(1);
   m_tertex[4] = tempt;
 
   sSkyVertex *VertexPtr;

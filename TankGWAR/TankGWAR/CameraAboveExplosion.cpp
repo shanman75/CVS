@@ -23,7 +23,7 @@ void cCameraAboveExplosion::SetCamera()
     D3DXVECTOR3 vFromPt   = D3DXVECTOR3( tpos.x + cos(D3DX_PI*2*tscale.y/tradius)*tradius*2, 
                                          tpos.y + tradius*1.5f, 
                                          tpos.z + sin(D3DX_PI*2*tscale.y/tradius)*tradius*2 );
-    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( tpos.x, tpos.y + (tscale.y / tradius)*0.6, tpos.z );
+    D3DXVECTOR3 vLookatPt = D3DXVECTOR3( tpos.x, tpos.y + (tscale.y / tradius)*0.6f, tpos.z );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
     D3DXMatrixLookAtLH( &matView, &vFromPt, &vLookatPt, &vUpVec );

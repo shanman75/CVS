@@ -1,6 +1,7 @@
 #pragma once
 
 #include "3DObject.h"
+#include "3DObjectMissile.h"
 #include "D3DObject.h"
 #include "Timer.h"
 
@@ -21,8 +22,8 @@ public:
 	~c3DObjectTank(void);
 	void paint(void);
 //	void SetXYZ(float x, float y, float z) { m_xPos = x; m_yPos=y; m_zPos = z; }
-  c3DObject * Fire(enum FIRE_TYPE);
-  void event(enum EVENT);
+  c3DObject * Fire(enum c3DObjectMissile::MSLTYPE tpe = c3DObjectMissile::MSLTYPE::SHELL);
+  void event(enum EVENT, float amount=1.0f);
   void skin(enum SKINS sk) { m_skin = sk; }
 
   static const float tank_width;

@@ -115,18 +115,18 @@ void c3DObjectTank::_UnloadGraphics()
   SAFE_DELETE_ARRAY(m_tankmat);
 }
 
-void c3DObjectTank::event(enum EVENT evnt)
+void c3DObjectTank::event(enum EVENT evnt, float amount)
 {
   if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.0006f*m_time.PeekTime(); break;
+      m_barrelHeight -= 0.0006f*m_time.PeekTime() * amount; break;
     case DOWN:
-      m_barrelHeight +=0.0006f*m_time.PeekTime(); break;
+      m_barrelHeight +=0.0006f*m_time.PeekTime() * amount; break;
     case LEFT:
-      m_turretRotate-=0.0006f*m_time.PeekTime(); break;
+      m_turretRotate-=0.0008f*m_time.PeekTime() * amount; break;
     case RIGHT:
-      m_turretRotate+=0.0006f*m_time.PeekTime(); break;
+      m_turretRotate+=0.0008f*m_time.PeekTime() * amount; break;
     case PWRUP:
       m_firePower+=0.1f*m_time.PeekTime(); break;
     case PWRDN:
@@ -134,15 +134,15 @@ void c3DObjectTank::event(enum EVENT evnt)
     default:
       break;
   }
-  if (m_barrelHeight < 0) m_barrelHeight = 0;
+  if (m_barrelHeight < 0)         m_barrelHeight = 0;
   if (m_barrelHeight > D3DX_PI/2) m_barrelHeight = D3DX_PI/2;
 
-  if (m_turretRotate < 0) m_turretRotate += 2*D3DX_PI;
+  if (m_turretRotate < 0)         m_turretRotate += 2*D3DX_PI;
 
   if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
 
-  if (m_firePower < 1.2f) m_firePower = 1.2f;
-  if (m_firePower > 999) m_firePower = 999;
+  if (m_firePower < 1.2f)         m_firePower = 1.2f;
+  if (m_firePower > 999.0f)          m_firePower = 999;
 }
 void c3DObjectTank::_LoadGraphics()
 {
@@ -155,9 +155,9 @@ void c3DObjectTank::_LoadGraphics()
      D3DXMESH_SYSTEMMEM,
 	   g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,				// LPD3DXBUFFER *ppAdjacency,
-     &lpMat,				// LPD3DXBUFFER *ppMaterials,
-     NULL,			    // LPD3DXBUFFER *ppEffectInstances,
-     &m_tankNmat,				// DWORD *pNumMaterials,
+     &lpMat,				          // LPD3DXBUFFER *ppMaterials,
+     NULL,			              // LPD3DXBUFFER *ppEffectInstances,
+     &m_tankNmat,				      // DWORD *pNumMaterials,
      &m_tankmesh
    )))
      m_tankmesh = NULL;
@@ -228,14 +228,13 @@ void c3DObjectTank::_LoadGraphics()
 
 }
 
-c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
+c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
 {
   if (!m_firetime.CmpTime()) return NULL;
   c3DObject *objadd = NULL;
   float turret_radius    = 0.8f;
   float barrel_length    = 2.7f;
   float missile_length   = 4.2f;
-
 
   D3DXVECTOR3 tOrient = m_orient;
   tOrient.z   += m_turretRotate;
@@ -261,7 +260,7 @@ c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
   sprintf(debg,"x,z = (%.2f,%.2f)\n",tPosition.x,tPosition.z);
   OutputDebugString(debg);
 
-  objadd = new c3DObjectMissile();
+  objadd = new c3DObjectMissile(tpe);
   objadd->accel   (D3DXVECTOR3(0.0f,-25.8f,0.0f));
   objadd->velocity(tVelocity * m_firePower/4);
   objadd->orient  (tOrient);

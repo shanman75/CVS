@@ -22,6 +22,7 @@
 
 CTimer g_time;
 CTimer time, time2;
+bool sh_FPS = false;
 
 void g_MainDestroy()
 {
@@ -48,6 +49,8 @@ void g_MainGameLoop()
    }
 
    g_time.UpdateClock();
+   if (g_D3DObject->DeviceLost())
+     return;
 
    g_GameState->GetInput();
  
@@ -57,6 +60,7 @@ void g_MainGameLoop()
    g_D3DObject->BeginPaint();
    g_GameState->GetCurrentCamera()->SetCamera();
    g_GameState->paintbg();
+   if (sh_FPS)
    g_D3DObject->DrawTextStr(50,530,D3DCOLOR_XRGB(240,0,50),debg);
    
    g_ObjMgr->paint();
