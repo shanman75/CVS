@@ -54,10 +54,10 @@ void c3DObjectTank::MakeWorldMatrix( int x )
 	if (x==4 || x==5) {
 		D3DXVECTOR3 VecAxisY (1,0,0);  // Axis of Rotation
 
-    D3DXMatrixTranslation(&MatTrY, 0, 0, -0.769);
+    D3DXMatrixTranslation(&MatTrY, 0.0f, 0.0f, -0.769f);
 		D3DXMatrixRotationAxis(&MatRotY,&VecAxisY,-m_barrelHeight);
 		D3DXMatrixMultiply(&MatRotY,&MatTrY,&MatRotY);
-    D3DXMatrixTranslation(&MatTrY, 0, 0, 0.739);
+    D3DXMatrixTranslation(&MatTrY, 0.0f, 0.0f, 0.739f);
 		D3DXMatrixMultiply(&MatRotY,&MatRotY,&MatTrY);
 	}
 
@@ -110,17 +110,17 @@ void c3DObjectTank::event(enum EVENT evnt)
   if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
-      m_barrelHeight -= 0.0003*m_time.PeekTime(); break;
+      m_barrelHeight -= 0.0006f*m_time.PeekTime(); break;
     case DOWN:
-      m_barrelHeight +=0.0003*m_time.PeekTime(); break;
+      m_barrelHeight +=0.0006f*m_time.PeekTime(); break;
     case LEFT:
-      m_turretRotate-=0.0003*m_time.PeekTime(); break;
+      m_turretRotate-=0.0006f*m_time.PeekTime(); break;
     case RIGHT:
-      m_turretRotate+=0.0003*m_time.PeekTime(); break;
+      m_turretRotate+=0.0006f*m_time.PeekTime(); break;
     case PWRUP:
-      m_firePower+=0.002f*m_time.PeekTime(); break;
+      m_firePower+=0.05f*m_time.PeekTime(); break;
     case PWRDN:
-      m_firePower-=0.002f*m_time.PeekTime(); break;
+      m_firePower-=0.05f*m_time.PeekTime(); break;
     default:
       break;
   }
@@ -128,10 +128,11 @@ void c3DObjectTank::event(enum EVENT evnt)
   if (m_barrelHeight > D3DX_PI/2) m_barrelHeight = D3DX_PI/2;
 
   if (m_turretRotate < 0) m_turretRotate += 2*D3DX_PI;
+
   if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
 
   if (m_firePower < 1.2f) m_firePower = 1.2f;
-  if (m_firePower > 250/5) m_firePower = 250/5;
+  if (m_firePower > 250) m_firePower = 250;
 }
 void c3DObjectTank::_LoadGraphics()
 {
@@ -188,9 +189,9 @@ void c3DObjectTank::_LoadGraphics()
     SAFE_RELEASE( lpMat );
 }
 
-void c3DObjectTank::Fire(enum FIRE_TYPE fire)
+c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
 {
-  if (!m_firetime.CmpTime()) return;
+  if (!m_firetime.CmpTime()) return NULL;
   c3DObject *objadd = NULL;
   float turret_radius    = 0.8f;
   float barrel_length    = 2.7f;
@@ -222,9 +223,10 @@ void c3DObjectTank::Fire(enum FIRE_TYPE fire)
   OutputDebugString(debg);
 
   objadd = new c3DObjectMissile();
-  objadd->accel   (D3DXVECTOR3(0,-12.8,0));
+  objadd->accel   (D3DXVECTOR3(0.0f,-9.8f,0.0f));
   objadd->velocity(tVelocity * m_firePower);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);
+  return objadd;
 }

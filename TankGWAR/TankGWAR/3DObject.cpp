@@ -8,14 +8,16 @@ c3DObject::c3DObject(void)
    m_accel		=	D3DXVECTOR3(0,0,0);
    m_velocity	=	D3DXVECTOR3(0,0,0);
    m_orient		=	D3DXVECTOR3(0,0,0);
+   m_initVelocity = m_velocity;
+   m_initOrient   = m_orient;
 
    m_time.Reset();
 }
 
 void c3DObject::pos     (D3DXVECTOR3 in) {   m_position = in; }
 void c3DObject::accel   (D3DXVECTOR3 in) {   m_accel = in; }
-void c3DObject::velocity(D3DXVECTOR3 in) {   m_velocity = in; }
-void c3DObject::orient  (D3DXVECTOR3 in) {   m_orient   = in; }
+void c3DObject::velocity(D3DXVECTOR3 in) {   m_velocity = in; m_initVelocity = in; }
+void c3DObject::orient  (D3DXVECTOR3 in) {   m_orient   = in; m_initOrient   = in; }
 
 c3DObject::~c3DObject(void)
 {
@@ -56,7 +58,8 @@ void c3DObject::MakeWorldMatrix( int x )
         D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
     }
 
-	D3DXMatrixMultiply(pMatWorld, &MatRotY, D3DXMatrixMultiply(&MatTemp,&MatRot,&MatWorld));
+//	D3DXMatrixMultiply(pMatWorld, &MatRotY, D3DXMatrixMultiply(&MatTemp,&MatRot,&MatWorld));
+	D3DXMatrixMultiply(pMatWorld, &MatRot,&MatWorld);
 
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, pMatWorld );
 }
@@ -75,7 +78,7 @@ void c3DObject::paint()
 
 void c3DObject::move()
 {
-	float tm = m_time.GetTime()/1000;
+	float tm = m_time.GetTime()/600;
 
 	// Update velocity
 	m_velocity += m_accel * tm;

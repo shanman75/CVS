@@ -3,9 +3,9 @@
 #include "stdafx.h"
 #include "D3DObject.h"
 
-#define TER_X 40
-#define TER_Y 40
-#define TER_WIDTH 10.0f
+#define TER_X 100
+#define TER_Y 100
+#define TER_WIDTH 150.0f
 
 // DEFINES
 #define		D3DFVF_MESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
@@ -28,7 +28,8 @@ public:
 	void Paint(void);
 	void RandomizeMesh(void);
 	void event(EVENT evnt);
-	float GetHeight(int x, int y) { return m_Heights[x* (TER_Y + 1) + y]; }
+	float GetHeight(float x, float y);
+
 private:
 	void _Init(void);
 	ID3DXMesh *g_TerrainMesh;

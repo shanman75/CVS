@@ -18,12 +18,17 @@ float clamp (float z, float q)
 
 void c3DObjectMissile::move()
 {
-  if (m_initYvelocity<=-999.0f)
-    m_initYvelocity = m_velocity.y;
   //m_orient.x = sin(m_velocity.y/m_initYvelocity);
   //m_orient.z = cos(m_velocity.y/m_initYvelocity);
   //m_orient.x = -sin(m_velocity.y/m_initYvelocity) * D3DX_PI/2;
-  if (m_velocity.y < 0) m_orient.x = clamp(m_orient.x+m_time.PeekTime()/(120*(m_velocity.x+m_velocity.z)),D3DX_PI/2);
+  //if (m_velocity.y < 0) m_orient.x = clamp(m_orient.x+m_time.PeekTime()/(120*(m_velocity.x+m_velocity.z)),D3DX_PI/2);
+
+  float xzLen = 0;
+  xzLen = sqrt(m_velocity.x*m_velocity.x + m_velocity.z*m_velocity.z);
+  if (xzLen == 0) { xzLen = 0.001f; }
+  
+  m_orient.x = clamp(-atan(m_velocity.y/xzLen),D3DX_PI/2);
+//  m_orient.y = -atan(m_velocity.y/10);
   c3DObject::move();
 }
 
@@ -61,13 +66,12 @@ void c3DObjectMissile::_UnloadGraphics()
 void c3DObjectMissile::_LoadGraphics()
 {
 	LPD3DXBUFFER lpMat = NULL;
-    LPD3DXBUFFER pAdjacencyBuffer = NULL;
-	HRESULT hr;
+  LPD3DXBUFFER pAdjacencyBuffer = NULL;
 
   if (FAILED(D3DXLoadMeshFromX(
-     "resource\\scud.X",
+     "resource\\abomb.x",
      D3DXMESH_SYSTEMMEM,
-	 g_D3DObject->m_d3ddevice9,
+     g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,		// LPD3DXBUFFER *ppAdjacency,
      &lpMat,				// LPD3DXBUFFER *ppMaterials,
      NULL,					// LPD3DXBUFFER *ppEffectInstances,
@@ -76,7 +80,7 @@ void c3DObjectMissile::_LoadGraphics()
    )))
      m_missilemesh = NULL;
    else
-     if( FAILED( hr = m_missilemesh->OptimizeInplace(
+     if( FAILED( m_missilemesh->OptimizeInplace(
                         D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
                         (DWORD*)pAdjacencyBuffer->GetBufferPointer(), NULL, NULL, NULL ) ) )
     {
@@ -99,7 +103,7 @@ void c3DObjectMissile::_LoadGraphics()
      m_missiletex[x] = NULL;
      if (mat[x].pTextureFilename != NULL) {               
 		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
-	       if (hr = D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+	       if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 		   {
 			   m_missiletex[x] = NULL;
 			   OutputDebugString("Create Texture Failed\n");
@@ -110,5 +114,5 @@ void c3DObjectMissile::_LoadGraphics()
 	   }     
    }
     SAFE_RELEASE( pAdjacencyBuffer );
-    //SAFE_RELEASE( lpMat );
+    SAFE_RELEASE( lpMat );
 }

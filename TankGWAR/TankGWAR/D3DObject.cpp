@@ -89,17 +89,24 @@ int D3DObject::_InitD3D9(void)
 			  NULL,
 			  0,
 			  0,
-			  640,
-			  480,
+			  800,
+			  600,
 			  SWP_NOZORDER | SWP_SHOWWINDOW
 		  );
-    m_d3dpp.BackBufferWidth=640; //width
-    m_d3dpp.BackBufferHeight=480; //height
+    m_d3dpp.BackBufferWidth=800; //width
+    m_d3dpp.BackBufferHeight=600; //height
   }
   if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
   			       D3DDEVTYPE_HAL,
                g_hWnd,
 						   D3DCREATE_FPU_PRESERVE | D3DCREATE_HARDWARE_VERTEXPROCESSING,
+						   &m_d3dpp,
+						   &m_d3ddevice9
+						  ) != D3D_OK)
+  if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
+  			       D3DDEVTYPE_HAL,
+               g_hWnd,
+						   D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 						   &m_d3dpp,
 						   &m_d3ddevice9
 						  ) != D3D_OK)
@@ -144,19 +151,27 @@ void D3DObject::DefaultRenderState()
   m_d3ddevice9->SetRenderState ( D3DRS_ZWRITEENABLE, TRUE);
   m_d3ddevice9->SetRenderState ( D3DRS_ZFUNC, D3DCMP_LESSEQUAL);
 
-  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,FALSE);
+  m_d3ddevice9->SetRenderState(D3DRS_ALPHABLENDENABLE,TRUE);
   m_d3ddevice9->SetRenderState(D3DRS_SRCBLEND,D3DBLEND_SRCALPHA);
   m_d3ddevice9->SetRenderState(D3DRS_DESTBLEND,D3DBLEND_INVSRCALPHA);
 
-//m_d3ddevice9->SetRenderState(D3DRS_FOGENABLE, 1);
-//m_d3ddevice9->SetRenderState(D3DRS_FOGCOLOR, D3DCOLOR_ARGB(50,250,250,250));
+  float fogNear = 100.0f;
+  float fogFar = 400.0f;
+  float fogDense =0.2f;
+
+  /*
+m_d3ddevice9->SetRenderState(D3DRS_FOGENABLE, 1);
+m_d3ddevice9->SetRenderState(D3DRS_FOGCOLOR,  D3DCOLOR_RGBA(40,40,40,255));
 //m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, 0);
-//m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, *(DWORD*)(&fogNear));
+m_d3ddevice9->SetRenderState(D3DRS_FOGDENSITY, *(DWORD*)(&fogDense));
+m_d3ddevice9->SetRenderState(D3DRS_FOGSTART, *(DWORD*)(&fogNear));
+m_d3ddevice9->SetRenderState(D3DRS_FOGEND, *(DWORD*)(&fogFar));
+m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
+ */
 
+  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(150,150,150,255));
 
-  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(200,200,200,255));
-
-  //m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
+  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
 /*
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
@@ -164,7 +179,8 @@ void D3DObject::DefaultRenderState()
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,  D3DTOP_SELECTARG1);
 */
-    m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE );
+/*
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE );
     m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
       m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
       m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
@@ -172,7 +188,7 @@ void D3DObject::DefaultRenderState()
       m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
       m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
       m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-
+*/
       //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
 
 
@@ -196,15 +212,15 @@ void D3DObject::DefaultRenderState()
 
    light2 = light;
    light3 = light;
-   light2.Position = D3DXVECTOR3(30,400,30);
-   light3.Position = D3DXVECTOR3(-30,400,30);
-   light2.Direction = D3DXVECTOR3(0.2,-1,0.2);
-   light3.Direction = D3DXVECTOR3(-0.2,-1,-0.2);
+   light2.Position  = D3DXVECTOR3( 30.0f,400.0f,30.0f);
+   light3.Position  = D3DXVECTOR3(-30.0f,400.0f,30.0f);
+   light2.Direction = D3DXVECTOR3(  0.2f, -1.0f, 0.2f);
+   light3.Direction = D3DXVECTOR3( -0.2f, -1.0f,-0.2f);
 
-   m_d3ddevice9->SetLight(1,&light2);
-   m_d3ddevice9->LightEnable(1,true);
-   m_d3ddevice9->SetLight(2,&light3);
-   m_d3ddevice9->LightEnable(2,true);
+   //m_d3ddevice9->SetLight(1,&light2);
+   //m_d3ddevice9->LightEnable(1,true);
+   //m_d3ddevice9->SetLight(2,&light3);
+   //m_d3ddevice9->LightEnable(2,true);
 
 
   ShowCursor(FALSE);
@@ -394,7 +410,7 @@ int D3DObject::_InitFonts() {
 	memset (&fdesc,0,sizeof(fdesc));
 	strcpy (fdesc.FaceName,"Arial");
 	fdesc.Weight = FW_NORMAL;
-	fdesc.Height = 12;
+	fdesc.Height = 32;
 	hr = D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont);
 
 	if(FAILED(hr))
@@ -414,10 +430,10 @@ int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)
 	//pFont->Begin();
 
 	// Calculate the rectangle the text will occupy
-	pFont->DrawText( NULL, str, -1, &TextRect, DT_CALCRECT, 0);
+	pFont->DrawText( NULL, str, -1, &TextRect, DT_CALCRECT, color);
 
 	// Outputn the text, left aligned
-	pFont->DrawText( NULL, str, -1, &TextRect, DT_LEFT, color );
+	pFont->DrawText( NULL, str, -1, &TextRect, DT_LEFT | DT_NOCLIP, color );
 
 	// Finish up drawing
 	//pFont->End();

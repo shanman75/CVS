@@ -58,9 +58,6 @@ void CObjMgr::move()
 		m_obj[x]->move();
   for (int z=0; z < m_num3Dobj; z++)
 		m_3Dobj[z]->move();
-  for (int z=0; z < m_num3Dobj; z++)
-    if(m_3Dobj[z]->m_position.y < -5)
-		   del(m_3Dobj[z]);
 }
 
 void CObjMgr::paint()

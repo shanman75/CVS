@@ -71,10 +71,10 @@ void cModel::MakeWorldMatrix( int x )
 		//m_fRoll = 3.14/4;
         //D3DXMatrixRotationX(&MatRotY, -m_barrelHeight);          // Roll
 
-        D3DXMatrixTranslation(&MatTrY, 0, 0, -0.769);
+    D3DXMatrixTranslation(&MatTrY, 0.0f, 0.0f, -0.769f);
 		D3DXMatrixRotationAxis(&MatRotY,&VecAxisY,-m_barrelHeight);
 		D3DXMatrixMultiply(&MatRotY,&MatTrY,&MatRotY);
-        D3DXMatrixTranslation(&MatTrY, 0, 0, 0.739);
+    D3DXMatrixTranslation(&MatTrY, 0.0f, 0.0f, 0.739f);
 		D3DXMatrixMultiply(&MatRotY,&MatRotY,&MatTrY);
 		
 

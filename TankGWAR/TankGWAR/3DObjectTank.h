@@ -20,7 +20,7 @@ public:
 	~c3DObjectTank(void);
 	void paint(void);
 //	void SetXYZ(float x, float y, float z) { m_xPos = x; m_yPos=y; m_zPos = z; }
-  void Fire(enum FIRE_TYPE);
+  c3DObject * Fire(enum FIRE_TYPE);
   void event(enum EVENT);
 
 protected:

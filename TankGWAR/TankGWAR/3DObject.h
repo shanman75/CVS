@@ -31,6 +31,9 @@ protected:
 	D3DXVECTOR3 m_velocity;
 	D3DXVECTOR3 m_accel;
 
+  D3DXVECTOR3 m_initVelocity;
+  D3DXVECTOR3 m_initOrient;
+
 	DWORD m_nMat;
 
 	LPD3DXMESH m_curmesh;

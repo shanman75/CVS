@@ -6,8 +6,8 @@
 //#define SKY_HEIGHT 500
 //#define SKY_WIDTH 2000
 #define SKY_DEPTH 1000
-#define SKY_HEIGHT 3
-#define SKY_WIDTH 3
+#define SKY_HEIGHT 2
+#define SKY_WIDTH 2
 
 // DEFINES
 #define		D3DFVF_SKYMESH		(D3DFVF_XYZ | D3DFVF_NORMAL | D3DFVF_TEX1)
@@ -42,10 +42,10 @@ protected:
 
   static LPDIRECT3DTEXTURE9*	  m_tertex;
 
-  static LPDIRECT3DVERTEXBUFFER9 m_sbnegx;
-  static LPDIRECT3DVERTEXBUFFER9 m_sbposx;
-  static LPDIRECT3DVERTEXBUFFER9 m_sbnegz;
-  static LPDIRECT3DVERTEXBUFFER9 m_sbposz;
+  static LPDIRECT3DVERTEXBUFFER9 m_sbback;
+  static LPDIRECT3DVERTEXBUFFER9 m_sbfront;
+  static LPDIRECT3DVERTEXBUFFER9 m_sbleft;
+  static LPDIRECT3DVERTEXBUFFER9 m_sbright;
   static LPDIRECT3DVERTEXBUFFER9 m_sbtop;
 
 

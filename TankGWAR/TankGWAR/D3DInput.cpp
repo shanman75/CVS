@@ -7,8 +7,6 @@ D3DInput *g_D3DInput;
 
 D3DInput::D3DInput(void)
 {
-  HRESULT hr;
-
   m_keytime.Reset();
 	if (FAILED( DirectInput8Create(g_hInst, DIRECTINPUT_VERSION, 
               IID_IDirectInput8, (VOID**)&m_DInput, NULL))) 

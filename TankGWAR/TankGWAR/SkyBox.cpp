@@ -6,10 +6,10 @@
 LPDIRECT3DTEXTURE9*	  cSkyBox::m_tertex;
 ID3DXMesh *cSkyBox::m_SkyMesh;
 
-LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbnegx;
-LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbposx;
-LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbnegz;
-LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbposz;
+LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbback;
+LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbfront;
+LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbleft;
+LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbright;
 LPDIRECT3DVERTEXBUFFER9 cSkyBox::m_sbtop;
 
 const DWORD BILLBOARDVERTEX::FVF=D3DFVF_XYZ|D3DFVF_TEX1; //flexible vertex format
@@ -31,10 +31,10 @@ cSkyBox::~cSkyBox(void)
   m_tertex[4]->Release();
   if (m_SkyMesh) m_SkyMesh->Release();
   m_sbtop->Release();
-  m_sbposz->Release();
-  m_sbnegz->Release();
-  m_sbnegx->Release();
-  m_sbposx->Release();
+  m_sbback->Release();
+  m_sbfront->Release();
+  m_sbleft->Release();
+  m_sbright->Release();
 }
 
 void cSkyBox::Paint()
@@ -43,9 +43,7 @@ void cSkyBox::Paint()
     g_D3DObject->m_d3ddevice9->GetTransform( D3DTS_VIEW, &matViewSave );
     matView = matViewSave;
 
-//    matView._41 = 0; matView._42 = 0.2f; matView._43 = 0;
-
-    matView._41 = 0; matView._42 = -0.2f; matView._43 = 0;
+    matView._41 = 0; matView._42 = 0.0f; matView._43 = 0;
     g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_VIEW,      &matView );
 
     g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZENABLE, FALSE );
@@ -58,7 +56,7 @@ void cSkyBox::Paint()
 
 	  g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
 
-    D3DMATERIAL9 mtrl;
+    D3DMATERIAL9 mtrl,mtrlSave;
     ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
     mtrl.Ambient.r = 1.0f;
     mtrl.Ambient.g = 1.0f;
@@ -67,34 +65,36 @@ void cSkyBox::Paint()
 //    mtrl.Specular = mtrl.Diffuse;
     //mtrl.Ambient = mtrl.Diffuse;
     //mtrl.Power = 100.0f;
-    g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
+    g_D3DObject->m_d3ddevice9->GetMaterial(&mtrlSave);
+    g_D3DObject->m_d3ddevice9->SetMaterial(&mtrl);
     
-	if (m_sbnegx!= NULL)
+	if (m_sbtop!= NULL)
   {    
     g_D3DObject->m_d3ddevice9->SetFVF(BILLBOARDVERTEX::FVF); 
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[3]);
-	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbnegx,0,sizeof(BILLBOARDVERTEX));
-	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[0]);
+	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbfront,0,sizeof(BILLBOARDVERTEX));
+	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[2]);
-	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbposx,0,sizeof(BILLBOARDVERTEX));
-	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[1]);
+	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbright,0,sizeof(BILLBOARDVERTEX));
+	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[1]);
-	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbnegz,0,sizeof(BILLBOARDVERTEX));
-	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[2]);
+	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbback,0,sizeof(BILLBOARDVERTEX));
+	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
-	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbposz,0,sizeof(BILLBOARDVERTEX));
-	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[3]);
+	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbleft,0,sizeof(BILLBOARDVERTEX));
+	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
 
-	  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[4]);
-	  g_D3DObject->m_d3ddevice9->SetStreamSource(0,m_sbtop,0,sizeof(BILLBOARDVERTEX));
-	  g_D3DObject->m_d3ddevice9->DrawPrimitive(D3DPT_TRIANGLESTRIP,0,2);
+	  g_D3DObject->m_d3ddevice9->SetTexture      (0,m_tertex[4]);
+	  g_D3DObject->m_d3ddevice9->SetStreamSource (0,m_sbtop,0,sizeof(BILLBOARDVERTEX));
+	  g_D3DObject->m_d3ddevice9->DrawPrimitive   (D3DPT_TRIANGLESTRIP,0,2);
   }
 
   g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_VIEW,      &matViewSave );
+    g_D3DObject->m_d3ddevice9->SetMaterial(&mtrlSave);
   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZENABLE, TRUE );
   g_D3DObject->m_d3ddevice9->SetRenderState( D3DRS_ZWRITEENABLE, TRUE);
 }
@@ -116,7 +116,7 @@ BOOL cSkyBox::_Init()
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
 				D3DPOOL_SYSTEMMEM,
-				&m_sbnegx,
+				&m_sbback,
 				NULL))
 	)
         return FALSE; //bail if failed
@@ -126,7 +126,7 @@ BOOL cSkyBox::_Init()
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
 				D3DPOOL_MANAGED,
-				&m_sbposx,
+				&m_sbfront,
 				NULL))
 	)
         return FALSE; //bail if failed
@@ -136,7 +136,7 @@ BOOL cSkyBox::_Init()
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
 				D3DPOOL_MANAGED,
-				&m_sbnegz,
+				&m_sbleft,
 				NULL))
 	)
         return FALSE; //bail if failed
@@ -147,7 +147,7 @@ BOOL cSkyBox::_Init()
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
 				D3DPOOL_MANAGED,
-				&m_sbposz,
+				&m_sbright,
 				NULL))
 	)
         return FALSE; //bail if failed
@@ -175,63 +175,65 @@ BOOL cSkyBox::_Init()
 //#define SK_1 1.0f
 //#define SK_0 0.0f
 
-  if(SUCCEEDED(m_sbnegx->Lock(0,0,(void**)&pTetVB,0)))
+  if(SUCCEEDED(m_sbleft->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-     pTetVB->p=D3DXVECTOR3 (-w/2,h/2,-w/2);  pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h/2,w/2);   pTetVB->tu=SK_0;     pTetVB->tv=SK_0;
-    
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,-h/2,-w/2);    pTetVB->tu=SK_1;		pTetVB->tv=SK_1;
-    
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,-h/2,w/2);   pTetVB->tu=SK_0;		pTetVB->tv=SK_1;
-    m_sbnegx->Unlock();
-  }
-
-  if(SUCCEEDED(m_sbposx->Lock(0,0,(void**)&pTetVB,0)))
-  { //lock buffer
-    //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(w/2,h/2,w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h/2,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
-    
-  (++pTetVB)->p=D3DXVECTOR3(w/2,-h/2,w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
-    
-  (++pTetVB)->p=D3DXVECTOR3(w/2,-h/2,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
-    m_sbposx->Unlock();
-  }
-
-  if(SUCCEEDED(m_sbnegz->Lock(0,0,(void**)&pTetVB,0)))
-  { //lock buffer
-    //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3  (w/2 ,h/2,-w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h/2,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
-    
-  (++pTetVB)->p=D3DXVECTOR3(w/2,-h/2,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
-    
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,-h/2,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
-    m_sbnegz->Unlock();
-  }
-
-  if(SUCCEEDED(m_sbposz->Lock(0,0,(void**)&pTetVB,0)))
-  { //lock buffer
-    //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(-w/2,h/2, w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h/2, w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
+    pTetVB->p=D3DXVECTOR3  (-w/2,-h/2,-w/2);    pTetVB->tu=SK_0;  	pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2, h/2,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
     
   (++pTetVB)->p=D3DXVECTOR3(-w/2,-h/2, w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
     
-  (++pTetVB)->p=D3DXVECTOR3(w/2,-h/2,w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
-    m_sbposz->Unlock();
+  (++pTetVB)->p=D3DXVECTOR3(-w/2, h/2, w/2);	 pTetVB->tu=SK_1;	  pTetVB->tv=SK_0;
+    m_sbleft->Unlock();
+  }
+
+  if(SUCCEEDED(m_sbright->Lock(0,0,(void**)&pTetVB,0)))
+  { //lock buffer
+    //vertex information, first triangle in clockwise order
+    pTetVB->p=D3DXVECTOR3  ( w/2,-h/2, w/2);    pTetVB->tu=SK_0;  	pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3( w/2, h/2, w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
+    
+  (++pTetVB)->p=D3DXVECTOR3( w/2,-h/2,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
+    
+  (++pTetVB)->p=D3DXVECTOR3( w/2, h/2,-w/2);	 pTetVB->tu=SK_1;	  pTetVB->tv=SK_0;
+    m_sbright->Unlock();
+  }
+
+  if(SUCCEEDED(m_sbback->Lock(0,0,(void**)&pTetVB,0)))
+  { //lock buffer
+    //vertex information, first triangle in clockwise order
+    pTetVB->p=D3DXVECTOR3  ( w/2,-h/2,-w/2);    pTetVB->tu=SK_0;  	pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3( w/2, h/2,-w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
+    
+  (++pTetVB)->p=D3DXVECTOR3(-w/2,-h/2,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
+    
+  (++pTetVB)->p=D3DXVECTOR3(-w/2, h/2,-w/2);	 pTetVB->tu=SK_1;	  pTetVB->tv=SK_0;
+    m_sbback->Unlock();
+  }
+
+  if(SUCCEEDED(m_sbfront->Lock(0,0,(void**)&pTetVB,0)))
+  { //lock buffer
+    //vertex information, first triangle in clockwise order
+    pTetVB->p=D3DXVECTOR3  (-w/2,-h/2, w/2);    pTetVB->tu=SK_0;  pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3(-w/2, h/2, w/2);    pTetVB->tu=SK_0;  pTetVB->tv=SK_0;    
+  (++pTetVB)->p=D3DXVECTOR3( w/2,-h/2, w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;    
+  (++pTetVB)->p=D3DXVECTOR3( w/2, h/2, w/2);	  pTetVB->tu=SK_1;	pTetVB->tv=SK_0;
+    m_sbfront->Unlock();
   }
 
   if(SUCCEEDED(m_sbtop->Lock(0,0,(void**)&pTetVB,0)))
   { //lock buffer
     //vertex information, first triangle in clockwise order
-    pTetVB->p=D3DXVECTOR3(w/2,h/2,w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_0;
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h/2,w/2);    pTetVB->tu=SK_0;    pTetVB->tv=SK_0;
-    
-  (++pTetVB)->p=D3DXVECTOR3(w/2,h/2,-w/2);    pTetVB->tu=SK_1;	pTetVB->tv=SK_1;
-    
-  (++pTetVB)->p=D3DXVECTOR3(-w/2,h/2,-w/2);	 pTetVB->tu=SK_0;	pTetVB->tv=SK_1;
+  //  pTetVB->p  =D3DXVECTOR3(-w/2,h/2, w/2);    pTetVB->tu=SK_0;  	pTetVB->tv=SK_1;
+  //(++pTetVB)->p=D3DXVECTOR3(-w/2,h/2,-w/2);    pTetVB->tu=SK_0;   pTetVB->tv=SK_0;
+  //(++pTetVB)->p=D3DXVECTOR3( w/2,h/2, w/2);    pTetVB->tu=SK_1;	  pTetVB->tv=SK_1;
+  //(++pTetVB)->p=D3DXVECTOR3( w/2,h/2,-w/2);	   pTetVB->tu=SK_1;	  pTetVB->tv=SK_0;
+
+    (pTetVB)->p=D3DXVECTOR3(-w/2,h/2,-w/2);    pTetVB->tu=SK_0;   pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3( w/2,h/2,-w/2);	   pTetVB->tu=SK_0;	  pTetVB->tv=SK_0;
+  (++pTetVB)->p  =D3DXVECTOR3(-w/2,h/2, w/2);    pTetVB->tu=SK_1;  	pTetVB->tv=SK_1;
+  (++pTetVB)->p=D3DXVECTOR3( w/2,h/2, w/2);    pTetVB->tu=SK_1;	  pTetVB->tv=SK_0;
+
     m_sbtop->Unlock();
   }
 
@@ -239,41 +241,36 @@ BOOL cSkyBox::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
+  char *basedir = "worlds\\terragen";
+  char *basefname = "newsky000";
+//  char *basedir = "attica";
+// char *basefname = "attica000";
   m_tertex = new LPDIRECT3DTEXTURE9 [5];
-//  sprintf (texpath,"resource\\%s","morning\\morning_up.jpg");
-  sprintf (texpath,"resource\\%s","terragen\\top.bmp");
-//  sprintf (texpath,"resource\\%s","oceandusk\\top.png"); 
-  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
-    return false;
-  m_tertex[4] = tempt;
 
-//  sprintf (texpath,"resource\\%s","morning\\morning_rt.jpg");
-  sprintf (texpath,"resource\\%s","terragen\\right.bmp");
-//  sprintf (texpath,"resource\\%s","oceandusk\\right.png"); 
+  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"1");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[0] = tempt;
 
-//  sprintf (texpath,"resource\\%s","morning\\morning_lf.jpg");
-  sprintf (texpath,"resource\\%s","terragen\\left.bmp");
-//  sprintf (texpath,"resource\\%s","oceandusk\\left.png"); 
+  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"2");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[1] = tempt;
 
-//  sprintf (texpath,"resource\\%s","morning\\morning_fr.jpg");
-  sprintf (texpath,"resource\\%s","terragen\\front.bmp");
-//  sprintf (texpath,"resource\\%s","oceandusk\\front.png"); 
+  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"3");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[2] = tempt;
 
-//  sprintf (texpath,"resource\\%s","morning\\morning_bk.jpg");
-  sprintf (texpath,"resource\\%s","terragen\\back.bmp");
-//  sprintf (texpath,"resource\\%s","oceandusk\\back.png"); 
+  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"4");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return false;
   m_tertex[3] = tempt;
+
+  sprintf (texpath,"resource\\%s\\%s%s.bmp",basedir,basefname,"5");
+  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+    return false;
+  m_tertex[4] = tempt;
 
   sSkyVertex *VertexPtr;
 	DWORD *IndexPtr;

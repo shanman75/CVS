@@ -7,39 +7,26 @@ LPDIRECT3DTEXTURE9*	  cTerrain::m_tertex;
 
 cTerrain::cTerrain(void)
 {
-	D3DVERTEXELEMENT9 vertelement;
-
-	vertelement.Stream = 0;
-	vertelement.Offset = 0;
-	vertelement.Type = D3DDECLTYPE_FLOAT3;
-	vertelement.Method = D3DDECLMETHOD_DEFAULT;
 	_Init();
-/*
-
-	D3DXCreateMesh(
-		1,   // NumFaces
-		3,   // NumVertices
-		0,	 // Options
-
-*/
 }
 
 void cTerrain::Paint()
 {
 	D3DXMATRIXA16 matwrld;
+  D3DMATERIAL9 mtrl;
+  ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
 	D3DXMatrixIdentity(&matwrld);
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
-	if (g_TerrainMesh != NULL)
-  {    D3DMATERIAL9 mtrl;
-    ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
-    mtrl.Diffuse.r = 1.0f;
-    mtrl.Diffuse.g = 1.0f;
-    mtrl.Diffuse.b = 1.0f;
-    mtrl.Diffuse.a = 1.0f;
-    mtrl.Specular = mtrl.Diffuse;
-    mtrl.Power = 100.0f;
-    g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
+  mtrl.Diffuse.r = 1.0f;
+  mtrl.Diffuse.g = 1.0f;
+  mtrl.Diffuse.b = 1.0f;
+  mtrl.Diffuse.a = 1.0f;
+//  mtrl.Specular = mtrl.Diffuse;
+//  mtrl.Power = 100.0f;
+  g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
 
+  if (g_TerrainMesh != NULL)
+  {   
     g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
 	  g_TerrainMesh->DrawSubset(0);
   }
@@ -48,53 +35,29 @@ void cTerrain::Paint()
 void cTerrain::_Init()
 {
 
-
-	// Create the mesh	
-    /*
-    D3DXCreateMeshFVF( 2, 4, D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, D3DFVF_MESH, g_D3DObject->m_d3ddevice9, &g_TerrainMesh );	
-       sCustomVertex Verts[4] = {
-	     { -100.0f, 0.0f, 100.0f,  0.0f, 1.0f, 0.0f, D3DCOLOR_RGBA(255,0,255,255), 0.0f, 0.0f },
-	     { 100.0f,  0.0f, 100.0f,  0.0f, 1.0f, 0.0f, D3DCOLOR_RGBA(255,255,255,255), 1.0f, 0.0f },
-	     { 100.0f,  0.0f, -100.0f, 0.0f, 1.0f, 0.0f, D3DCOLOR_RGBA(255,255,255,255), 1.0f, 1.0f },
-	     { -100.0f,  0.0f, -100.0f,0.0f, 1.0f, 0.0f, D3DCOLOR_RGBA(255,255,255,255), 0.0f, 1.0f },
-     };
-     */
-  
-    D3DXCreateMeshFVF( 2*TER_X*TER_Y, (TER_X + 1) * (TER_Y + 1) , 
+  D3DXCreateMeshFVF( 2*TER_X*TER_Y, (TER_X + 1) * (TER_Y + 1) , 
 	  D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, 
-	  D3DFVF_MESH, 
+	  D3DFVF_MESH,
 	  g_D3DObject->m_d3ddevice9, 
 	  &g_TerrainMesh 
 	);
 
 	m_Heights = new float[(TER_X + 1) * (TER_Y + 1)];
-    //sCustomVertex *Vert = new sCustomVertex[(TER_X + 1) * (TER_Y + 1)];
-	
+  for (int x = 0; x < (TER_X+1)*(TER_Y+1); x++)
+    m_Heights[x] = 1.0f;
+  
 	LPDIRECT3DVERTEXBUFFER9 pTetVB = NULL; //Pointer to vertex buffer.
-
 
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
   m_tertex = new LPDIRECT3DTEXTURE9 [1];
-  sprintf (texpath,"resource\\%s","texture0.bmp");
+  sprintf (texpath,"resource\\%s","texture3.bmp");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return;
   m_tertex[0] = tempt;
 
 	RandomizeMesh();
-
-
-    //DWORD IndexData[6] = { 0, 1, 3, 1, 2, 3 };
-    
-
-   // memcpy( VertexPtr, Vert, (TER_X + 1) * (TER_Y + 1)*sizeof(sCustomVertex) );	
-    //g_TerrainMesh->LockIndexBuffer( 0, &IndexPtr );	
-    //memcpy( IndexPtr, IndexData, 6*sizeof(DWORD) );	
-    
-
-// Save the mesh to an X file	
-//	D3DXSaveMeshToX( "Test.x", g_TerrainMesh, NULL, &Mat, 1, DXFILEFORMAT_TEXT );
 }
 
 D3DCOLOR randcolor()
@@ -134,13 +97,13 @@ void cTerrain::RandomizeMesh(void)
 	  for (int j = 0; j < (TER_Y + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
 		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%85/10);
+		  VertexPtr->y = (float) (rand()%705/5);
       //VertexPtr->y = -5;
-		  VertexPtr->nx = 0;
-		  VertexPtr->ny = 1;
-		  VertexPtr->nz = 0;
+		  VertexPtr->nx = 0.0f;
+		  VertexPtr->ny = 1.0f;
+		  VertexPtr->nz = 0.0f;
 //		  VertexPtr->diffuse = randcolor();
-		  //VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
+//		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
 		  *t_Heights++ = VertexPtr->y;
@@ -175,5 +138,14 @@ cTerrain::~cTerrain(void)
 {
   m_tertex[0]->Release();
 	g_TerrainMesh->Release();
-  delete m_Heights;
+  delete [] m_Heights;
+}
+
+float cTerrain::GetHeight(float x, float y)
+{
+ x = x/(TER_WIDTH+1) + (TER_X+1)/2;
+ y = y/(TER_WIDTH+1) + (TER_Y+1)/2;
+ if (x > 0 && y > 0 && x < (TER_X + 1) && y < (TER_Y+1))
+ return m_Heights[(int)x* (TER_Y + 1) + (int)y];
+ else return 1.0f;
 }
