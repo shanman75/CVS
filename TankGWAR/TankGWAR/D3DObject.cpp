@@ -72,7 +72,7 @@ int D3DObject::_InitD3D9(void)
   m_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;
   m_d3dpp.EnableAutoDepthStencil=true; //not needed
   m_d3dpp.AutoDepthStencilFormat=D3DFMT_D16; //not needed
-  //m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
+  m_d3dpp.Flags=D3DPRESENTFLAG_LOCKABLE_BACKBUFFER; //can lock buffer
   m_d3dpp.Flags = 0;
   m_d3dpp.FullScreen_RefreshRateInHz =D3DPRESENT_RATE_DEFAULT;
 
@@ -103,13 +103,16 @@ int D3DObject::_InitD3D9(void)
 						   &m_d3dpp,
 						   &m_d3ddevice9
 						  ) != D3D_OK)
-  if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
+  {
+    OutputDebugString("Failed creating HAL/Hardware device\n");
+    if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
   			       D3DDEVTYPE_HAL,
                g_hWnd,
 						   D3DCREATE_FPU_PRESERVE | D3DCREATE_SOFTWARE_VERTEXPROCESSING,
 						   &m_d3dpp,
 						   &m_d3ddevice9
-						  ) != D3D_OK)
+               ) != D3D_OK) {
+      OutputDebugString("Failed creating HAL/Software device\n");  
       if (m_d3d9->CreateDevice(D3DADAPTER_DEFAULT,
   			       D3DDEVTYPE_HAL,
                g_hWnd,
@@ -121,9 +124,11 @@ int D3DObject::_InitD3D9(void)
             MessageBox(NULL,"Could not create Direct3D9 Device","Unknown error creating device",MB_OK);
 	          exit(1);
       }
-
+               }
+  }
   DefaultRenderState();
   m_d3ddevice9->GetDeviceCaps(&m_d3dcps);
+  /*
   int immed = 0, intrvl = 0;
 
   if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_IMMEDIATE)
@@ -136,8 +141,10 @@ int D3DObject::_InitD3D9(void)
     intrvl = 3;
   if (m_d3dcps.PresentationIntervals & D3DPRESENT_INTERVAL_FOUR)
     intrvl = 4;
+  */
 
   D3DXCreateSprite(m_d3ddevice9,&m_pd3dxSprite);
+  _InitFonts();
 
   char outstr[5000];
   sprintf (outstr,"Device Statistics\nMaxTexHeight: %i, MaxTexWidth: %i\n",m_d3dcps.MaxTextureHeight,m_d3dcps.MaxTextureWidth);
@@ -169,9 +176,9 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGEND, *(DWORD*)(&fogFar));
 m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
  */
 
-  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(150,150,150,255));
+  m_d3ddevice9->SetRenderState ( D3DRS_AMBIENT, D3DCOLOR_RGBA(190,150,190,255));
 
-  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_CCW);
+  m_d3ddevice9->SetRenderState ( D3DRS_CULLMODE, D3DCULL_NONE);
   //m_d3ddevice9->SetRenderState ( D3DRS_LIGHTING, FALSE);
 /*
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE);
@@ -179,49 +186,51 @@ m_d3ddevice9->SetRenderState(D3DRS_FOGVERTEXMODE, D3DFOG_LINEAR );
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE);
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,  D3DTOP_SELECTARG1);
 */
-/*
+
   m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLOROP,   D3DTOP_MODULATE );
-    m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
-      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
-      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
-      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
-      m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
-      m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
-      m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
-*/
-      //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG1, D3DTA_TEXTURE );
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_COLORARG2, D3DTA_DIFFUSE );
+
+  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_DISABLE );
+
+//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAOP,   D3DTOP_MODULATE );
+//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG1, D3DTA_TEXTURE );
+//  m_d3ddevice9->SetTextureStageState( 0, D3DTSS_ALPHAARG2, D3DTA_DIFFUSE );
+  m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MINFILTER, D3DTEXF_LINEAR );
+  m_d3ddevice9->SetSamplerState( 0, D3DSAMP_MAGFILTER, D3DTEXF_LINEAR );
+  
+  //  m_d3ddevice9->SetVertexShader( D3DFVF_CVERTEX );
 
 
   //if (m_d3ddevice9->GetBackBuffer(0,0,D3DBACKBUFFER_TYPE_MONO,&m_d3dbackbuffer9) != D3D_OK) {
   //  m_d3dbackbuffer9=NULL; return FALSE;
   //}
 
-     D3DLIGHT9 light,light2,light3;
-   ZeroMemory(&light,sizeof(light));
-   D3DXVECTOR3 pos (0,400,0);
-   //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
-   light.Position = pos;
-   light.Direction = D3DXVECTOR3 (0,-1,0);
-   light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
-   light.Specular = light.Diffuse;
-   light.Diffuse.r = 0.9f;
-   light.Range = 5000;
-   light.Type = D3DLIGHT_DIRECTIONAL;
-   m_d3ddevice9->SetLight(0,&light);
-   m_d3ddevice9->LightEnable(0,true);
+  D3DLIGHT9 light,light2,light3;
+  ZeroMemory(&light,sizeof(light));
+  D3DXVECTOR3 pos (0,400,0);
+  //g_D3DObject->m_d3ddevice9->GetLight(0,&light);
+  light.Position = pos;
+  light.Direction = D3DXVECTOR3 (0,-1,0);
+  light.Diffuse.g = light.Diffuse.b =   light.Diffuse.r = 1.0f;
+  light.Specular = light.Diffuse;
+  light.Diffuse.r = 0.9f;
+  light.Range = 5000;
+  light.Type = D3DLIGHT_DIRECTIONAL;
+  m_d3ddevice9->SetLight(0,&light);
+  m_d3ddevice9->LightEnable(0,true);
 
-   light2 = light;
-   light3 = light;
-   light2.Position  = D3DXVECTOR3( 30.0f,400.0f,30.0f);
-   light3.Position  = D3DXVECTOR3(-30.0f,400.0f,30.0f);
-   light2.Direction = D3DXVECTOR3(  0.2f, -1.0f, 0.2f);
-   light3.Direction = D3DXVECTOR3( -0.2f, -1.0f,-0.2f);
+  light2 = light;
+  light3 = light;
+  light2.Position  = D3DXVECTOR3( 30.0f,400.0f,30.0f);
+  light3.Position  = D3DXVECTOR3(-30.0f,400.0f,30.0f);
+  light2.Direction = D3DXVECTOR3(  0.2f, -1.0f, 0.2f);
+  light3.Direction = D3DXVECTOR3( -0.2f, -1.0f,-0.2f);
 
-   //m_d3ddevice9->SetLight(1,&light2);
-   //m_d3ddevice9->LightEnable(1,true);
-   //m_d3ddevice9->SetLight(2,&light3);
-   //m_d3ddevice9->LightEnable(2,true);
-
+  //m_d3ddevice9->SetLight(1,&light2);
+  //m_d3ddevice9->LightEnable(1,true);
+  //m_d3ddevice9->SetLight(2,&light3);
+  //m_d3ddevice9->LightEnable(2,true);
 
   ShowCursor(FALSE);
   m_d3ddevice9->ShowCursor(FALSE);
@@ -272,17 +281,25 @@ BOOL D3DObject::DeviceLost(){ //check for lost device
       ;
 	  OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
     m_pd3dxSprite->OnLostDevice();
+	  OutputDebugString("D3DObject::DeviceLost Restoring Font\n");
     pFont->OnLostDevice();
-	  OutputDebugString("D3DObject::DeviceLost Restoring Surfaces\n");
-     if(m_d3ddevice9->Reset(&m_d3dpp)!=D3D_OK) {
-      OutputDebugString("Tried to reset, reset failed...\n");
-      exit(1);
-		  return FALSE;
+    switch(m_d3ddevice9->Reset(&m_d3dpp)) {
+        case D3DERR_DEVICELOST:
+          OutputDebugString ("D3DERR_DEVICELOST\n");exit(1); break;
+        case D3DERR_DRIVERINTERNALERROR:
+          OutputDebugString("D3DERR_DRIVERINTERNALERROR\n"); exit(1); break;
+        case D3DERR_INVALIDCALL:
+          OutputDebugString("D3DERR_INVALIDCALL\n"); exit(1); break;
+        case D3DERR_OUTOFVIDEOMEMORY:
+          OutputDebugString("D3DERR_OUTOFVIDEOMEMORY\n");exit(1); break;
+        case E_OUTOFMEMORY:
+          OutputDebugString("E_OUTOFMEMORY\n");exit(1); break;
+        default:
+          OutputDebugString("Unknown Error\n"); break;
     }
     DefaultRenderState();
     m_pd3dxSprite->OnResetDevice();
     pFont->OnResetDevice();
-	  _InitFonts();
   }
   return D3D_OK;
 } //DeviceLost
@@ -401,8 +418,6 @@ return D3D_OK;
 
 int D3DObject::_InitFonts() {
 
-	HRESULT hr;
-
 	pFont = NULL;
 
 	// Create the D3DX Font
@@ -411,12 +426,14 @@ int D3DObject::_InitFonts() {
 	strcpy (fdesc.FaceName,"Arial");
 	fdesc.Weight = FW_NORMAL;
 	fdesc.Height = 32;
-	hr = D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont);
-
-	if(FAILED(hr))
-		return FALSE;
-	m_initfonts=TRUE;
-	return TRUE;
+	if (FAILED(D3DXCreateFontIndirect(m_d3ddevice9, &fdesc, &pFont)))
+  {
+     MessageBox(NULL,"TankGWAR Error","Failed to create font!",MB_OK);
+     exit(1);
+  }
+  
+  m_initfonts=TRUE;
+	return m_initfonts;
 }
 
 int D3DObject::DrawTextStr(int x, int y, DWORD color, const TCHAR * str)

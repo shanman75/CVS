@@ -6,16 +6,37 @@ cGameState *g_GameState;
 
 void cGameState::move(void)
 {
-  if (m_gstate == FIRING)
+  static CTimer tmrState;
+  D3DXVECTOR3 msl_pos;
+  c3DObject *tmpP;
+
+  switch (m_gstate) 
   {
-         D3DXVECTOR3 msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
+  case FIRING:
+         msl_pos = m_PlayerState[m_currentplayer].msl_object->m_position;
          if (m_terrain->GetHeight(msl_pos.x,msl_pos.z) > msl_pos.y) {
+           // Create New Explosion
+           m_PlayerState[m_currentplayer].exp_object = new c3DObjectExplosion();
+           m_PlayerState[m_currentplayer].exp_object->pos(msl_pos+D3DXVECTOR3(0,0.5f,0));
            g_ObjMgr->del(m_PlayerState[m_currentplayer].msl_object);
+           g_ObjMgr->add(m_PlayerState[m_currentplayer].exp_object);
            m_PlayerState[m_currentplayer].msl_object = NULL;
-           m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
-           SetCurrentCamera(&m_camBehindTank);
-           m_gstate = TURN;
+           SetCurrentCamera(&m_camAboveExplosion);
+           m_gstate = EXPLODING;
+           tmrState.setInterval(6000);
+           tmrState.Reset();
          }
+    break;
+  case EXPLODING:
+    if (tmrState.CmpTime()) {
+          g_ObjMgr->del(m_PlayerState[m_currentplayer].exp_object);
+           SetCurrentCamera(&m_camBehindTank);
+          m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
+          m_gstate = TARGETING;
+    }
+    break;
+  default:
+    break;
   }
 }
 
@@ -51,7 +72,7 @@ void cGameState::GetInput(void)
   g_D3DInput->GetInput((cTerrain *)m_terrain);
 
   switch (m_gstate) {
-     case TURN:
+     case TARGETING:
         tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
         if (g_D3DInput->KeyDown(DIK_UP))
           tmpP->event(c3DObjectTank::UP);
@@ -76,7 +97,7 @@ void cGameState::GetInput(void)
        {
          m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
          SetCurrentCamera(&m_camBehindTank);
-         m_gstate = TURN;
+         m_gstate = TARGETING;
        }
        break;
      default:
@@ -93,6 +114,16 @@ void cGameState::GetCurrentTankState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient)
     //= ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_orient;
 }
 
+void cGameState::GetCurrentExpState(D3DXVECTOR3 *pos, D3DXVECTOR3 *scale)
+{
+  *pos =    (m_PlayerState[m_currentplayer].exp_object)->m_position;
+  *scale = (m_PlayerState[m_currentplayer].exp_object)->m_scale;
+//  orient->x = (m_PlayerState[m_currentplayer].object)->m_turretRotate;
+//  orient->y = (m_PlayerState[m_currentplayer].object)->m_barrelHeight;
+//  orient->z = (m_PlayerState[m_currentplayer].object)->m_firePower;
+    //= ((c3DObjectTank *)m_PlayerState[m_currentplayer].object)->m_orient;
+}
+
 void cGameState::GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D3DXVECTOR3 *velocity)
 {
   *pos   =    ((c3DObjectMissile *)m_PlayerState[m_currentplayer].msl_object)->m_position;
@@ -106,7 +137,7 @@ void cGameState::GetCurrentMissileState(D3DXVECTOR3 *pos, D3DXVECTOR3 *orient, D
 cGameState::cGameState(void)
 {
   m_numplayers=0;
-  m_terrain = new cTerrain();
+  m_terrain = new cTerrain(20,20,20.0f);
   m_skybox = new cSkyBox();
   m_terrain->RandomizeMesh();
   SetCurrentCamera(new cCameraBehindTank);
@@ -114,27 +145,30 @@ cGameState::cGameState(void)
 
 cGameState::~cGameState(void)
 {
-  SAFE_DELETE(m_terrain);
+  SAFE_DELETE(m_terrain);  
   SAFE_DELETE(m_skybox);
 }
+
 
 void cGameState::AddPlayer(BOOL human)
 {
   c3DObject *tmpP = NULL;
   m_currentplayer = 0;
 
-  m_gstate = cGameState::TURN;
+  m_gstate = cGameState::TARGETING;
 
   float t_x, t_y, t_z;
 
-  for (int x =0 ; x < 3; x++)  {
+  for (int x =0 ; x < 5; x++)  {
     tmpP = new c3DObjectTank();
-    t_x = rand()%1200-600;
-    t_z = rand()%1200-600;
-    t_y = m_terrain->GetHeight(t_x,t_z);
+    t_x = rand()%600-300;
+    t_z = rand()%600-300;
+    t_y = m_terrain->GetHeight(t_x,t_z)+5.6f;
     tmpP->pos(D3DXVECTOR3((float)(rand()%200-100),(float)t_y,(float)(rand()%200-100)));
+    ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)x);
     m_PlayerState[m_numplayers].object = tmpP;
     g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
+    m_PlayerState[x].health = 100.0f;
     m_numplayers++;
   }
 }

@@ -100,6 +100,10 @@ void c3DObjectMissile::_LoadGraphics()
 	   tempt = NULL;
 
      m_missilemat[x] = mat[x].MatD3D;
+//     m_missilemat[x].Diffuse = D3DXCOLOR(0.6f,0.6f,0.4f,1.0f);
+//     m_missilemat[x].Ambient = D3DXCOLOR(0.1f,0.1f,0.1f,1.0f);
+//     m_missilemat[x].Specular = D3DXCOLOR(0.8f,0.8f,0.8f,1.0f);
+//     m_missilemat[x].Power = 0.2f;
      m_missiletex[x] = NULL;
      if (mat[x].pTextureFilename != NULL) {               
 		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);

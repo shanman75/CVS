@@ -5,8 +5,9 @@
 
 LPDIRECT3DTEXTURE9*	  cTerrain::m_tertex;
 
-cTerrain::cTerrain(void)
+cTerrain::cTerrain(float x,float z,float w)
 {
+  TER_X = x;  TER_Z = z; TER_WIDTH = w;
 	_Init();
 }
 
@@ -23,27 +24,41 @@ void cTerrain::Paint()
   mtrl.Diffuse.a = 1.0f;
 //  mtrl.Specular = mtrl.Diffuse;
 //  mtrl.Power = 100.0f;
-  g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
+//  g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
+  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,FALSE);
 
   if (g_TerrainMesh != NULL)
   {   
     g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
+//    g_D3DObject->m_d3ddevice9->SetTexture(0,NULL);
+//    g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_FILLMODE, D3DFILL_WIREFRAME);
 	  g_TerrainMesh->DrawSubset(0);
   }
+  g_D3DObject->m_d3ddevice9->SetRenderState(D3DRS_LIGHTING,TRUE);
 }
 
 void cTerrain::_Init()
 {
 
-  D3DXCreateMeshFVF( 2*TER_X*TER_Y, (TER_X + 1) * (TER_Y + 1) , 
-	  D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, 
+  D3DXCreateMeshFVF( 2*TER_X*TER_Z, (TER_X + 1) * (TER_Z + 1) , 
+    //D3DPOOL_DEFAULT | D3DXMESH_32BIT,  //	  
+    D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, 
 	  D3DFVF_MESH,
 	  g_D3DObject->m_d3ddevice9, 
 	  &g_TerrainMesh 
 	);
 
-	m_Heights = new float[(TER_X + 1) * (TER_Y + 1)];
-  for (int x = 0; x < (TER_X+1)*(TER_Y+1); x++)
+ // D3DXCreateMeshFVF( 2*TER_X*TER_Z, (TER_X + 1) * (TER_Z + 1) , 
+ //   //D3DPOOL_DEFAULT | D3DXMESH_32BIT,  //	  
+ //   D3DXMESH_32BIT | D3DXMESH_SYSTEMMEM, 
+	//  D3DFVF_MESH,
+	//  g_D3DObject->m_d3ddevice9, 
+	//  &g_BigTerrainMesh 
+	//);
+
+//	m_Heights = new float[(TER_X + 1) * (TER_Z + 1)];
+  m_Heights = new float[0xffffff];
+  for (int x = 0; x < (TER_X+1)*(TER_Z+1); x++)
     m_Heights[x] = 999.0f;
   
 	LPDIRECT3DVERTEXBUFFER9 pTetVB = NULL; //Pointer to vertex buffer.
@@ -52,7 +67,7 @@ void cTerrain::_Init()
   LPDIRECT3DTEXTURE9 tempt;
 
   m_tertex = new LPDIRECT3DTEXTURE9 [1];
-  sprintf (texpath,"resource\\%s","texture3.bmp");
+  sprintf (texpath,"resource\\%s","BUMP_Dents_bp.dds");
   if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
     return;
   m_tertex[0] = tempt;
@@ -64,13 +79,13 @@ D3DCOLOR randcolor()
 {
 	switch (rand()%3) {
 		case 3:
-			return D3DCOLOR_RGBA(180,141,3,255); break;
+			return D3DCOLOR_RGBA(36,171,5,255); break;
 		case 2:
-			return D3DCOLOR_RGBA(119,150,108,255); break;
+			return D3DCOLOR_RGBA(245,210,3,255); break;
 		case 1:
-			return D3DCOLOR_RGBA(89,83,60,255); break;
+			return D3DCOLOR_RGBA(0,18,24,255); break;
 		default:
-			return D3DCOLOR_RGBA(90,75,10,255); break;
+			return D3DCOLOR_RGBA(38,190,3,255); break;
 	}
 }
 
@@ -87,23 +102,28 @@ void cTerrain::RandomizeMesh(void)
 	DWORD *IndexPtr;
 	float *t_Heights = m_Heights;
 
-	IndexPtr =NULL;
-	VertexPtr =NULL;
+	IndexPtr =  NULL;
+	VertexPtr= NULL;
 
-	g_TerrainMesh->LockVertexBuffer( 0, (LPVOID *) &VertexPtr );	
-	g_TerrainMesh->LockIndexBuffer( 0, (LPVOID *) &IndexPtr );	
+	if(FAILED(g_TerrainMesh->LockVertexBuffer( 0, (LPVOID *) &VertexPtr )))
+    return;
+  if(FAILED(g_TerrainMesh->LockIndexBuffer( 0, (LPVOID *) &IndexPtr )))
+    return;
 
     for (int i = 0; i < (TER_X + 1); i++)
-	  for (int j = 0; j < (TER_Y + 1); j++) {
+	  for (int j = 0; j < (TER_Z + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
-		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%705/5);
-      //VertexPtr->y = -5;
-		  VertexPtr->nx = 0.0f;
+		  VertexPtr->z = (j - (TER_Z-1)/2) * TER_WIDTH;
+		  VertexPtr->y = (float) (rand()%55/5)+33/TER_WIDTH;
+//      VertexPtr->y = sin((float)i/2)*cos((float)j/2) * 5.0f;
+//      VertexPtr->y = -5;
+/*
+      VertexPtr->nx = 0.0f;
 		  VertexPtr->ny = 1.0f;
 		  VertexPtr->nz = 0.0f;
-//		  VertexPtr->diffuse = randcolor();
-//		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
+*/
+		  VertexPtr->diffuse = randcolor();
+//		  VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,255,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
       SetHeight(VertexPtr->x,VertexPtr->z,VertexPtr->y);
@@ -112,17 +132,17 @@ void cTerrain::RandomizeMesh(void)
 	}
 
     for (int i = 0; i < (TER_X); i++)
-	    for (int j = 0; j < (TER_Y); j++) {
+	    for (int j = 0; j < (TER_Z); j++) {
   		  
-		    DWORD te = i*(TER_Y+1) + j;
+		    DWORD te = i*(TER_Z+1) + j;
 
 		    *IndexPtr++ = te;
 		    *IndexPtr++ = te+1;
 
-		    *IndexPtr++ = te + TER_Y + 1;
-		    *IndexPtr++ = te + TER_Y + 2; 
+		    *IndexPtr++ = te + TER_Z + 1;
+		    *IndexPtr++ = te + TER_Z + 2; 
 
-		    *IndexPtr++ = te + TER_Y + 1;
+		    *IndexPtr++ = te + TER_Z + 1;
 		    *IndexPtr++ = te + 1;
       }
 	g_TerrainMesh->UnlockIndexBuffer();
@@ -136,24 +156,48 @@ void cTerrain::RandomizeMesh(void)
 
 cTerrain::~cTerrain(void)
 {
-  m_tertex[0]->Release();
+  SAFE_RELEASE(m_tertex[0]);
 	g_TerrainMesh->Release();
   delete [] m_Heights;
 }
 
-float cTerrain::GetHeight(float x, float y)
+float cTerrain::GetHeight(float x, float z)
 {
- x = x/(TER_WIDTH+1) + (TER_X+1)/2;
- y = y/(TER_WIDTH+1) + (TER_Y+1)/2;
- if (x > 0 && y > 0 && x < (TER_X + 1) && y < (TER_Y+1))
- return m_Heights[(int)x* (TER_Y + 1) + (int)y];
- else return 1.0f;
+ x = x/(TER_WIDTH) + TER_X/2;
+ z = z/(TER_WIDTH) + TER_Z/2;
+ if (!(x > 0 && z > 0 && x < (TER_X - 1) && z < (TER_Z-1)))
+    return 30.0f;   // Default Value
+
+ // Find triangle face
+ D3DXVECTOR3 pt1, pt2, pt3;
+ float       wt1, wt2, wt3;
+ float       dt1, dt2, dt3;
+
+ pt1 = D3DXVECTOR3(floor(x),0,floor(z));
+ pt3 = D3DXVECTOR3(pt1.x+1,0,pt1.z+1);
+
+ if (fmod(x,1) > (1-fmod(z,1)))
+    pt2 = D3DXVECTOR3(pt1.x+1,0,pt1.z);
+ else
+    pt2 = D3DXVECTOR3(pt1.x,  0,pt1.z+1);
+
+ pt1.y = m_Heights[(int)(pt1.x*TER_Z + pt1.z)]; 
+ pt2.y = m_Heights[(int)(pt2.x*TER_Z + pt2.z)]; 
+ pt3.y = m_Heights[(int)(pt3.x*TER_Z + pt3.z)]; 
+
+ dt1 = sqrt((pt1.x-x)*(pt1.x-x) + (pt1.z-z)*(pt1.z-z));
+ dt2 = sqrt((pt2.x-x)*(pt2.x-x) + (pt2.z-z)*(pt2.z-z));
+ dt3 = sqrt((pt3.x-x)*(pt3.x-x) + (pt3.z-z)*(pt3.z-z));
+
+ float height = (pt1.y * dt1 + pt2.y * dt2 + pt3.y * dt3)/3;
+ return height;
 }
 
 void cTerrain::SetHeight(float x, float z, float y)
 {
- x = x/(TER_WIDTH+1) + (TER_X+1)/2;
- z = z/(TER_WIDTH+1) + (TER_Y+1)/2;
- if (x > 0 && z > 0 && x < (TER_X + 1) && z < (TER_Y+1))
-    m_Heights[(int)x* (TER_Y + 1) + (int)z] = y;
+ x = x/(TER_WIDTH) + TER_X/2;
+ z = z/(TER_WIDTH) + TER_Z/2;
+
+ if (x > 0 && z > 0 && x < TER_X && z < TER_Z)
+    m_Heights[(int)(x* TER_Z + z)] = y;
 }

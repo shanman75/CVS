@@ -5,11 +5,12 @@
 #include "ObjMgr.h"
 #include <stdio.h>
 
-int					    c3DObjectTank::m_graph_init = 0;
-LPD3DXMESH			c3DObjectTank::m_tankmesh = NULL;
-DWORD				    c3DObjectTank::m_tankNmat = 0;
+int					        c3DObjectTank::m_graph_init = 0;
+LPD3DXMESH			    c3DObjectTank::m_tankmesh = NULL;
+DWORD				        c3DObjectTank::m_tankNmat = 0;
 LPDIRECT3DTEXTURE9*	c3DObjectTank::m_tanktex = NULL;
-D3DMATERIAL9*		c3DObjectTank::m_tankmat = NULL;
+LPDIRECT3DTEXTURE9* c3DObjectTank::m_skintex = NULL;
+D3DMATERIAL9*		    c3DObjectTank::m_tankmat = NULL;
 
 
 c3DObjectTank::c3DObjectTank()
@@ -29,6 +30,7 @@ c3DObjectTank::c3DObjectTank()
   m_keytime.setInterval(20.0f);
   m_firetime.Reset();
   m_firetime.setInterval(600.0f);
+  m_skin = c3DObjectTank::SKINS::GREEN;
 //  m_orient = D3DXVECTOR3(1,0,0);
 }
 
@@ -90,7 +92,8 @@ void c3DObjectTank::paint()
    for (int x = 0; x < (int)m_nMat; x++)  {
   	 g_D3DObject->m_d3ddevice9->SetMaterial( &m_tankmat[x] );
      MakeWorldMatrix(x);
-	   g_D3DObject->m_d3ddevice9->SetTexture(0,m_tanktex[x]);
+     if (x == 0 || x == 1 || x ==5 ) g_D3DObject->m_d3ddevice9->SetTexture(0,m_skintex[(int)m_skin]);
+     else  g_D3DObject->m_d3ddevice9->SetTexture(0,m_tanktex[x]);
      //if (x == 1 || x == 2)
 	   m_tankmesh->DrawSubset(x);
    }
@@ -101,6 +104,10 @@ void c3DObjectTank::_UnloadGraphics()
   for (int x = 0; x < (int)m_nMat; x++) {
 	  SAFE_RELEASE(m_tanktex[x]);
   }
+  for (int x = 0; x< (int)5 ; x++ ) {
+	  SAFE_RELEASE(m_skintex[x]);
+  }
+  SAFE_DELETE_ARRAY(m_skintex);
   SAFE_DELETE_ARRAY(m_tanktex);
   SAFE_DELETE_ARRAY(m_tankmat);
 }
@@ -141,7 +148,7 @@ void c3DObjectTank::_LoadGraphics()
 	HRESULT hr;
 
   if (FAILED(D3DXLoadMeshFromX(
-     "resource\\tank2.x",
+     "resource\\tanks\\tank2.x",
      D3DXMESH_SYSTEMMEM,
 	   g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,				// LPD3DXBUFFER *ppAdjacency,
@@ -166,14 +173,14 @@ void c3DObjectTank::_LoadGraphics()
 
    m_tanktex = new LPDIRECT3DTEXTURE9 [m_tankNmat];
    m_tankmat = new D3DMATERIAL9 [m_tankNmat];
+	   LPDIRECT3DTEXTURE9 tempt;
   
    for (DWORD x = 0; x < m_tankNmat; x++) {
-	   LPDIRECT3DTEXTURE9 tempt;
 	   tempt = NULL;
 	   m_tankmat[x] = mat[x].MatD3D;
 	   m_tanktex[x] = NULL;
 	   if (mat[x].pTextureFilename != NULL) {               
-		        sprintf (texpath,"resource\\%s",mat[x].pTextureFilename);
+		        sprintf (texpath,"resource\\tanks\\%s",mat[x].pTextureFilename);
 	       if (hr = D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
 		   {
 			   m_tanktex[x] = NULL;
@@ -187,6 +194,35 @@ void c3DObjectTank::_LoadGraphics()
    }
     SAFE_RELEASE( pAdjacencyBuffer );
     SAFE_RELEASE( lpMat );
+
+// Skins
+       m_skintex = new LPDIRECT3DTEXTURE9 [5];
+       sprintf (texpath,"resource\\tanks\\skins\\%s","green.dds");
+       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::GREEN] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","blue.dds");
+       if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::BLUE] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","steelblue.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::STEELBLUE] = tempt;
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","rainbow.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::RAINBOW] = tempt;
+
+
+       sprintf (texpath,"resource\\tanks\\skins\\%s","red.dds");
+      if (FAILED(D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)))
+         exit(1);
+       m_skintex[c3DObjectTank::SKINS::RED] = tempt;
+
 }
 
 c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
@@ -223,7 +259,7 @@ c3DObject * c3DObjectTank::Fire(enum FIRE_TYPE fire)
   OutputDebugString(debg);
 
   objadd = new c3DObjectMissile();
-  objadd->accel   (D3DXVECTOR3(0.0f,-9.8f,0.0f));
+  objadd->accel   (D3DXVECTOR3(0.0f,-12.8f,0.0f));
   objadd->velocity(tVelocity * m_firePower);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);

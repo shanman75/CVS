@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding = "Windows-1252"?>
+<?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="7.00"
+	Version="7.10"
 	Name="TankGWAR"
 	ProjectGUID="{A5933BA3-1269-4866-8E49-C4F053ECA691}"
 	Keyword="Win32Proj">
@@ -51,8 +51,14 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"
 				ApplicationProtection="0"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 		<Configuration
 			Name="Release|Win32"
@@ -93,9 +99,17 @@
 			<Tool
 				Name="VCWebServiceProxyGeneratorTool"/>
 			<Tool
+				Name="VCXMLDataGeneratorTool"/>
+			<Tool
 				Name="VCWebDeploymentTool"/>
+			<Tool
+				Name="VCManagedWrapperGeneratorTool"/>
+			<Tool
+				Name="VCAuxiliaryManagedWrapperGeneratorTool"/>
 		</Configuration>
 	</Configurations>
+	<References>
+	</References>
 	<Files>
 		<Filter
 			Name="Source Files"
@@ -103,6 +117,9 @@
 			UniqueIdentifier="{4FC737F1-C7A5-4376-A066-2A32D752A2FF}">
 			<File
 				RelativePath=".\3DObject.cpp">
+			</File>
+			<File
+				RelativePath=".\3DObjectExplosion.cpp">
 			</File>
 			<File
 				RelativePath=".\3DObjectMissile.cpp">
@@ -114,6 +131,9 @@
 				RelativePath=".\Camera.cpp">
 			</File>
 			<File
+				RelativePath=".\CameraAboveExplosion.cpp">
+			</File>
+			<File
 				RelativePath=".\CameraAboveHit.cpp">
 			</File>
 			<File
@@ -121,6 +141,9 @@
 			</File>
 			<File
 				RelativePath=".\CameraBehindTank.cpp">
+			</File>
+			<File
+				RelativePath=".\cModel.cpp">
 			</File>
 			<File
 				RelativePath=".\D3DInput.cpp">
@@ -135,6 +158,9 @@
 				RelativePath=".\MainWnd.cpp">
 			</File>
 			<File
+				RelativePath="mp3aud.cpp">
+			</File>
+			<File
 				RelativePath=".\Obj.cpp">
 			</File>
 			<File
@@ -142,27 +168,6 @@
 			</File>
 			<File
 				RelativePath=".\SkyBox.cpp">
-			</File>
-			<File
-				RelativePath=".\TankGWAR.cpp">
-			</File>
-			<File
-				RelativePath=".\Terrain.cpp">
-			</File>
-			<File
-				RelativePath=".\Texture.cpp">
-			</File>
-			<File
-				RelativePath=".\Timer.cpp">
-			</File>
-			<File
-				RelativePath=".\World.cpp">
-			</File>
-			<File
-				RelativePath=".\cModel.cpp">
-			</File>
-			<File
-				RelativePath="mp3aud.cpp">
 			</File>
 			<File
 				RelativePath=".\stdafx.cpp">
@@ -179,6 +184,21 @@
 						UsePrecompiledHeader="1"/>
 				</FileConfiguration>
 			</File>
+			<File
+				RelativePath=".\TankGWAR.cpp">
+			</File>
+			<File
+				RelativePath=".\Terrain.cpp">
+			</File>
+			<File
+				RelativePath=".\Texture.cpp">
+			</File>
+			<File
+				RelativePath=".\Timer.cpp">
+			</File>
+			<File
+				RelativePath=".\World.cpp">
+			</File>
 		</Filter>
 		<Filter
 			Name="Header Files"
@@ -186,6 +206,9 @@
 			UniqueIdentifier="{93995380-89BD-4b04-88EB-625FBE52EBFB}">
 			<File
 				RelativePath=".\3DObject.h">
+			</File>
+			<File
+				RelativePath=".\3DObjectExplosion.h">
 			</File>
 			<File
 				RelativePath=".\3DObjectMissile.h">
@@ -197,6 +220,9 @@
 				RelativePath=".\Camera.h">
 			</File>
 			<File
+				RelativePath=".\CameraAboveExplosion.h">
+			</File>
+			<File
 				RelativePath=".\CameraAboveHit.h">
 			</File>
 			<File
@@ -204,6 +230,9 @@
 			</File>
 			<File
 				RelativePath=".\CameraBehindTank.h">
+			</File>
+			<File
+				RelativePath=".\cModel.h">
 			</File>
 			<File
 				RelativePath=".\D3DInput.h">
@@ -216,6 +245,9 @@
 			</File>
 			<File
 				RelativePath=".\MainWnd.h">
+			</File>
+			<File
+				RelativePath="mp3aud.h">
 			</File>
 			<File
 				RelativePath=".\Obj.h">
@@ -235,6 +267,9 @@
 				</FileConfiguration>
 			</File>
 			<File
+				RelativePath=".\stdafx.h">
+			</File>
+			<File
 				RelativePath=".\TankGWAR.h">
 			</File>
 			<File
@@ -249,28 +284,19 @@
 			<File
 				RelativePath=".\World.h">
 			</File>
-			<File
-				RelativePath=".\cModel.h">
-			</File>
-			<File
-				RelativePath="mp3aud.h">
-			</File>
-			<File
-				RelativePath=".\stdafx.h">
-			</File>
 		</Filter>
 		<Filter
 			Name="Resource Files"
 			Filter="rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx"
 			UniqueIdentifier="{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}">
 			<File
+				RelativePath=".\small.ico">
+			</File>
+			<File
 				RelativePath=".\TankGWAR.ico">
 			</File>
 			<File
 				RelativePath=".\TankGWAR.rc">
-			</File>
-			<File
-				RelativePath=".\small.ico">
 			</File>
 		</Filter>
 		<File

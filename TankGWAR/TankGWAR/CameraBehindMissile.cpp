@@ -30,16 +30,17 @@ void cCameraBehindMissile::SetCamera()
     //g_D3DObject->DrawTextStr(60,60,D3DCOLOR_XRGB(4,50,250),"Blah");
 
     D3DXVECTOR3 vFromPt, vLookatPt, vTemp;
-    vFromPt   = D3DXVECTOR3( tpos.x - cos(tor.y)*8, tpos.y+sin(tor.x)*12, tpos.z - sin(tor.y)*8 );
-    vFromPt   = D3DXVECTOR3( tpos.x + sin(-tor.y)*cos(tor.x)*8, 
-                             tpos.y +            sin(tor.x)*8, 
-                             tpos.z + cos(-tor.y)*cos(tor.x)*8 
+    //vFromPt   = D3DXVECTOR3( tpos.x - cos(tor.y)*8, tpos.y+sin(tor.x)*12, tpos.z - sin(tor.y)*8 );
+
+    float tsta = 4.0f;
+    vFromPt   = D3DXVECTOR3( tpos.x + sin(-tor.y)*cos(tor.x)*2, 
+                             tpos.y +            sin(tor.x)*2, 
+                             tpos.z + cos(-tor.y)*cos(tor.x)*2 
                             );
     vFromPt   = tpos - *D3DXVec3Normalize(&vTemp,&tvel)*5.6f;
+    vFromPt.y += 8.0f;
     if (float ht = (g_GameState->GetTerrainHeight(vFromPt.x,vFromPt.z)+0.5f) > vFromPt.y)
       vFromPt.y = ht+0.5f;
-//    if (vFromPt.y > 800.0f)
-//      vFromPt.y = 800.0f;
     vLookatPt = D3DXVECTOR3( tpos.x, tpos.y, tpos.z );
     D3DXVECTOR3 vUpVec    = D3DXVECTOR3( 0.0f, 1.0f, 0.0f );
 
@@ -49,6 +50,6 @@ void cCameraBehindMissile::SetCamera()
 
     D3DXMATRIXA16 matProj;
     FLOAT fAspect = ((FLOAT)WIDTH) / HEIGHT;
-    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/2, fAspect, 0.01f, 5850.0f );
+    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/3, fAspect, 0.01f, 55850.0f );
 	  g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );   
 }

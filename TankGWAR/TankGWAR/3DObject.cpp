@@ -2,12 +2,13 @@
 #include "3DObject.h"
 #include <stdio.h>
 
-c3DObject::c3DObject(void)
+c3DObject::c3DObject(D3DXVECTOR3 pos)
 {
-   m_position	=	D3DXVECTOR3(0,0,0);
+   m_position	=	pos;
    m_accel		=	D3DXVECTOR3(0,0,0);
    m_velocity	=	D3DXVECTOR3(0,0,0);
    m_orient		=	D3DXVECTOR3(0,0,0);
+   m_scale    = D3DXVECTOR3(1,1,1);
    m_initVelocity = m_velocity;
    m_initOrient   = m_orient;
 
@@ -59,6 +60,7 @@ void c3DObject::MakeWorldMatrix( int x )
     }
 
 //	D3DXMatrixMultiply(pMatWorld, &MatRotY, D3DXMatrixMultiply(&MatTemp,&MatRot,&MatWorld));
+  D3DXMatrixMultiply(pMatWorld, D3DXMatrixScaling(&MatTemp, m_scale.x,m_scale.y,m_scale.z), &MatWorld);
 	D3DXMatrixMultiply(pMatWorld, &MatRot,&MatWorld);
 
 	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_WORLD, pMatWorld );

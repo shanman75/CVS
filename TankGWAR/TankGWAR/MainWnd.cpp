@@ -149,11 +149,10 @@ char debg[255];
 		SafeDelete(g_ObjMgr);
 		OutputDebugString("Deleting global D3D Input\n");
 		SafeDelete(g_D3DInput);
-		delete g_mp3_1;
-		CoUninitialize();
-
-
-    	g_MainDestroy();
+    OutputDebugString("Deleting MP3 object\n");
+    SafeDelete(g_mp3_1);
+    CoUninitialize();
+   	g_MainDestroy();
 		
 		OutputDebugString("Deleting global D3D Object\n");
 		SafeDelete(g_D3DObject);
@@ -163,9 +162,9 @@ char debg[255];
 		if (wParam == VK_ESCAPE) DestroyWindow(g_hWnd);    // Remark this out to remove the ESCAPE
 		                                                   // Key exiting functionality
 		//OutputDebugString("Help");
-		break;
-    case WM_USER:      g_mp3_1->OnGraphEvent();		// handles events
-                       break;    
+    break;
+    case WM_USER:      g_mp3_1->OnGraphEvent();         // handles events
+      break;
 	default:
 		return DefWindowProc(hWnd, message, wParam, lParam);
 	}
@@ -192,6 +191,9 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	{
 		return FALSE;
 	}
+  CoInitialize(NULL);
+  g_mp3_1=new cmp3stream(g_hWnd);
+  g_mp3_1->CreateGraph(NULL);
 
 	CoInitialize(NULL);
 	g_mp3_1=new cmp3stream(g_hWnd);
@@ -206,13 +208,13 @@ int APIENTRY _tWinMain(HINSTANCE hInstance,
 	{
        if(PeekMessage(&msg,NULL,0,0,PM_NOREMOVE)){ //if message waiting
         if(GetMessage(&msg,NULL,0,0)==0)return (int) msg.wParam; //get it
-		TranslateMessage(&msg); 
-		DispatchMessage(&msg); //translate it
+		      TranslateMessage(&msg); 
+		      DispatchMessage(&msg); //translate it
        }
-	   else if (g_ActiveApp) 
-	   {   g_mp3_1->startsound();
-           g_MainGameLoop();
-	   }
+       else if (g_ActiveApp) {
+         g_mp3_1->startsound();
+         g_MainGameLoop();
+	     }
 	   else {
 		   g_mp3_1->stopsound();
 		   g_time.Pause();

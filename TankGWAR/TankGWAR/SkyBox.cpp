@@ -125,7 +125,7 @@ BOOL cSkyBox::_Init()
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
-				D3DPOOL_MANAGED,
+				D3DPOOL_SYSTEMMEM,
 				&m_sbfront,
 				NULL))
 	)
@@ -135,7 +135,7 @@ BOOL cSkyBox::_Init()
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
-				D3DPOOL_MANAGED,
+				D3DPOOL_SYSTEMMEM,
 				&m_sbleft,
 				NULL))
 	)
@@ -146,7 +146,7 @@ BOOL cSkyBox::_Init()
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
-				D3DPOOL_MANAGED,
+				D3DPOOL_SYSTEMMEM,
 				&m_sbright,
 				NULL))
 	)
@@ -157,7 +157,7 @@ BOOL cSkyBox::_Init()
 				4*sizeof(BILLBOARDVERTEX),
 				D3DUSAGE_WRITEONLY,
 				BILLBOARDVERTEX::FVF,
-				D3DPOOL_MANAGED,
+				D3DPOOL_SYSTEMMEM,
 				&m_sbtop,
 				NULL))
 	)
@@ -241,7 +241,7 @@ BOOL cSkyBox::_Init()
   char texpath[1024];
   LPDIRECT3DTEXTURE9 tempt;
 
-  char *basedir = "worlds\\terragen";
+  char *basedir = "worlds\\morning";
   char *basefname = "newsky000";
 //  char *basedir = "attica";
 // char *basefname = "attica000";

@@ -22,15 +22,15 @@
 
 CTimer g_time;
 CTimer time, time2;
-cCamera cam;
 
 void g_MainDestroy()
 {
-  delete g_GameState;
+  SAFE_DELETE(g_GameState);
 }
 void g_MainInit()
 {
    g_GameState = new cGameState;
+   //g_GameState = NULL;
    g_ObjMgr->reset();
    g_GameState->AddPlayer();
 

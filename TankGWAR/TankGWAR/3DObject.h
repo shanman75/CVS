@@ -12,7 +12,7 @@ class c3DObject
 friend class CObjMgr;
 friend class cGameState;
 public:
-	c3DObject();
+	c3DObject(D3DXVECTOR3 pos = D3DXVECTOR3(0,0,0));
 	virtual ~c3DObject(void);
 	virtual void paint();
 	virtual void move();
@@ -33,6 +33,8 @@ protected:
 
   D3DXVECTOR3 m_initVelocity;
   D3DXVECTOR3 m_initOrient;
+
+  D3DXVECTOR3 m_scale;
 
 	DWORD m_nMat;
 
