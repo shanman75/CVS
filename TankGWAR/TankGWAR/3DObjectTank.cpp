@@ -37,9 +37,29 @@ c3DObjectTank::c3DObjectTank()
   m_firetime.setInterval(600.0f);
   m_skin = c3DObjectTank::SKINS::GREEN;
 //  m_orient = D3DXVECTOR3(1,0,0);
+  m_tmrRotate.Reset();
 
   m_fade = 1.0f;
   m_fading = false;
+  m_bRotateTo = false;
+}
+
+void c3DObjectTank::ResetLevel()
+{
+  m_firePower = 250.0f;
+
+  m_barrelHeight = 0;
+  m_turretRotate = 0;
+
+  m_keytime.Reset();
+  m_keytime.setInterval(20.0f);
+  m_firetime.Reset();
+  m_firetime.setInterval(600.0f);
+  m_tmrRotate.Reset();
+
+  m_fade = 1.0f;
+  m_fading = false;
+  m_bRotateTo = false;
 }
 
 c3DObjectTank::~c3DObjectTank(void)
@@ -54,8 +74,32 @@ void c3DObjectTank::FadeOut(float secs)
    m_tmFade.Reset();
 }
 
+void c3DObjectTank::PerformRotateTo()
+{
+  float tm = m_tmrRotate.GetTime();
+  // Rotate Turret
+  if (fabs(m_turretRotateTo - m_turretRotate) > 0.14f)
+    m_turretRotate += tm/500;
+
+  // Make Barrel go up/down
+  if (fabs(m_barrelHeightTo - m_barrelHeight) > 0.08f)
+  if (m_barrelHeight < m_barrelHeightTo)
+    m_barrelHeight += tm/1000;
+  else
+    m_barrelHeight -= tm/1000;
+ 
+  if (m_barrelHeight < 0)         m_barrelHeight = 0;
+  if (m_barrelHeight > D3DX_PI/2) m_barrelHeight = D3DX_PI/2;
+
+  if (m_turretRotate < 0)         m_turretRotate += 2*D3DX_PI;
+  if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
+
+  m_firePower = m_firePowerTo;
+}
+
 void c3DObjectTank::MakeWorldMatrix( int x )
 {
+  if (m_bRotateTo) PerformRotateTo();
 	D3DXMATRIXA16 MatWorld; 
 	D3DXMATRIXA16 *pMatWorld = &MatWorld;
   D3DXMATRIXA16 MatTemp;  // Temp matrix for rotations.
@@ -320,4 +364,22 @@ c3DObject * c3DObjectTank::Fire(enum c3DObjectMissile::MSLTYPE tpe)
    case c3DObjectMissile::MSLTYPE::FUNKIEBOMB:		wav->play(fbomb); break;
   }
   return objadd;
+}
+
+BOOL c3DObjectTank::RotatedTo()
+{
+  if (fabs(m_turretRotateTo - m_turretRotate) < 0.14f)
+  if (fabs(m_barrelHeightTo - m_barrelHeight) < 0.08f)
+  if (fabs(m_firePowerTo - m_firePower) < 0.08f)
+    return true;
+  return false;
+}
+
+void c3DObjectTank::RotateTo( float t_turretRotate, float t_barrelHeight, float t_firePower)
+{
+  m_turretRotateTo = t_turretRotate;
+  m_barrelHeightTo = t_barrelHeight;
+  m_firePowerTo = t_firePower;
+  m_bRotateTo = true;
+  m_tmrRotate.Reset();
 }

@@ -28,9 +28,17 @@ public:
   void event(enum EVENT, float amount=1.0f);
   void skin(enum SKINS sk) { m_skin = sk; }
   void FadeOut(float secs);
+  void ResetFade() { m_fading = false; }
+  void ResetLevel();
 
   static const float tank_width;
   static const float tank_height;
+
+  void RotateTo( float t_turretRotate, float t_barrelHeight, float t_firePower);
+  BOOL RotatedTo();
+  void RotateReset() { m_bRotateTo = false; }
+  void PerformRotateTo();
+  CTimer m_tmrRotate;
 
 protected:
   void MakeWorldMatrix(int x);
@@ -40,6 +48,11 @@ protected:
   float m_turretRotate;
   float m_barrelHeight;
   float m_firePower;
+
+  float m_turretRotateTo;
+  float m_barrelHeightTo;
+  float m_firePowerTo;
+  bool m_bRotateTo;
 
   enum SKINS m_skin;
 

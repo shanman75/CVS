@@ -36,7 +36,7 @@ struct st_LevelState {
 
    int numKills[MAX_PLAYERS];
    float numDamage[MAX_PLAYERS];
-   float score[MAX_PLAYERS];
+   float numScore[MAX_PLAYERS];
    float numMoney[MAX_PLAYERS];
 
 };
@@ -86,6 +86,7 @@ public:
   void paintbg(void);
   void paint(void);
   void NextPlayer(void);
+  void NextLevel(void);
 
   void GetInput();
   void AddPlayer(BOOL human=false);
@@ -137,6 +138,10 @@ private:
      void KillDeadTanks();
      void SetPlayerCamera();
      int GetFirstDyingTank();
+     void UpdateScores();
+
+     void AI_PickWeapons();
+     void AI_TakeShot();
 
      //static LPDIRECT3DTEXTURE9	  m_statusbartex;
      static CTexture *m_statusbartex;
@@ -157,6 +162,8 @@ private:
      
      c3DObjectMissile *m_tmissile;
      int m_savecurrentplayer;
+
+     BOOL aistarted;
 };
 
 extern cGameState *g_GameState;

@@ -48,8 +48,8 @@ void c3DObjectExplosion::_LoadGraphics(void)
   if (FAILED(D3DXCreateSphere(
      g_D3DObject->m_d3ddevice9,
      1.0f,         // Radius
-     30,         // Slices
-     30,         // Stacks
+     60,         // Slices
+     60,         // Stacks
      &m_expmesh,
      &pAdjacencyBuffer		// LPD3DXBUFFER *ppAdjacency,
      )))

@@ -444,5 +444,17 @@ void cSkyBox::SetSky(SKYTYPES sky)
 
 void cSkyBox::RandomizeSky()
 {
-   SetSky ((SKYTYPES) (rand() % (int)SKY_MAX));
+  SKYTYPES st;
+  switch (rand()%4)
+  {
+  case 3:
+    st = SKYTYPES::MORNING; break;
+  case 2:
+    st = SKYTYPES::DAWN; break;
+  case 1:
+    st = SKYTYPES::ANTARCTICA; break;
+  default: 
+    st = SKYTYPES::MORNING; break;
+  }
+   SetSky (st);
 }

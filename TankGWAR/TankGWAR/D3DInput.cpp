@@ -95,6 +95,7 @@ BOOL D3DInput::MouseScreen(D3DXVECTOR2 *mo_screen)
   xscale = tm*25;
   yscale = tm*25;
 
+
     //char debg[255];
     //sprintf(debg,"Mouse was %f,%f log,log = %f,%f  (%i,%i)\n",m_mousepos.x,m_mousepos.y,xscale,yscale,m_dims.lX,m_dims.lY
     //);

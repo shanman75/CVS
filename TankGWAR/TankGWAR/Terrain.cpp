@@ -3,7 +3,7 @@
 #include <d3dx9.h>
 #include <stdio.h>
 
-LPDIRECT3DTEXTURE9	  cTerrain::m_tertex[2];
+LPDIRECT3DTEXTURE9	  cTerrain::m_tertex[4];
 
 cTerrain::cTerrain(float x,float z,float w)
 {
@@ -27,7 +27,7 @@ cTerrain::cTerrain(float x,float z,float w)
 
 void cTerrain::RandomizeEnvironment(void)
 {
-  m_env = (cTerrain::ENVIRONMENT) ((int)rand()%2);
+  m_env = (cTerrain::ENVIRONMENT) ((int)rand()%4);
   RandomizeMesh();
 }
 void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
@@ -214,6 +214,7 @@ void cTerrain::_Init()
                                   )))
                                   exit(0);
   m_tertex[0] = tempt;
+  m_tertex[2] = tempt;
 
   sprintf (texpath,"resource\\%s","grass_bw.dds");
   
@@ -236,6 +237,7 @@ void cTerrain::_Init()
                                   )))
                                   exit(0);
   m_tertex[1] = tempt;
+  m_tertex[3] = tempt;
 
 	RandomizeMesh();
 }
@@ -264,6 +266,28 @@ D3DCOLOR randcolor(cTerrain::ENVIRONMENT env)
 			   return D3DCOLOR_RGBA(0,150,0,255); break;
 		   default:
 			   return D3DCOLOR_RGBA(100,255,0,255); break;
+	   }
+    case cTerrain::SNOW:
+	   switch (rand()%3) {
+		   case 3:
+			   return D3DCOLOR_RGBA(228,264,240,255); break;
+		   case 2:
+			   return D3DCOLOR_RGBA(213,255,230,255); break;
+		   case 1:
+			   return D3DCOLOR_RGBA(228,264,200,255); break;
+		   default:
+			   return D3DCOLOR_RGBA(210,215,210,255); break;
+	   }
+    case cTerrain::MOUNTAIN:
+	   switch (rand()%3) {
+		   case 3:
+			   return D3DCOLOR_RGBA(0,28,140,255); break;
+		   case 2:
+			   return D3DCOLOR_RGBA(84,38,54,255); break;
+		   case 1:
+			   return D3DCOLOR_RGBA(0,50,67,255); break;
+		   default:
+			   return D3DCOLOR_RGBA(100,55,90,255); break;
 	   }
     default:
 	   switch (rand()%3) {
@@ -391,6 +415,8 @@ void cTerrain::OnLostDevice(void)
 {
   SAFE_RELEASE(m_tertex[0]);
   SAFE_RELEASE(m_tertex[1]);
+  m_tertex[2] = NULL;
+  m_tertex[3] = NULL;
 	SAFE_RELEASE(g_TerrainMesh);
 	SAFE_RELEASE(g_TerrainMeshBig);
 }

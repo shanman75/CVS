@@ -30,6 +30,7 @@ void cGameState::move(void)
 //  c3DObject *tmpP;
 //  m_gstate = TARGETING;
 
+  if (m_mainstate==MAINSTATES::LEVEL)
   switch (m_gstate) 
   {
   case TARGETING: break;
@@ -104,7 +105,7 @@ void cGameState::move(void)
        livetanks = 0;
        for (int x = 0; x < m_numplayers; x++)
          if (m_PlayerState[x].livingstate == ALIVE) livetanks++;
-       if (livetanks <= 1) { m_mainstate = POSTLEVEL; g_ObjMgr->reset();}
+       if (livetanks <= 1) { m_mainstate = POSTLEVEL; UpdateScores(); }
        else { m_gstate = TARGETING; }
     break;
   default:
@@ -430,36 +431,100 @@ void cGameState::paintbg(void)
   else if (m_mainstate == MAINSTATES::POSTLEVEL)
   {
     static char t_strbuff[255];
-    int st_y = 30;
+    int st_y = 50;
     int spc_y = 20;
     int ht_y = 31;
 
     g_D3DObject->m_pd3dxSprite->Begin(0);
     m_preroundBk->Paint(0.0f,0.0f);
 
+    sprintf(t_strbuff,"Stats for Level %i of %i",RoundNumber,m_LevelState.numLevels);
+    SetRect(&mrect,2,5,800,45);
+      g_D3DObject->pFont->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
+
+    SetRect(&mrect,2,550,800,45);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Click to continue",-1,
+        &mrect,DT_CENTER|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.0f,0.0f,1.0f,1.0f));
 
     for (int c = 0; c < m_numplayers; c++) {
       // Names
       if (c == 0) {
-        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,200,st_y+(ht_y+spc_y)*c+ht_y);
+        SetRect(&mrect,2,st_y+(ht_y+spc_y)*c,200,st_y+(ht_y+spc_y)*c+ht_y);
         g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Name",-1,
           &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
       }
-      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),200,st_y+(ht_y+spc_y)*(c+1)+ht_y);
-      sprintf(t_strbuff,"%i",m_LevelState.numKills[c]);
+      SetRect(&mrect,2,st_y+(ht_y+spc_y)*(c+1),200,st_y+(ht_y+spc_y)*(c+1)+ht_y);
       g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,m_PlayerState[c].name,-1,
         &mrect,DT_LEFT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
 
       // Kills
       if (c == 0) {
-        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,200,st_y+(ht_y+spc_y)*c+ht_y);
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,180,st_y+(ht_y+spc_y)*c+ht_y);
         g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Kills",-1,
           &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
       }
-      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),200,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),180,st_y+(ht_y+spc_y)*(c+1)+ht_y);
       sprintf(t_strbuff,"%i",m_LevelState.numKills[c]);
       g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
         &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+      // Damage
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,300,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Damage",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),300,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"%.1f",m_LevelState.numDamage[c]);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+      // Cash Won
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,400,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Cash",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),400,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"$%.2f M",m_LevelState.numMoney[c]/1000000);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+      // Score
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,500,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Score",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),500,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"%.1f",m_LevelState.numScore[c]);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+// Totals
+      // Total Cash
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,650,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Total Cash",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),650,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"$%.2fM",m_PlayerState[c].money/1000000);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
+      // Total Score
+      if (c == 0) {
+        SetRect(&mrect,0,st_y+(ht_y+spc_y)*c,785,st_y+(ht_y+spc_y)*c+ht_y);
+        g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,"Total Score",-1,
+          &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(0.4f,0.0f,1.0f,1.0f));
+      }
+      SetRect(&mrect,0,st_y+(ht_y+spc_y)*(c+1),785,st_y+(ht_y+spc_y)*(c+1)+ht_y);
+      sprintf(t_strbuff,"%.1f",m_PlayerState[c].score);
+      g_D3DObject->pFont_StatusBar->DrawText(g_D3DObject->m_pd3dxSprite,t_strbuff,-1,
+        &mrect,DT_RIGHT|DT_SINGLELINE|DT_VCENTER,D3DXCOLOR(1.0f,1.0f,1.0f,1.0f));
+
     }
     m_preroundMousePtr->Paint(&mscreen);
     g_D3DObject->m_pd3dxSprite->End();
@@ -557,6 +622,7 @@ void cGameState::GetInput(void)
   g_D3DInput->MouseScreen(&mscreen);
 
   c3DObjectTank *tmpP = NULL;
+
   static bool v_KEYUP_DOWN = true;
   static bool v_KEYUP_UP = true;
   static bool v_KEYUP_ENTER = true;
@@ -595,10 +661,8 @@ void cGameState::GetInput(void)
       if (g_D3DInput->MouseDown(0) || g_D3DInput->KeyDown(DIK_RETURN) || g_D3DInput->KeyDown(DIK_ESCAPE))
       {
         wav->play(mnu_select);
-        m_mainstate = MAINSTATES::MAINMENU;
-        m_gstate = STATES::NOTHING;
         g_D3DObject->DefaultRenderState();
-        g_D3DInput->ResetMouseScreen();
+        NextLevel();
         v_KEYUP_ESC = false;
         v_MOUSEUP_0 = false;
         return;
@@ -805,7 +869,28 @@ void cGameState::GetInput(void)
        break;
      }
     switch (m_gstate) {
-      case TARGETING:
+      case TARGETING:          
+          if (m_PlayerState[m_currentplayer].iscomputer) {
+            if (aistarted) {
+              if (m_PlayerState[m_currentplayer].object->RotatedTo())
+              {
+                // Fire Missile
+                aistarted = false;
+                tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
+                m_PlayerState[m_currentplayer].msl_object = (c3DObjectMissile *)
+                  tmpP->Fire(m_PlayerState[m_currentplayer].msl_cur_type);
+                SetCurrentCamera(&m_camBehindMissile);
+                m_gstate = FIRING; 
+                break;
+              }
+            }
+            else {
+              // Start AI
+              aistarted = true;
+              AI_TakeShot();
+            }
+            break;
+          }         
           tmpP = (c3DObjectTank *)m_PlayerState[m_currentplayer].object;
           if (g_D3DInput->KeyDown(DIK_PGUP) && v_KEYUP_PGUP) {
             NextWeapon(-1); v_KEYUP_PGUP = false; 
@@ -881,6 +966,7 @@ void cGameState::GetInput(void)
           m_currentplayer = (m_currentplayer + 1 ) % m_numplayers;
           SetCurrentCamera(&m_camBehindTank);
           m_gstate = TARGETING;
+          aistarted = false;
         }
         break;
       default:
@@ -1006,25 +1092,16 @@ void cGameState::AddPlayer(BOOL human)
 {
   c3DObject *tmpP = NULL;
 
-  float t_x, t_z, t_y;
+//  float t_x, t_z, t_y;
+
   tmpP = new c3DObjectTank();
   // Choose a random position
-  t_x = (float)(rand()%300-150);
-  t_z = (float)(rand()%300-150);
-  m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*2.1f);
-  t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
-  tmpP->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
 
   ((c3DObjectTank *)tmpP)->skin((c3DObjectTank::SKINS)(rand()%5));
    m_PlayerState[m_numplayers].object = (c3DObjectTank *)tmpP;
    g_ObjMgr->add(m_PlayerState[m_numplayers].object);  
-   m_PlayerState[m_numplayers].health = 100.0f;
    m_PlayerState[m_numplayers].money = m_LevelState.startingMoney * 5.14f * 1000000;   // Fix
    m_PlayerState[m_numplayers].name = new char[50];
-   m_PlayerState[m_numplayers].livingstate = ALIVE;
-   m_PlayerState[m_numplayers].msl_cur_type = (c3DObjectMissile::MSLTYPE::SHELL);
-   m_PlayerState[m_numplayers].camabove = false;
-   m_PlayerState[m_numplayers].camabovezoom = 1.0f;
    if (human) {
      sprintf (m_PlayerState[m_numplayers].name,"%s%d","Human ",m_LevelState.numHumansTMP+1);
      m_PlayerState[m_numplayers].iscomputer = false;
@@ -1128,8 +1205,18 @@ void cGameState::AssignHits()
    for (int x = 0; x < m_numplayers; x++)
    {
      D3DXVECTOR3 dis = m_PlayerState[x].object->m_position - m_PlayerState[m_currentplayer].exp_object->m_position;
-     m_PlayerState[m_currentplayer].health -= max(0,m_PlayerState[m_currentplayer].exp_object->m_radius*
-                         (m_PlayerState[m_currentplayer].exp_object->m_radius - D3DXVec3Length(&dis)));
+     float rad_diff = m_PlayerState[m_currentplayer].exp_object->m_radius - D3DXVec3Length(&dis);
+     if (rad_diff > 0) {
+       float dmg;
+       if (rad_diff < m_PlayerState[m_currentplayer].exp_object->m_radius/3) dmg = m_PlayerState[m_currentplayer].exp_object->m_radius/0.8;
+       else if (rad_diff < 2*m_PlayerState[m_currentplayer].exp_object->m_radius/3) dmg = m_PlayerState[m_currentplayer].exp_object->m_radius/1.0;
+       else dmg = m_PlayerState[m_currentplayer].exp_object->m_radius/2.0;
+       m_PlayerState[x].health -= dmg;
+       m_PlayerState[m_currentplayer].numDamage += dmg;
+       m_PlayerState[m_currentplayer].money += dmg*15000;
+       m_LevelState.numDamage[m_currentplayer] += dmg;
+       m_LevelState.numMoney[m_currentplayer] += dmg*15000;
+     }
    }
 }
 
@@ -1142,14 +1229,21 @@ void cGameState::DropTanks()
 
      float mod_terheight = m_terrain->GetHeight(pl_x,pl_z) +  c3DObjectTank::tank_height;
 
-     if (mod_terheight < m_PlayerState[x].object->m_position.y)
+     if ((mod_terheight+0.2f) < m_PlayerState[x].object->m_position.y)
      {
        //OutputDebugString("Drop tanks registered it on ");
        //OutputDebugString(m_PlayerState[x].name);
        //OutputDebugString("\n");
        m_terrain->FlattenSquare(pl_x,pl_z,c3DObjectTank::tank_width*2.1f);
-       // Assign Damage
-       m_PlayerState[x].health -= min((m_PlayerState[x].object->m_position.y - m_terrain->GetHeight(pl_x,pl_z)),10);
+       // Get Damage
+       float dmg = min((m_PlayerState[x].object->m_position.y - m_terrain->GetHeight(pl_x,pl_z)),30);
+       m_PlayerState[x].health -= dmg;
+       // Record Damage Credit
+       m_LevelState.numDamage[m_currentplayer] += dmg;
+       m_LevelState.numMoney[m_currentplayer] += dmg*10000;
+       m_PlayerState[m_currentplayer].numDamage+= dmg;
+       m_PlayerState[m_currentplayer].money += dmg*10000;
+
        // Move tank down!!!
        m_PlayerState[x].object->m_position.y = m_terrain->GetHeight(pl_x,pl_z) + c3DObjectTank::tank_height;
      }
@@ -1160,7 +1254,14 @@ void cGameState::KillDeadTanks()
 {
    for (int x = 0; x < m_numplayers; x++)
      if (m_PlayerState[x].health <= 0.0f && m_PlayerState[x].livingstate == ALIVE)
+     {
+       m_LevelState.numKills[m_currentplayer]++;
+       m_PlayerState[m_currentplayer].numKills++;
+       m_LevelState.numMoney[m_currentplayer] += 12000000;
+       m_PlayerState[m_currentplayer].numKills++;
+       m_PlayerState[m_currentplayer].money += 12000000;
        m_PlayerState[x].livingstate = DYING;
+     }
 }
 
 void cGameState::NextWeapon(int t_dir)
@@ -1262,22 +1363,12 @@ char * strLevel_DIRT(int dirt)
 
 void cGameState::_InitGame(void)
 {
-  CTimer::Pause();
-  m_mainstate = MAINSTATES::LEVEL;
-  m_gstate = STATES::TARGETING;
-
   srand(timeGetTime());
-  int numHills = 4 + (m_LevelState.numHills*23) + rand()%6;
-  int numDirt = 1000 + (m_LevelState.numDirt*10000) + rand()%250;
-  m_terrain->RandomizeTerrain(numHills,numDirt);
-  m_terrain->RandomizeEnvironment();
-  m_skybox->RandomizeSky();
+  RoundNumber = 0;
+  m_numplayers = 0;
 
   m_LevelState.numHumansTMP = 0;
   m_LevelState.numComputersTMP = 0;
-
-  m_numplayers = 0;
-  g_ObjMgr->reset();
 
   while ((m_LevelState.numComputersTMP < m_LevelState.numComputers) || 
     (m_LevelState.numHumansTMP < m_LevelState.numHumans))
@@ -1288,8 +1379,54 @@ void cGameState::_InitGame(void)
     if (rndnum < 30)  if ((m_LevelState.numHumansTMP < m_LevelState.numHumans))  AddPlayer(true);
   }
 
+  NextLevel();
+}
+void cGameState::NextLevel(void)
+{
+  if (RoundNumber++ >= m_LevelState.numLevels) {
+    g_ObjMgr->reset();
+    m_mainstate = MAINSTATES::MAINMENU;
+    m_gstate = STATES::NOTHING;
+    return;
+  }
+  aistarted = false;
+  CTimer::Pause();
+  srand(timeGetTime());
+
+  int numHills = 4 + (m_LevelState.numHills*23) + rand()%6;
+  int numDirt = 1000 + (m_LevelState.numDirt*10000) + rand()%250;
+  
+  m_terrain->RandomizeTerrain(numHills,numDirt);
+  m_terrain->RandomizeEnvironment();
+  m_skybox->RandomizeSky();
+
+//  g_ObjMgr->reset();
+  for (int d = 0; d < m_numplayers; d++)
+  {
+    float t_x = (float)(rand()%299-148);
+    float t_z = (float)(rand()%299-148);
+    m_terrain->FlattenSquare(t_x,t_z,c3DObjectTank::tank_width*2.1f);
+    float t_y = m_terrain->GetHeight(t_x,t_z)+c3DObjectTank::tank_height;
+    m_PlayerState[d].object->ResetLevel();
+    m_PlayerState[d].object->pos(D3DXVECTOR3((float)t_x,(float)t_y,(float)t_z));
+    m_PlayerState[d].health = 100;
+    m_PlayerState[d].livingstate = ALIVE;
+    m_PlayerState[d].camabove = false;
+    m_PlayerState[d].camabovezoom = 1.0f;
+    m_PlayerState[d].msl_cur_type = (c3DObjectMissile::MSLTYPE::SHELL);
+    m_PlayerState[d].camabove = false;
+    m_PlayerState[d].camabovezoom = 1.0f;
+
+    m_LevelState.numScore[d] = 0;
+    m_LevelState.numMoney[d] = 0.0f;
+    m_LevelState.numDamage[d] = 0.0f;
+    m_LevelState.numKills[d] = 0;
+  }
+
   m_currentplayer = rand() % m_numplayers;
   SetCurrentCamera(&m_camBehindTank);
+  m_mainstate = MAINSTATES::LEVEL;
+  m_gstate = STATES::TARGETING;
   CTimer::UnPause();
 }
 
@@ -1299,4 +1436,130 @@ int cGameState::returnplayers()
 
 int cGameState::returncurrentplayer()
 {	return m_currentplayer;
+}
+
+void cGameState::UpdateScores()
+{
+  for (int x =0; x < m_numplayers; x++)
+  {
+    m_LevelState.numScore[x] = (m_LevelState.numKills[x] * 8.5 + m_LevelState.numDamage[x]/100.0f);
+    m_PlayerState[x].score += m_LevelState.numScore[x];
+  }
+}
+
+void cGameState::AI_TakeShot()
+{
+  switch (m_PlayerState[m_currentplayer].ai_type)
+  {
+  case st_LevelState::COMPUTER_AI::SEEKER: 
+  case st_LevelState::COMPUTER_AI::MEAN:
+  case st_LevelState::COMPUTER_AI::EXPERT:
+  case st_LevelState::COMPUTER_AI::RANDOM:
+  case st_LevelState::COMPUTER_AI::NOVICE:
+  default: 
+    NextWeapon(1);
+    float rot = (rand()%(int)(D3DX_PI*2*1000))/1000;
+    float turret = D3DX_PI/16 + fmod (rand(),D3DX_PI/2 - D3DX_PI/8);
+    float power = (rand()%1900)/2+100;
+    char deb[500];
+    sprintf(deb, "rot - %.2f, turret-%.2f, power-%.2f\n",rot,turret,power);
+    OutputDebugString(deb);
+    m_PlayerState[m_currentplayer].object->RotateTo(rot,turret,power);
+    break;
+  }
+}
+
+void cGameState::AI_PickWeapons()
+{
+  switch (m_PlayerState[m_currentplayer].ai_type)
+  {
+  case st_LevelState::COMPUTER_AI::SEEKER: 
+    for (int x = 0; x < 100; x++)
+    {
+      if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::FUNKIEBOMB) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::FUNKIEBOMB]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::FUNKIEBOMB) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::FUNKIEBOMB]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::SCUD) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::SCUD]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::SCUD) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::SCUD]++;
+      }
+    }
+  break;
+  case st_LevelState::COMPUTER_AI::MEAN:
+    for (int x = 0; x < 100; x++) {
+      if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::SCUD) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::SCUD]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::FUNKIEBOMB) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::FUNKIEBOMB]++;
+      }
+  }
+  case st_LevelState::COMPUTER_AI::EXPERT:
+    for (int x = 0; x < 100; x++)
+    {
+      if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::ATOMBOMB) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::ATOMBOMB]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::FUNKIEBOMB) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::FUNKIEBOMB]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::AMRAM) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::AMRAM]++;
+      }
+      else if (float cst = c3DObjectMissile::GetMissileCost(c3DObjectMissile::MSLTYPE::SCUD) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[c3DObjectMissile::MSLTYPE::SCUD]++;
+      }
+    }
+    break;
+  case st_LevelState::COMPUTER_AI::RANDOM:
+  case st_LevelState::COMPUTER_AI::NOVICE:
+  default: 
+    for (int x = 0; x < 100; x++)
+    {
+      int msl_type = rand()%c3DObjectMissile::MSLNUM;
+      if (float cst = c3DObjectMissile::GetMissileCost((c3DObjectMissile::MSLTYPE) msl_type) < 
+        m_PlayerState[m_currentplayer].money)
+      {
+        m_PlayerState[m_currentplayer].money-= cst;
+        m_PlayerState[m_currentplayer].numweapons[(c3DObjectMissile::MSLTYPE) msl_type]++;
+      }
+
+    }
+    break;
+  }
 }

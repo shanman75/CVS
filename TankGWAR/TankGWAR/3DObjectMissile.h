@@ -15,7 +15,8 @@ public:
   static char *GetMissileStr (enum MSLTYPE m);
   static D3DCOLORVALUE GetMissileExpColor(enum MSLTYPE m);
   static float GetMissileExpRadius(enum MSLTYPE m);
-  static float c3DObjectMissile::GetMissileLength(enum MSLTYPE m);
+  static float GetMissileCost(enum MSLTYPE m);
+  static float GetMissileLength(enum MSLTYPE m);
 protected:
 	static LPD3DXMESH			      m_missilemesh;
   static LPDIRECT3DTEXTURE9*	m_missiletex;

@@ -31,7 +31,7 @@ class cTerrain
 {
 public:
 	enum EVENT { RAND };
-  enum ENVIRONMENT { ROCK, GRASS };
+  enum ENVIRONMENT { ROCK, GRASS, MOUNTAIN, SNOW};
 
 	cTerrain(float ter_x=DEF_TER_X, float ter_z=DEF_TER_Z, float ter_width=DEF_TER_WIDTH);
 	~cTerrain(void);
@@ -64,5 +64,5 @@ private:
   float TER_X, TER_Z;
   float TER_WIDTH;
 
-  static LPDIRECT3DTEXTURE9 m_tertex[2];
+  static LPDIRECT3DTEXTURE9 m_tertex[4];
 };

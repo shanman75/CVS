@@ -333,15 +333,34 @@ float c3DObjectMissile::GetMissileExpRadius(enum MSLTYPE m)
     switch (m)
   {
   case FUNKIEBOMB:
-    return 25.0f; break;
+    return 35.0f; break;
   case AMRAM:
-    return 30.0f; break;
+    return 40.0f; break;
   case ATOMBOMB:
     return 60.0f; break;
   case SHELL:
-    return 5.0f; break;
+    return 7.0f; break;
   case SCUD:
-    return 29.0f; break;
+    return 22.0f; break;
+  default:
+    return 15.0f; break;
+  }
+}
+
+float c3DObjectMissile::GetMissileCost(enum MSLTYPE m)
+{
+    switch (m)
+  {
+  case FUNKIEBOMB:
+    return 8.6f*1000000; break;
+  case AMRAM:
+    return 17.6f*1000000; break;
+  case ATOMBOMB:
+    return 24.6f*1000000; break;
+  case SHELL:
+    return 0.0f; break;
+  case SCUD:
+    return 2.6f*1000000; break;
   default:
     return 15.0f; break;
   }
