@@ -5,9 +5,12 @@
 //#include "3dobject.h"
 #include "d3dobject.h"
 
+class cGameState;
+
 class c3DObject
 {
 friend class CObjMgr;
+friend class cGameState;
 public:
 	c3DObject();
 	virtual ~c3DObject(void);

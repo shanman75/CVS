@@ -20,9 +20,15 @@ c3DObjectTank::c3DObjectTank()
   m_nMat = m_tankNmat;
   m_curtex = m_tanktex;
   m_curmat = m_tankmat;
+  m_firePower = 20.0f;
 
   m_barrelHeight = 0;
   m_turretRotate = 0;
+
+  m_keytime.Reset();
+  m_keytime.setInterval(20.0f);
+  m_firetime.Reset();
+  m_firetime.setInterval(600.0f);
 //  m_orient = D3DXVECTOR3(1,0,0);
 }
 
@@ -100,6 +106,7 @@ void c3DObjectTank::_UnloadGraphics()
 
 void c3DObjectTank::event(enum EVENT evnt)
 {
+  if (m_keytime.CmpTime())
   switch (evnt) {
     case UP:
       m_barrelHeight -= 0.1; break;
@@ -109,6 +116,10 @@ void c3DObjectTank::event(enum EVENT evnt)
       m_turretRotate-=0.1; break;
     case RIGHT:
       m_turretRotate+=0.1; break;
+    case PWRUP:
+      m_firePower+=0.2f; break;
+    case PWRDN:
+      m_firePower-=0.2f; break;
     default:
       break;
   }
@@ -117,17 +128,20 @@ void c3DObjectTank::event(enum EVENT evnt)
 
   if (m_turretRotate < 0) m_turretRotate += 2*D3DX_PI;
   if (m_turretRotate > 2*D3DX_PI) m_turretRotate -= 2*D3DX_PI;
+
+  if (m_firePower < 1.2f) m_firePower = 1.2f;
+  if (m_firePower > 250/5) m_firePower = 250/5;
 }
 void c3DObjectTank::_LoadGraphics()
 {
 	LPD3DXBUFFER lpMat = NULL;
-    LPD3DXBUFFER pAdjacencyBuffer = NULL;
+  LPD3DXBUFFER pAdjacencyBuffer = NULL;
 	HRESULT hr;
 
   if (FAILED(D3DXLoadMeshFromX(
      "resource\\tank2.x",
      D3DXMESH_SYSTEMMEM,
-	 g_D3DObject->m_d3ddevice9,
+	   g_D3DObject->m_d3ddevice9,
      &pAdjacencyBuffer,				// LPD3DXBUFFER *ppAdjacency,
      &lpMat,				// LPD3DXBUFFER *ppMaterials,
      NULL,			    // LPD3DXBUFFER *ppEffectInstances,
@@ -175,25 +189,40 @@ void c3DObjectTank::_LoadGraphics()
 
 void c3DObjectTank::Fire(enum FIRE_TYPE fire)
 {
+  if (!m_firetime.CmpTime()) return;
   c3DObject *objadd = NULL;
-  float m_power = 100;
-  float xzsc    = 4.8;
+  float turret_radius    = 0.8f;
+  float barrel_length    = 2.7f;
+  float missile_length   = 4.2f;
+
 
   D3DXVECTOR3 tOrient = m_orient;
   tOrient.z   += m_turretRotate;
   tOrient.x   -= m_barrelHeight;
 
   D3DXVECTOR3 tTemp = tOrient;
-  D3DXVECTOR3 tPosition = m_position + 1
-    * D3DXVECTOR3(xzsc*sin(m_turretRotate),
-     3.6*sin(m_barrelHeight),
-     xzsc*cos(m_turretRotate));
+  D3DXVECTOR3 tPosition;
+  D3DXVECTOR3 tVelocity = D3DXVECTOR3(sin(m_turretRotate)*cos(m_barrelHeight),
+                               sin(m_barrelHeight),
+                               cos(m_turretRotate)*cos(m_barrelHeight));
   
+  // Calculate vector to turret
+  tPosition = D3DXVECTOR3(
+            turret_radius*sin(m_turretRotate),
+            0,
+            turret_radius*cos(m_turretRotate)
+  );
+  // Add in vector for barrel and 1/2 length of missile
+  tPosition += tVelocity * barrel_length * missile_length / 2;
+  tPosition += m_position;
+
+  char debg[255];
+  sprintf(debg,"x,z = (%.2f,%.2f)\n",tPosition.x,tPosition.z);
+  OutputDebugString(debg);
+
   objadd = new c3DObjectMissile();
   objadd->accel   (D3DXVECTOR3(0,-12.8,0));
-  objadd->velocity(D3DXVECTOR3(m_power/5*sin(m_turretRotate),
-                               m_power/5*sin(m_barrelHeight),
-                               m_power/5*cos(m_turretRotate)));
+  objadd->velocity(tVelocity * m_firePower);
   objadd->orient  (tOrient);
   objadd->pos     (tPosition);
   g_ObjMgr->add(objadd);

@@ -1,6 +1,9 @@
 #include "StdAfx.h"
 #include "terrain.h"
 #include <d3dx9.h>
+#include <stdio.h>
+
+LPDIRECT3DTEXTURE9*	  cTerrain::m_tertex;
 
 cTerrain::cTerrain(void)
 {
@@ -27,7 +30,19 @@ void cTerrain::Paint()
 	D3DXMatrixIdentity(&matwrld);
 	g_D3DObject->m_d3ddevice9->SetTransform(D3DTS_WORLD,&matwrld);
 	if (g_TerrainMesh != NULL)
+  {    D3DMATERIAL9 mtrl;
+    ZeroMemory( &mtrl, sizeof(D3DMATERIAL9) );
+    mtrl.Diffuse.r = 1.0f;
+    mtrl.Diffuse.g = 1.0f;
+    mtrl.Diffuse.b = 1.0f;
+    mtrl.Diffuse.a = 1.0f;
+    mtrl.Specular = mtrl.Diffuse;
+    mtrl.Power = 100.0f;
+    g_D3DObject->m_d3ddevice9->SetMaterial( &mtrl );
+
+    g_D3DObject->m_d3ddevice9->SetTexture(0,m_tertex[0]);
 	  g_TerrainMesh->DrawSubset(0);
+  }
 }
 
 void cTerrain::_Init()
@@ -56,6 +71,16 @@ void cTerrain::_Init()
     //sCustomVertex *Vert = new sCustomVertex[(TER_X + 1) * (TER_Y + 1)];
 	
 	LPDIRECT3DVERTEXBUFFER9 pTetVB = NULL; //Pointer to vertex buffer.
+
+
+  char texpath[1024];
+  LPDIRECT3DTEXTURE9 tempt;
+
+  m_tertex = new LPDIRECT3DTEXTURE9 [1];
+  sprintf (texpath,"resource\\%s","texture0.bmp");
+  if (D3DXCreateTextureFromFile(g_D3DObject->m_d3ddevice9, texpath, &tempt)!= D3D_OK)
+    return;
+  m_tertex[0] = tempt;
 
 	RandomizeMesh();
 
@@ -109,11 +134,12 @@ void cTerrain::RandomizeMesh(void)
 	  for (int j = 0; j < (TER_Y + 1); j++) {
 		  VertexPtr->x = (i - (TER_X-1)/2) * TER_WIDTH;
 		  VertexPtr->z = (j - (TER_Y-1)/2) * TER_WIDTH;
-		  VertexPtr->y = (float) (rand()%50/10)-5;
+		  VertexPtr->y = (float) (rand()%65/10)-8;
+      //VertexPtr->y = -5;
 		  VertexPtr->nx = 0;
 		  VertexPtr->ny = 1;
 		  VertexPtr->nz = 0;
-		  VertexPtr->diffuse = randcolor();
+//		  VertexPtr->diffuse = randcolor();
 		  //VertexPtr->diffuse = D3DCOLOR_RGBA(255,255,0,255);
  		  VertexPtr->u = (float)(i%2);
 		  VertexPtr->v = (float)(j%2);
@@ -139,13 +165,14 @@ void cTerrain::RandomizeMesh(void)
 	g_TerrainMesh->UnlockIndexBuffer();
   g_TerrainMesh->UnlockVertexBuffer();	
 
-	D3DXComputeNormals(g_TerrainMesh,NULL);
   g_TerrainMesh->OptimizeInplace(
                             D3DXMESHOPT_COMPACT | D3DXMESHOPT_ATTRSORT | D3DXMESHOPT_VERTEXCACHE,
                             NULL, NULL, NULL, NULL);
+	D3DXComputeNormals(g_TerrainMesh,NULL);
 }
 
 cTerrain::~cTerrain(void)
 {
+  m_tertex[0]->Release();
 	g_TerrainMesh->Release();
 }

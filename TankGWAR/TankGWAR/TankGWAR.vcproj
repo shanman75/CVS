@@ -129,6 +129,9 @@
 				RelativePath=".\Camera.cpp">
 			</File>
 			<File
+				RelativePath=".\CameraBehindTank.cpp">
+			</File>
+			<File
 				RelativePath=".\cModel.cpp">
 			</File>
 			<File
@@ -195,6 +198,9 @@
 			</File>
 			<File
 				RelativePath=".\Camera.h">
+			</File>
+			<File
+				RelativePath=".\CameraBehindTank.h">
 			</File>
 			<File
 				RelativePath=".\cModel.h">

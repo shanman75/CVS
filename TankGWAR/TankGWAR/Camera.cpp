@@ -98,6 +98,6 @@ void cCamera::SetCamera(void)
 
     D3DXMATRIX matProj;
     FLOAT fAspect = ((FLOAT)WIDTH) / HEIGHT;
-    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 250.0f );
-	g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
+    D3DXMatrixPerspectiveFovLH( &matProj, D3DX_PI/4, fAspect, 1.0f, 33500.0f );
+	  g_D3DObject->m_d3ddevice9->SetTransform( D3DTS_PROJECTION, &matProj );
 }

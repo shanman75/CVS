@@ -4,12 +4,17 @@
 #include "D3DObject.h"
 #include "Timer.h"
 
+
+class cGameState;
+
 class c3DObjectTank:
 	public c3DObject
 {
 public:
+  friend class cGameState;
+
   static enum FIRE_TYPE {MISSILE,ABOMB};
-  static enum EVENT {UP,DOWN,LEFT,RIGHT};
+  static enum EVENT {UP,DOWN,LEFT,RIGHT,PWRUP,PWRDN};
 
   c3DObjectTank();
 	~c3DObjectTank(void);
@@ -25,6 +30,9 @@ protected:
 
   float m_turretRotate;
   float m_barrelHeight;
+  float m_firePower;
+
+  CTimer m_keytime, m_firetime;
   
 	static LPD3DXMESH			        m_tankmesh;
   static DWORD				          m_tankNmat;

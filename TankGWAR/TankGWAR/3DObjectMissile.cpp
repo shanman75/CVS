@@ -9,11 +9,21 @@ DWORD           c3DObjectMissile::m_missileNmat;
 
 int c3DObjectMissile::m_graph_init = 0;
 
+float clamp (float z, float q)
+{
+  if (z > q) return q;
+  else if (-z > q) return q;
+  else return z;
+}
+
 void c3DObjectMissile::move()
 {
+  if (m_initYvelocity<=-999.0f)
+    m_initYvelocity = m_velocity.y;
   //m_orient.x = sin(m_velocity.y/m_initYvelocity);
   //m_orient.z = cos(m_velocity.y/m_initYvelocity);
-  //m_orient.x = -sin(m_velocity.y/m_initYvelocity) * D3DX_PI/2;
+  m_orient.x = -sin(m_velocity.y/m_initYvelocity) * D3DX_PI/2;
+  //if (m_velocity.y < 0) m_orient.x = clamp(m_orient.x+m_time.PeekTime()/(120*(m_velocity.x+m_velocity.z)),D3DX_PI/2);
   c3DObject::move();
 }
 
@@ -26,6 +36,7 @@ c3DObjectMissile::c3DObjectMissile(void)
   m_curtex = m_missiletex;
   m_curmat = m_missilemat;
   m_time.Reset();
+  m_initYvelocity=-999.0f;
 
 //  m_velocity = D3DXVECTOR3((rand()%80/10)-4,9,5);
 //  m_accel    = D3DXVECTOR3(0,-3,0);
