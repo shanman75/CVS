@@ -5,8 +5,10 @@ extern cGameState *g_GameState;
 extern D3DObject *g_D3DObject;							// Main D3D Object
 
 minimap::minimap()
-{	map=NULL;   
-	D3DXCreateSprite(g_D3DObject->m_d3ddevice9,&map);
+{	
+//  map=NULL;   
+//	D3DXCreateSprite(g_D3DObject->m_d3ddevice9,&map);
+  tex_map = new CTexture("resource\\tankmap.jpg");
 }
 
 void minimap::findtankcoor(float x,float y)
@@ -112,24 +114,26 @@ void minimap::drawmap(float x,float y)
 {	D3DXIMAGE_INFO structImageInfo; //image information
     LPDIRECT3DTEXTURE9 maptex;
 
-    HRESULT hres=D3DXCreateTextureFromFileEx(g_D3DObject->m_d3ddevice9,
-	"resource\\tankmap.jpg",0,0,1,0,D3DFMT_A8R8G8B8,D3DPOOL_MANAGED,
-		D3DX_FILTER_NONE,D3DX_DEFAULT,0,&structImageInfo,NULL,&maptex);
+//    HRESULT hres=D3DXCreateTextureFromFileEx(g_D3DObject->m_d3ddevice9,
+//	"resource\\tankmap.jpg",0,0,1,0,D3DFMT_A8R8G8B8,D3DPOOL_SYSTEMMEM,
+//		D3DX_FILTER_NONE,D3DX_DEFAULT,0,&structImageInfo,NULL,&maptex);
 
-	D3DXVECTOR3 mapcoordinates;
+	D3DXVECTOR2 mapcoordinates;
 	mapcoordinates.x=x;
 	mapcoordinates.y=y;
-	mapcoordinates.z=0;
+	//mapcoordinates.z=0;
 
-	map->Begin(NULL);
-	map->Draw(maptex,NULL,NULL,&mapcoordinates,0xFFFFFFFF);
-	map->End();
+//	map->Begin(NULL);
+//	map->Draw(maptex,NULL,NULL,&mapcoordinates,0xFFFFFFFF);
+//	map->End();
+  tex_map->Paint(&mapcoordinates,0);
 
 	findtankcoor(x,y);
 
-	maptex->Release();
+	//maptex->Release();
 }
 
 minimap::~minimap()
-{   map->Release();
+{   
+  SAFE_DELETE(tex_map);
 }
