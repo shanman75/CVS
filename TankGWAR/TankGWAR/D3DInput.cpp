@@ -41,7 +41,7 @@ D3DInput::D3DInput(void)
   if(FAILED(m_DIMO->SetCooperativeLevel(g_hWnd,DISCL_EXCLUSIVE|DISCL_FOREGROUND)))
     return;
 
-  m_mousepos = D3DXVECTOR2(HEIGHT/2,WIDTH/2);
+  m_mousepos = D3DXVECTOR2(WIDTH/2,HEIGHT/2);
 }
 
 BOOL D3DInput::MouseDown(DWORD button)

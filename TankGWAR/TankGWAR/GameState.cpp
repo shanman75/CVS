@@ -280,6 +280,7 @@ void cGameState::GetInput(void)
       if((g_D3DInput->MouseDown(0) && v_MOUSEUP_0) || 
          (g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC)) {
         wav->play(mnu_select);
+        g_D3DInput->SetMouseScreen(D3DXVECTOR2(WIDTH/2,HEIGHT/2));
         SAFE_DELETE(m_creditsBk);
         m_mainstate = MAINSTATES::MAINMENU;
         v_KEYUP_ESC = false;
@@ -303,6 +304,7 @@ void cGameState::GetInput(void)
            break;
           break;
          case MAINMENUBUTT::MM_NEWGAME:
+          wav->play(mnu_select);
           CTimer::Pause();
           AddPlayer();
           CTimer::UnPause();
@@ -317,6 +319,8 @@ void cGameState::GetInput(void)
       break;
     case MAINSTATES::LEVEL:
      if(g_D3DInput->KeyDown(DIK_ESCAPE) && v_KEYUP_ESC ) {
+       wav->play(mnu_select);
+       g_D3DInput->SetMouseScreen(D3DXVECTOR2(WIDTH/2,HEIGHT/2));
        m_gstate = STATES::NOTHING;
        m_mainstate = MAINSTATES::MAINMENU;
        g_ObjMgr->reset();
@@ -478,7 +482,7 @@ void cGameState::AddPlayer(BOOL human)
   m_gstate = cGameState::TARGETING;
 
   srand(150);
-  m_terrain->RandomizeTerrain(5,500);
+  m_terrain->RandomizeTerrain(40,5000);
   float t_x, t_y, t_z;
 
   for (int x =0 ; x < 5; x++)  {

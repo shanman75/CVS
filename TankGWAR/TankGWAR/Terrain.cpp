@@ -29,6 +29,13 @@ void cTerrain::RandomizeTerrain(long numHills, long numDirtBalls)
 //  int numHills = rand()%60 + 10;
 //  numHills = 0;
 //  numHills = 10;
+  for (int i = 0; i < (TER_X+1); i++) {
+    m_Heights[i] = new float[(int)(TER_Z+1)];
+    for (int j = 0; j < (TER_Z+1); j++) {
+//       m_Heights[i][j] = (float)((rand()%500)/15);
+       m_Heights[i][j] = 44.0f;
+    }
+  }
 
   for (long i =0; i < numHills; i++)
   {
